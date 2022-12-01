@@ -3,26 +3,23 @@ from utils.FileReader import *
 
 class CalorieCalculator:
     
-    def __init__(self):
-        self.calArray = []
-        
     def sumNBiggestEaters(self, inputCals, n):
-        calArray = self.__calculateElfCalories(inputCals)
-        return sum(calArray[:n])
+        elfCalories = self.__calcElfCalorieArray(inputCals)
+        return sum(elfCalories[:n])
 
-    def __calculateElfCalories(self, inputCals):
+    def __calcElfCalorieArray(self, inputCals):
         tmpVal = 0
-        calArray = []
+        calorieArray = []
         
         for cal in inputCals:
             tmpVal += cal
             if cal == 0:
-                calArray.append(tmpVal)
+                calorieArray.append(tmpVal)
                 tmpVal = 0
               
-        calArray.append(tmpVal)
-        calArray.sort(reverse=True)
-        return calArray
+        calorieArray.append(tmpVal)
+        calorieArray.sort(reverse=True)
+        return calorieArray
                 
         
 def solutionDay01():
