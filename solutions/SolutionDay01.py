@@ -16,7 +16,6 @@ def sumNBiggestEaters(inputCals, n):
     
     return sum(calorieArray[:n])
                 
-        
 def solutionDay01():
     
     fileReader = FileReader()
