@@ -7,28 +7,22 @@ class CalorieCalculator:
         self.calArray = []
         
     def sumNBiggestEaters(self, inputCals, n):
-        self.calculateMaxCalories(inputCals)
-        self.calArray.sort(reverse=True)
-        return sum(self.calArray[:n])
+        calArray = self.__calculateElfCalories(inputCals)
+        return sum(calArray[:n])
 
-    def calculateMaxCalories(self, inputCals):
-        maxCal = 0
+    def __calculateElfCalories(self, inputCals):
         tmpVal = 0
-        self.calArray = []
+        calArray = []
         
         for cal in inputCals:
             tmpVal += cal
             if cal == 0:
-                self.calArray.append(tmpVal)
-                if tmpVal > maxCal:
-                    maxCal = tmpVal
+                calArray.append(tmpVal)
                 tmpVal = 0
               
-        self.calArray.append(tmpVal)  
-        if tmpVal > maxCal:
-            maxCal = tmpVal
-                    
-        return maxCal
+        calArray.append(tmpVal)
+        calArray.sort(reverse=True)
+        return calArray
                 
         
 def solutionDay01():
