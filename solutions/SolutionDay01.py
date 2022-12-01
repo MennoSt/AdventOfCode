@@ -2,26 +2,34 @@
 from utils.AocUtils import *
 from utils.FileReader import *
 
-class Elf:
-    def __init__(self):
-        self.foodInStomach = []
+
     
 class CalorieCalculator:
-
-    def calculateMaxCalories(self, input):
-        return 9
-
+    def calculateMaxCalories(self, inputCals):
+        maxCal = 0
+        tmpVal = 0
+        
+        for cal in inputCals:
+            tmpVal += cal
+            if cal == 0:
+                if tmpVal > maxCal:
+                    maxCal = tmpVal
+                tmpVal = 0
+                
+        return maxCal
+                
+        
 def solutionDay01():
     
     fileReader = FileReader()
-    inputArray = fileReader.readLinesToStringArray("input/inputday1")
-    
+    calorieCalculator = CalorieCalculator()
+    inputArray = fileReader.readLinesToIntArray("input/inputday1")
+    answer = calorieCalculator.calculateMaxCalories(inputArray)
+    print(answer)
     
     
     # CalorieCalculator.calculateCaloriesElf(inputArray)
     
-    
-    print("hello")
     # printAnswer(1, answerPart1, answerPart2)
     
 solutionDay01()

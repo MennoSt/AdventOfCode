@@ -5,15 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: unittests",
+            "type": "python",
+            "request": "launch",
+            "python": "${workspaceFolder}/AOCvenv/bin/python",
+            "program": "${workspaceFolder}/test_unittests.py",
+            "pathMappings": [],
+            "cwd": "${workspaceFolder}",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "Python: main",
             "type": "python",
             "request": "launch",
             "python": "/home/menno/AOC/AdventOfCode2022/AOCvenv/bin/python",
             "program": "/home/menno/AOC/AdventOfCode2022/main.py",
             "pathMappings": [],
-            "cwd":"${workspaceFolder}",
-            "args": [
-            ],
+            "cwd": "${workspaceFolder}",
+            "args": [],
             "console": "integratedTerminal",
             "justMyCode": false
         }
