@@ -1,3 +1,5 @@
+# %%
+
 from utils.AocUtils import *
 from utils.AocEnums import *
 from utils.FileReader import *
@@ -52,11 +54,21 @@ def calculateTotalScore(strategyFile, withCorrectStrategy=True):
             myHand = convertStrToHand(game[1])
             totalScore += roundScore(handElf, myHand)
     return totalScore
-
-def solutionDay02():
     
-    fileReader = FileReader()
-    strategy = fileReader.readToStringMap("input/inputday2", True)
-    answer1 = calculateTotalScore(strategy, False)
-    answer2 = calculateTotalScore(strategy)
-    printAnswer(2, answer1, answer2)
+
+# # %%
+# solution
+fileReader = FileReader()
+strategy = fileReader.readToStringMap("input/inputday2", True)
+answer1 = calculateTotalScore(strategy, False)
+answer2 = calculateTotalScore(strategy)
+printAnswer(2, answer1, answer2)
+assert answer1 == 11603
+assert answer2 == 12725
+
+# %%
+## tests
+exampleInput = [["A","Y"],["B","X"],["C","Z"]]
+assert calculateTotalScore(exampleInput, False) == 15
+assert calculateTotalScore(exampleInput) == 12
+# %%
