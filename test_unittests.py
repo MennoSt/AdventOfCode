@@ -38,15 +38,25 @@ class Test_Day02(unittest.TestCase):
     def setUp(self):
         self.fileReader = FileReader()
     
-    def test_CalculateScoreInputUTpart1(self):
+    def test_CalculateScoreIncorrectStrategyUT(self):
             strategyGuide = self.fileReader.readToStringMap("input_ut/inputday2_ut", True)
-            score = calculateTotalScorePart1(strategyGuide)
+            score = calculateTotalScore(strategyGuide, False)
             self.assertEqual(score, 15)
 
-    def test_CalculateScoreInputUTpart2(self):
+    def test_CalculateScoreCorrectStrategyUT(self):
             strategyGuide = self.fileReader.readToStringMap("input_ut/inputday2_ut", True)
-            score = calculateTotalScorePart2(strategyGuide)
+            score = calculateTotalScore(strategyGuide)
             self.assertEqual(score, 12)
+
+    def test_CalculateScoreIncorrectStrategy(self):
+            strategyGuide = self.fileReader.readToStringMap("input/inputday2", True)
+            score = calculateTotalScore(strategyGuide, False)
+            self.assertEqual(score, 11603)
+
+    def test_CalculateScoreCorrectStrategy(self):
+            strategyGuide = self.fileReader.readToStringMap("input/inputday2", True)
+            score = calculateTotalScore(strategyGuide)
+            self.assertEqual(score, 12725)
 
 
 if __name__ == '__main__':
