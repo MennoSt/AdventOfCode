@@ -1,4 +1,5 @@
 **/AOCvenv
+**/AOCenv
 **/input
 **/input_ut
 *.pyc

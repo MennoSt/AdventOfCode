@@ -57,9 +57,9 @@ def calculateTotalScore(strategyFile, withCorrectStrategy=True):
     
 
 # # %%
-# solution
+# Solution
 fileReader = FileReader()
-strategy = fileReader.readToStringMap("AOC2022/input/inputday2", True)
+strategy = fileReader.readToStringMap("input/inputday2", True)
 answer1 = calculateTotalScore(strategy, False)
 answer2 = calculateTotalScore(strategy)
 printAnswer(2, answer1, answer2)
@@ -67,7 +67,7 @@ assert answer1 == 11603
 assert answer2 == 12725
 
 # %%
-## tests
+# Example
 exampleInput = [["A","Y"],["B","X"],["C","Z"]]
 assert calculateTotalScore(exampleInput, False) == 15
 assert calculateTotalScore(exampleInput) == 12
