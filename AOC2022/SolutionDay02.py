@@ -1,5 +1,4 @@
 # %%
-
 from utils.AocUtils import *
 from utils.AocEnums import *
 from utils.FileReader import *
@@ -54,7 +53,6 @@ def calculateTotalScore(strategyFile, withCorrectStrategy=True):
             myHand = convertStrToHand(game[1])
             totalScore += roundScore(handElf, myHand)
     return totalScore
-    
 
 # # %%
 # Solution
