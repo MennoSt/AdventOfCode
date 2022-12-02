@@ -1,5 +1,6 @@
 import re
 import ast
+import copy
 
 def split(word):
     return [char for char in word]
@@ -55,11 +56,20 @@ class FileReader:
         
         return integerMap
 
-    def readToStringMap(self, inputFile):
+    def readToStringMap(self, inputFile, removeEmpty =False):
         fileObj = open(inputFile, "r")
         fileString = fileObj.read().splitlines()
         fileObj.close()
         integerMap = [list(map(str, list(line))) for line in fileString]
+
+
+        if removeEmpty == True:
+            newIntegerMap = copy.deepcopy(integerMap)
+            for i in range(0,len(integerMap)):
+                for j in range(0, len(integerMap[i])):
+                    if integerMap[i][j] == "" or integerMap[i][j] == " ":
+                        del newIntegerMap[i][j]
+            return newIntegerMap
         
         return integerMap
     

@@ -1,6 +1,7 @@
 import unittest
 
 from solutions.SolutionDay01 import *
+from solutions.SolutionDay02 import *
 
 
 class Test_Day01(unittest.TestCase):
@@ -31,6 +32,21 @@ class Test_Day01(unittest.TestCase):
         
         maxCalories = sumNBiggestEaters(calories, 3)
         self.assertEqual(maxCalories, 206643)
+
+class Test_Day02(unittest.TestCase):
+
+    def setUp(self):
+        self.fileReader = FileReader()
+    
+    def test_CalculateScoreInputUT(self):
+            strategyGuide = self.fileReader.readToStringMap("input_ut/inputday2_ut", True)
+            score = calculateScore(strategyGuide)
+            self.assertEqual(score, 15)
+
+    # def test_CalculateScoreInputUT2(self):
+    #         strategy = [["A","X"]]
+    #         score = calculateScore(strategy)
+    #         self.assertEqual(score, 3)
 
 if __name__ == '__main__':
     unittest.main()
