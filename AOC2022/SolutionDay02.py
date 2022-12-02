@@ -59,7 +59,7 @@ def calculateTotalScore(strategyFile, withCorrectStrategy=True):
 # # %%
 # solution
 fileReader = FileReader()
-strategy = fileReader.readToStringMap("input/inputday2", True)
+strategy = fileReader.readToStringMap("AOC2022/input/inputday2", True)
 answer1 = calculateTotalScore(strategy, False)
 answer2 = calculateTotalScore(strategy)
 printAnswer(2, answer1, answer2)

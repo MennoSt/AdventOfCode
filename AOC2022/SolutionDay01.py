@@ -19,7 +19,7 @@ def sumNBiggestEaters(inputCals, n):
 def solutionDay01():
     
     fileReader = FileReader()
-    inputArray = fileReader.readLinesToIntArray("input/inputday1")
+    inputArray = fileReader.readLinesToIntArray("AOC2022/input/inputday1")
     answer1 = sumNBiggestEaters(inputArray, 1)
     answer2 = sumNBiggestEaters(inputArray, 3)
     printAnswer(1, answer1, answer2)
