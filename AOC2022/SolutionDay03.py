@@ -45,10 +45,10 @@ def determineCommonCharacters(array):
 def calculateSumCommonCharacters(input, split = False):
     if split == True:
         array = splitCompartments(input)
-        commonCharacters = determineCommonCharacters(array)
     else:
         array = divideInGroupsOfThree(input)
-        commonCharacters = determineCommonCharacters(array)
+    
+    commonCharacters = determineCommonCharacters(array)
     return calculateScore(commonCharacters)
 
 
