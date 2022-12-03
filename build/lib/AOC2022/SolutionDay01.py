@@ -29,7 +29,7 @@ assert answer2 == 206643
 
 # %%
 # Example
-inputArray = fileReader.readLinesToIntArray("input_ut/inputday1_ut")
+inputArray = fileReader.readLinesToIntArray("inputut/inputday1_ut")
 assert sumNBiggestEaters(inputArray, 1) == 24000
 assert sumNBiggestEaters(inputArray, 3) == 45000
 

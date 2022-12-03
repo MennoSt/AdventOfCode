@@ -1,7 +1,7 @@
 **/AOCvenv
 **/AOCenv
 **/input
-**/inputut
+**/input_ut
 *.pyc
 *.json
 *.vscode
