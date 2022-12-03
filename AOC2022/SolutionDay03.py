@@ -42,8 +42,8 @@ def determineCommonCharacters(array):
 
     return commonCharacters
 
-def calculateSumCommonCharacters(input, splitCompartments = False):
-    if splitCompartments == True:
+def calculateSumCommonCharacters(input, split = False):
+    if split == True:
         array = splitCompartments(input)
         commonCharacters = determineCommonCharacters(array)
     else:
