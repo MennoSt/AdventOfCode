@@ -42,4 +42,4 @@ def PrintAllSolutions():
     solutionDay18()
     solutionDay19()
     solutionDay20()
-solutionDay21()
+    solutionDay21()
