@@ -62,7 +62,6 @@ class FileReader:
         fileObj.close()
         integerMap = [list(map(str, list(line))) for line in fileString]
 
-
         if removeEmpty == True:
             newIntegerMap = copy.deepcopy(integerMap)
             for i in range(0,len(integerMap)):

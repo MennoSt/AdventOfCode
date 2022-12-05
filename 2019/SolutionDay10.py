@@ -64,9 +64,6 @@ printAnswer(2, answer1, answer2)
 assert answer1 == 11603
 assert answer2 == 12725
 
-for line in open("input/inputday2"):
-    line
-
 # %%
 # Example
 exampleInput = [["A","Y"],["B","X"],["C","Z"]]
