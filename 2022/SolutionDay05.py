@@ -3,26 +3,21 @@ from utils.AocUtils import *
 from utils.FileReader import *
 import copy
 
-def parseMovement(file):
+def parseMovement(movementLines):
+    lines = movementLines.split("\n")
     movements = []
-    start = False
-    for line in file:
-        if start ==True:
+    for line in lines:
             res = [int(i) for i in line.split() if i.isdigit()]
             res = {"move": res[0], "from": res[1], "to":res[2]}
             movements.append(res)
-        if line == "":
-            start = True
     return movements
 
-def parseCrates(file):
+def parseCrates(crateLines):
     arrayPos = []
     movement = []
     j = 0
-    for line in file:
-        if line == "":
-            break
-        
+    lines = crateLines.split("\n")
+    for line in lines:
         length = len(line)
         i=1
         while(i < length):
@@ -72,9 +67,9 @@ def updateCrates(crates, movements, inverted = True):
 # Solution
 # %%
 # Example Tests
-file = open("input_ut/inpututday5").read().split("\n")
-crates = parseCrates(file)
-movements = parseMovement(file)
+crates, movements = open("input_ut/inpututday5").read().split("\n\n")
+crates = parseCrates(crates)
+movements = parseMovement(movements)
 
 assert updateCrates(crates, [{'move': 0, 'from': 2, 'to': 1}]) == "NDP"
 assert updateCrates(crates, [{'move': 1, 'from': 2, 'to': 1}]) == "DCP"
@@ -84,9 +79,9 @@ assert updateCrates(crates, movements) == "CMZ"
 
 
 # %%
-file = open("input/inputday5").read().split("\n")
-crates = parseCrates(file)
-movements = parseMovement(file)
+crates, movements = open("input/inputday5").read().split("\n\n")
+crates = parseCrates(crates)
+movements = parseMovement(movements)
 answer1 = updateCrates(crates, movements, False)
 answer2 = updateCrates(crates, movements)
 printAnswer(5, answer1, answer2)
