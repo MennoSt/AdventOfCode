@@ -7,17 +7,16 @@ def parseMovement(file):
     movements = []
     start = False
     for line in file:
-        if line == "":
-            start = True
         if start ==True:
             res = [int(i) for i in line.split() if i.isdigit()]
-            if res != []:
-                res = {"move": res[0], "from": res[1], "to":res[2]}
-                movements.append(res)
+            res = {"move": res[0], "from": res[1], "to":res[2]}
+            movements.append(res)
+        if line == "":
+            start = True
     return movements
 
 def parseCrates(file):
-    array = []
+    arrayPos = []
     movement = []
     j = 0
     for line in file:
@@ -28,21 +27,21 @@ def parseCrates(file):
         i=1
         while(i < length):
             if line[i].isalpha():
-                array.append({'pos':i, 'char':line[i]})
-            i+=4
+                arrayPos.append({'pos':i, 'char':line[i]})
+            i += 4
 
-    array1 = []
+    arrayOut = []
     i =1
     while(i < length):
         tmp = ""
-        for char in array:
+        for char in arrayPos:
             if char["pos"] == i:
                 tmp+=char["char"]
         i+=4
-        tmp =tmp[::-1]
-        array1.append(tmp)
+        tmp = tmp[::-1]
+        arrayOut.append(tmp)
     
-    return array1
+    return arrayOut
 
 def lastStringElements(crates):
     tmpStr = ""
@@ -52,7 +51,7 @@ def lastStringElements(crates):
     return tmpStr
 
 
-def updateCrates(crates, movements):
+def updateCrates(crates, movements, inverted = True):
     crates = copy.deepcopy(crates)
     for movement in movements:
         ammount = movement["move"]
@@ -62,7 +61,10 @@ def updateCrates(crates, movements):
         if ammount > 0:
             tmpStrMove = crates[fromcrate][-ammount:]
             crates[fromcrate] =  crates[fromcrate][:-ammount]
-            crates[tocrate] += tmpStrMove[::-1]
+            if inverted == True:
+                crates[tocrate] += tmpStrMove[::-1]
+            else:
+                crates[tocrate] += tmpStrMove
     
     return lastStringElements(crates)
     
@@ -85,6 +87,9 @@ assert updateCrates(crates, movements) == "CMZ"
 file = open("input/inputday5").read().split("\n")
 crates = parseCrates(file)
 movements = parseMovement(file)
-answer1 = updateCrates(crates, movements)
-assert answer1 == "ZRLJGSCTR"
+answer1 = updateCrates(crates, movements, False)
+answer2 = updateCrates(crates, movements)
+printAnswer(5, answer1, answer2)
+assert answer1 == "PRTTGRFPB"
+assert answer2 == "ZRLJGSCTR"
 
