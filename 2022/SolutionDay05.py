@@ -1,6 +1,5 @@
 # %%
 from utils.AocUtils import *
-from utils.FileReader import *
 import copy
 
 def parseMovement(movementLines):
@@ -13,30 +12,21 @@ def parseMovement(movementLines):
     return movements
 
 def parseCrates(crateLines):
-    arrayPos = []
-    movement = []
-    j = 0
     lines = crateLines.split("\n")
-    for line in lines:
-        length = len(line)
-        i=1
-        while(i < length):
-            if line[i].isalpha():
-                arrayPos.append({'pos':i, 'char':line[i]})
-            i += 4
-
-    arrayOut = []
-    i =1
-    while(i < length):
-        tmp = ""
-        for char in arrayPos:
-            if char["pos"] == i:
-                tmp+=char["char"]
-        i+=4
-        tmp = tmp[::-1]
-        arrayOut.append(tmp)
+    elements = int(((len(lines[0])+1)/4))
+    crates = [[] for _ in range(elements)]
     
-    return arrayOut
+    for line in lines:
+        for i in range(0, elements):
+            index = i*4+1
+            if line[index].isalpha():
+                if crates[i] != []:
+                    tmpstr = line[index] + crates[i]
+                else:
+                    tmpstr = line[index]
+                crates[i] = tmpstr
+    
+    return crates
 
 def lastStringElements(crates):
     tmpStr = ""
@@ -67,9 +57,9 @@ def updateCrates(crates, movements, inverted = True):
 # Solution
 # %%
 # Example Tests
-crates, movements = open("input_ut/inpututday5").read().split("\n\n")
-crates = parseCrates(crates)
-movements = parseMovement(movements)
+crateLines, movementLines = open("input_ut/inpututday5").read().split("\n\n")
+crates = parseCrates(crateLines)
+movements = parseMovement(movementLines)
 
 assert updateCrates(crates, [{'move': 0, 'from': 2, 'to': 1}]) == "NDP"
 assert updateCrates(crates, [{'move': 1, 'from': 2, 'to': 1}]) == "DCP"
@@ -79,12 +69,11 @@ assert updateCrates(crates, movements) == "CMZ"
 
 
 # %%
+# Solution
 crates, movements = open("input/inputday5").read().split("\n\n")
 crates = parseCrates(crates)
 movements = parseMovement(movements)
-answer1 = updateCrates(crates, movements, False)
-answer2 = updateCrates(crates, movements)
-printAnswer(5, answer1, answer2)
-assert answer1 == "PRTTGRFPB"
-assert answer2 == "ZRLJGSCTR"
+
+assert updateCrates(crates, movements) == "ZRLJGSCTR"
+assert updateCrates(crates, movements, False) == "PRTTGRFPB"
 

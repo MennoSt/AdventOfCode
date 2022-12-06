@@ -51,6 +51,11 @@ def calculateSumCommonCharacters(input, split = False):
     commonCharacters = determineCommonCharacters(array)
     return calculateScore(commonCharacters)
 
+# %%
+# Example Tests
+inputArray = fileReader.readLinesToStringArray("input_ut/inputday3_ut")
+assert calculateSumCommonCharacters(inputArray, True) == 157
+assert calculateSumCommonCharacters(inputArray) == 70
 
 # %%
 # Solution
@@ -60,13 +65,3 @@ answer2 = calculateSumCommonCharacters(inputArray)
 printAnswer(3, answer1, answer2)
 assert answer1 == 7917
 assert answer2 == 2585
-
-# %%
-# Example Tests
-inputArray = fileReader.readLinesToStringArray("input_ut/inputday3_ut")
-sum1 = calculateSumCommonCharacters(inputArray, True)
-assert sum1 == 157
-sum2 = calculateSumCommonCharacters(inputArray)
-assert sum2 == 70
-
-# %%

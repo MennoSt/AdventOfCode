@@ -1,7 +1,4 @@
 # %%
-from utils.AocUtils import *
-from utils.FileReader import *
-
 def marker(inputStr, size):
     for i in range(0, len(inputStr)):
         tmpStr = inputStr[i:i+size]

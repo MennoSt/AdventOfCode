@@ -44,14 +44,14 @@ def countPairs(pairArray):
     return [countContain, countRange]
 
 # %%
+# Example Tests
+pairArray = parseValues("input_ut/inputday4_ut")
+assert countPairs(pairArray) == [2,4]
+# %%
+
+# %%
 # Solution
 inputArray = parseValues("input/inputday4")
 count = countPairs(inputArray)
 printAnswer(3, count[0], count[1])
 assert count == [459, 779]
-
-# %%
-# Example Tests
-pairArray = parseValues("input_ut/inputday4_ut")
-assert countPairs(pairArray) == [2,4]
-# %%
