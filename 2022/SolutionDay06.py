@@ -2,39 +2,18 @@
 from utils.AocUtils import *
 from utils.FileReader import *
 
-def marker(inputStr):
-    
+def marker(inputStr, size):
     for i in range(0, len(inputStr)):
-        tmpStr = inputStr[i:i+4]
+        tmpStr = inputStr[i:i+size]
         if (len(set(tmpStr)) == len(tmpStr)):
-            print("marker reached "+str(i+4))
-            return (i+4)
-    
-    return 0
-
-
-def marker2(inputStr):
-    
-    for i in range(0, len(inputStr)):
-        tmpStr = inputStr[i:i+14]
-        if (len(set(tmpStr)) == len(tmpStr)):
-            print("marker reached "+str(i+14))
-            return (i+14)
-    
-    return 0
+            return (i+size)
 
 # %%
 # Example Tests
-assert marker("mjqjpqmgbljsphdztnvjfqwrcgsmlb") == 7
-
-# %%
-
+assert marker("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 4) == 7
 
 # %%
 # Solution
 inputStr = open("input/inputday6").read()
-assert marker(inputStr) == 1262
-assert marker2(inputStr) == 3444
-
-
-marker2(inputStr)
+assert marker(inputStr, 4) == 1262
+assert marker(inputStr, 14) == 3444
