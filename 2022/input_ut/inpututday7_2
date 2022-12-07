@@ -1,10 +1,10 @@
 $ cd /
 $ ls
-dir ae
+dir ade
 1 b.txt
 1 c.dat
 dir d
-$ cd ae
+$ cd ade
 $ ls
 dir e
 1 f

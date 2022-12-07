@@ -8,26 +8,30 @@ def calcDirSizes(inputStrIn):
     lastDir = []
     sizeArray = []
     size = 0
+    uniCnt = 0
     for line in inputStrIn:
         firstEl = line[0]
         if firstEl =="ls":
             pass
         elif firstEl == "cd" and line[1] == "..":
+            sizeArray.append({"dir": cwd , "size": size})
             if size != 0:
-                sizeArray.append({"dir": cwd , "size": size})
                 size = 0
             lenLastElem = len(lastDir[-1])
-            cwd = cwd[:lenLastElem-3]
+            lenCwd = len(cwd)
+            cwd = cwd[:lenCwd-lenLastElem]
             lastDir.pop()
-            
         elif firstEl == "cd" and line[1] == "/":
-            cwd += (line[1])
-            lastDir.append(line[1])
+            uniCnt+=1
+            uniPath = line[1] + str(uniCnt)
+            cwd += (uniPath)
+            lastDir.append(uniPath)
         elif firstEl == "cd":
-            if size != 0:
-                sizeArray.append({"dir": cwd , "size": size})
-            cwd += (line[1])
-            lastDir.append(line[1])
+            sizeArray.append({"dir": cwd , "size": size})
+            uniCnt+=1
+            uniPath = line[1] + str(uniCnt)
+            cwd += (uniPath)
+            lastDir.append(uniPath)
             size = 0
         elif firstEl.isdigit():
             size+=int(firstEl)
@@ -37,16 +41,17 @@ def calcDirSizes(inputStrIn):
 
 def calcTotDirSizes(input):
     dirSizesArray = calcDirSizes(input)
+    dirSizeArrayCp = copy.deepcopy(dirSizesArray)
     for i in range(0, len(dirSizesArray)):
         for j in range(0, len(dirSizesArray)):
             if i!=j:
                 if dirSizesArray[i]["dir"] in dirSizesArray[j]["dir"]:
-                    dirSizesArray[i]["size"] += dirSizesArray[j]["size"]
-
-    return dirSizesArray
+                    dirSizeArrayCp[i]["size"] += dirSizesArray[j]["size"]
+    return dirSizeArrayCp
 
 def sumDirSizes(fileLines):
     dirSizesTmp = calcTotDirSizes(fileLines)
+    dirSizesTmp = [dict(t) for t in {tuple(d.items()) for d in dirSizesTmp}]
     sum =0
     for dir in dirSizesTmp:
         if dir["size"] <= 100000:
@@ -71,11 +76,10 @@ assert sumDirSizes(fileLines) == 95437
 # # Example Tests
 file = open("input_ut/inpututday7_2").read()
 fileLines = parseDir(file)
-sizes = calcTotDirSizes(fileLines)
-print(sizes)
+sizes = sumDirSizes(fileLines)
+
 # %%
 # # Solution
 file = open("input/inputday7").read()
 fileLines = parseDir(file)
-print(sumDirSizes(fileLines))
-#wrong 1678450
+assert sumDirSizes(fileLines) == 1844187
