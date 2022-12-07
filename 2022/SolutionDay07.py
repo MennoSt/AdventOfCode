@@ -8,16 +8,16 @@ def calcDirSizes(inputStrIn):
     lastDir = []
     sizeArray = []
     size = 0
-    
     for line in inputStrIn:
         firstEl = line[0]
         if firstEl =="ls":
             pass
         elif firstEl == "cd" and line[1] == "..":
-            if size !=0:
+            if size != 0:
                 sizeArray.append({"dir": cwd , "size": size})
                 size = 0
-            cwd = cwd.replace(lastDir[-1], "")
+            lenLastElem = len(lastDir[-1])
+            cwd = cwd[:lenLastElem-3]
             lastDir.pop()
             
         elif firstEl == "cd" and line[1] == "/":
@@ -68,8 +68,14 @@ fileLines = parseDir(file)
 assert sumDirSizes(fileLines) == 95437
 
 # %%
+# # Example Tests
+file = open("input_ut/inpututday7_2").read()
+fileLines = parseDir(file)
+sizes = calcTotDirSizes(fileLines)
+print(sizes)
+# %%
 # # Solution
 file = open("input/inputday7").read()
 fileLines = parseDir(file)
 print(sumDirSizes(fileLines))
-#wrong 1624690
+#wrong 1678450
