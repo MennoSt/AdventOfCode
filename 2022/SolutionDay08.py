@@ -7,59 +7,41 @@ from utils.AocEnums import *
 fileReader = FileReader()
 
 def isVisible(grid, x, y):
-    value = 0
     gridValue = grid.getValue(x, y) 
-    visible = False
     
-    if visible == False:
-        i = 1
-        while value != None:
-            value = grid.getValue(x, y-i)
-            if value == None:
-                visible = True
-                break
-            if value >= gridValue:
-                visible = False
-                break
-            i += 1
-    
-    if visible == False:
-        i = -1
-        while value != None:
-            value = grid.getValue(x, y-i)
-            if value == None:
-                visible = True
-                break
-            if value >= gridValue:
-                visible = False
-                break
-            i -= 1
-    
-    if visible == False:
-        j = 1
-        while value != None:
-            value = grid.getValue(x-j, y)
-            if value == None:
-                visible = True
-                break
-            if value >= gridValue:
-                visible = False
-                break
-            j += 1
-    
-    if visible == False:
-        j = -1
-        while value != None:
-            value = grid.getValue(x-j, y)
-            if value == None:
-                visible = True
-                break
-            if value >= gridValue:
-                visible = False
-                break
-            j -= 1
+    for i in range(0, grid.mapWidth):
+        xVal = x+i
+        nextVal = grid.getValue(xVal+1, y)
+        if nextVal == None:
+            return True
+        if nextVal >= gridValue:
+            break
+        
+    for i in range(0, grid.mapWidth):
+        xVal = x-i
+        nextVal = grid.getValue(xVal-1, y)
+        if nextVal == None:
+            return True
+        if nextVal >= gridValue:
+            break
+        
+    for j in range(0, grid.mapHeight):
+        yVal = y-j
+        nextVal = grid.getValue(x, yVal-1)
+        if nextVal == None:
+            return True
+        if nextVal >= gridValue:
+            break
+        
+    for j in range(0, grid.mapHeight):
+        yVal = y+j
+        nextVal = grid.getValue(x, yVal+1)
+        if nextVal == None:
+            return True
+        if nextVal >= gridValue:
+            break
             
-    return visible
+    return False
 
 def sceneticScore(grid, x, y):
     value = 0
@@ -164,11 +146,10 @@ grid.setGrid(inputStr)
 # assert isVisible(grid,2,2) == False
 # assert isVisible(grid,3,3) == False
 # assert isVisible(grid,2,1) == True
-# assert calcVisibleTrees(inputStr) == 21
+assert calcVisibleTrees(inputStr) == 21
 assert sceneticScore(grid,4,0) == 0
 assert sceneticScore(grid,0,0) == 0
 assert sceneticScore(grid,2,3) == 8
-# calcVisibleTrees(inputStr)
 calcSceneticScore(inputStr) == 8
 
 # %%
@@ -176,5 +157,5 @@ calcSceneticScore(inputStr) == 8
 inputStr = fileReader.readToIntMap("input/inputday8")
 grid = Grid()
 grid.setGrid(inputStr)
-calcVisibleTrees(inputStr)
-calcSceneticScore(inputStr)
+assert calcVisibleTrees(inputStr) == 1776
+assert calcSceneticScore(inputStr) == 234416
