@@ -52,12 +52,28 @@ def calcTotDirSizes(input):
 def sumDirSizes(fileLines):
     dirSizesTmp = calcTotDirSizes(fileLines)
     dirSizesTmp = [dict(t) for t in {tuple(d.items()) for d in dirSizesTmp}]
-    sum =0
+    sum = 0
+    max = 0
     for dir in dirSizesTmp:
+        if dir["dir"] == "/1":
+            max = dir["size"]
         if dir["size"] <= 100000:
             size = dir["size"]
             sum += int(dir["size"])
-    return sum
+    
+    minSpaceToFree = 30000000 - (70000000-max)
+    value = getClosestSpaceValue(dirSizesTmp, minSpaceToFree)
+    return sum, max, value
+
+def getClosestSpaceValue(dirsizes, spaceToFree):
+    sizeArray = []
+    
+    for dir in dirsizes:
+        sizeArray.append(dir["size"])
+    
+    new_list = [item for item in sizeArray if item >= spaceToFree]
+    listSort = sorted(new_list)
+    return listSort[0]
 
 def parseDir(inputStr):
     inputStr = inputStr.replace("$ ", "")
@@ -70,7 +86,7 @@ def parseDir(inputStr):
 # # Example Tests
 file = open("input_ut/inpututday7").read()
 fileLines = parseDir(file)
-assert sumDirSizes(fileLines) == 95437
+assert sumDirSizes(fileLines) == [95437, 48381165]
 
 # %%
 # # Example Tests
@@ -82,4 +98,7 @@ sizes = sumDirSizes(fileLines)
 # # Solution
 file = open("input/inputday7").read()
 fileLines = parseDir(file)
-assert sumDirSizes(fileLines) == 1844187
+sum, max, value = sumDirSizes(fileLines)
+assert sum == 1844187
+assert value == 4978279
+print(value)
