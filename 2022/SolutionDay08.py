@@ -10,32 +10,28 @@ def isVisible(grid, x, y):
     gridValue = grid.getValue(x, y) 
     
     for i in range(0, grid.mapWidth):
-        xVal = x+i
-        nextVal = grid.getValue(xVal+1, y)
+        nextVal = grid.getValue(x+i, y, Direction.RIGHT)
         if nextVal == None:
             return True
         if nextVal >= gridValue:
             break
         
     for i in range(0, grid.mapWidth):
-        xVal = x-i
-        nextVal = grid.getValue(xVal-1, y)
+        nextVal = grid.getValue(x-i, y, Direction.LEFT)
         if nextVal == None:
             return True
         if nextVal >= gridValue:
             break
         
     for j in range(0, grid.mapHeight):
-        yVal = y-j
-        nextVal = grid.getValue(x, yVal-1)
+        nextVal = grid.getValue(x, y-j, Direction.DOWN)
         if nextVal == None:
             return True
         if nextVal >= gridValue:
             break
         
     for j in range(0, grid.mapHeight):
-        yVal = y+j
-        nextVal = grid.getValue(x, yVal+1)
+        nextVal = grid.getValue(x, y+j, Direction.UP)
         if nextVal == None:
             return True
         if nextVal >= gridValue:
