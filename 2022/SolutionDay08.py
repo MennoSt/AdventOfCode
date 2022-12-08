@@ -9,23 +9,24 @@ fileReader = FileReader()
 def isVisible(grid, x, y):
     value = 0
     gridValue = grid.getValue(x, y) 
-    i = 1
     visible = False
     
-    while value != None:
-        value = grid.getValue(x, y-i)
-        if value == None:
-            visible = True
-            break
-        if value >= gridValue:
-            visible = False
-            break
-        i += 1
+    if visible == False:
+        i = 1
+        while value != None:
+            value = grid.getValue(x-j, y-i)
+            if value == None:
+                visible = True
+                break
+            if value >= gridValue:
+                visible = False
+                break
+            i += 1
     
     if visible == False:
         i = -1
         while value != None:
-            value = grid.getValue(x, y-i)
+            value = grid.getValue(x-j, y-i)
             if value == None:
                 visible = True
                 break
@@ -34,16 +35,17 @@ def isVisible(grid, x, y):
                 break
             i -= 1
     
-    j = 1
-    while value != None:
-        value = grid.getValue(x-j, y)
-        if value == None:
-            visible = True
-            break
-        if value >= gridValue:
-            visible = False
-            break
-        j += 1
+    if visible == False:
+        j = 1
+        while value != None:
+            value = grid.getValue(x-j, y)
+            if value == None:
+                visible = True
+                break
+            if value >= gridValue:
+                visible = False
+                break
+            j += 1
     
     if visible == False:
         j = -1
@@ -55,7 +57,8 @@ def isVisible(grid, x, y):
             if value >= gridValue:
                 visible = False
                 break
-            j -= 1    
+            j -= 1
+            
     return visible
 
 def calcVisibleTrees(input):
@@ -75,8 +78,6 @@ def calcVisibleTrees(input):
 inputStr = fileReader.readToIntMap("input_ut/inpututday8")
 grid = Grid()
 grid.setGrid(inputStr)
-grid.printGrid()
-# print(grid.getValue(0, 0))
 
 assert isVisible(grid,0,0,) == True
 assert isVisible(grid,4,0) == True
@@ -91,3 +92,7 @@ assert calcVisibleTrees(inputStr) == 21
 
 # %%
 # Solution
+inputStr = fileReader.readToIntMap("input/inputday8")
+grid = Grid()
+grid.setGrid(inputStr)
+calcVisibleTrees(inputStr)
