@@ -1,0 +1,12 @@
+*build
+*CMakeFiles
+*googletest
+*lib
+*CMakeCache.txt
+*libExample.a
+*ExampleExec
+*ExampleTests
+*.cmake
+*Makefile
+*.cmake
+
