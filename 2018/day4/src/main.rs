@@ -151,7 +151,7 @@ fn solution(input: &str) -> (u32, u32)
 fn main() 
 {
     let current_dir = env::current_dir().unwrap();
-    let file_path = current_dir.join("input2018day4");
+    let file_path = current_dir.join("input");
     let filepath_example = current_dir.join("exampleinput2018day4");
     let contents = fs::read_to_string(file_path).unwrap();
     let contents_example = fs::read_to_string(filepath_example).unwrap();

@@ -20,7 +20,7 @@ fn main() {
     let file_path_ex = current_dir.join("testinput2018day3");
     let contents_ex = fs::read_to_string(file_path_ex).unwrap();
 
-    let file_path = current_dir.join("input2018day3");
+    let file_path = current_dir.join("input");
     let contents = fs::read_to_string(file_path).unwrap();
 
     let overlaps = calculate_overlaps(&contents_ex);

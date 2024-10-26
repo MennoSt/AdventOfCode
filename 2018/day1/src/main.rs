@@ -5,7 +5,7 @@ use std::collections::HashSet;
 
 fn main() {
     let current_dir = env::current_dir().unwrap();
-    let file_path = current_dir.join("input2018day1");
+    let file_path = current_dir.join("input");
     let contents = fs::read_to_string(file_path).unwrap();
 
     let sum = calculate_sum(contents.lines());
