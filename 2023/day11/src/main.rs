@@ -8,31 +8,52 @@ use std::env;
 struct Coord {
     x_coord:i32,
     y_coord:i32,
+    id:i32,
 }
 
 fn main() 
 {
     let current_dir = env::current_dir().unwrap();
     let file_path = current_dir.join("exampleinput");
+    let contents_ex = fs::read_to_string(file_path).unwrap();
+    let file_path = current_dir.join("input");
     let contents = fs::read_to_string(file_path).unwrap();
     
+    assert_eq!(answer_part_1(&contents_ex),374);
+    assert_eq!(answer_part_1(&contents),10228230);
+    
+}
+    
+fn answer_part_1(contents: &str) -> i32{
     let mut galaxies = determine_galaxies(&contents);
     let (xmax, ymax) = get_max_values(&galaxies);
-
     let(emtpy_columns,empty_rows) = get_empty_galaxy_lines(xmax, ymax, &galaxies);
     extend_galaxy(&mut galaxies, emtpy_columns, empty_rows);
+    let answer = calculate_sum_shortestpaths(galaxies);
+    answer
+}
     
-    println!("extended galaxy:");
-    for galaxy in galaxies {
-        println!("[{},{}]",galaxy.x_coord,galaxy.y_coord);
+fn calculate_sum_shortestpaths(galaxies: Vec<Coord>) ->i32 
+{
+    let mut sum_shortest_paths = 0;
+    for galaxy1 in &galaxies {
+        for galaxy2 in &galaxies {
+            if galaxy2.id > galaxy1.id
+            {
+                let shortest_path = (galaxy1.x_coord -galaxy2.x_coord).abs() +(galaxy1.y_coord -galaxy2.y_coord).abs();
+                sum_shortest_paths += shortest_path;
+            }
+        }
     }
+    println!("{}", sum_shortest_paths);
+    sum_shortest_paths
 }
 
 fn extend_galaxy(galaxies: &mut Vec<Coord>, emtpy_columns: Vec<i32>, empty_rows: Vec<i32>) {
+    let mut increasex = 0;
+    let mut increasey = 0;
     for galaxy in galaxies 
     {
-        let mut increasex =0;
-        let mut increasey = 0;
         for column in &emtpy_columns 
         {
             if galaxy.x_coord > *column {
@@ -54,14 +75,14 @@ fn extend_galaxy(galaxies: &mut Vec<Coord>, emtpy_columns: Vec<i32>, empty_rows:
 }
 
 fn get_empty_galaxy_lines(xmax: i32,ymax:i32, galaxies: &Vec<Coord>) -> (Vec<i32>,Vec<i32>) {
-    let mut x__col_empty:Vec<i32> = Vec::new();
-    let mut y__col_empty:Vec<i32> = Vec::new();
+    let mut x_col_empty:Vec<i32> = Vec::new();
+    let mut y_col_empty:Vec<i32> = Vec::new();
 
     for i in 0..xmax 
     {
         if is_column_empty(&galaxies, i) 
         {
-            x__col_empty.push(i);
+            x_col_empty.push(i);
         }
     }
 
@@ -69,14 +90,14 @@ fn get_empty_galaxy_lines(xmax: i32,ymax:i32, galaxies: &Vec<Coord>) -> (Vec<i32
     {
         if is_row_empty(&galaxies, j) 
         {
-            y__col_empty.push(j);
+            y_col_empty.push(j);
         }
     }
     println!("empty columns:");
-    println!("{:?}", x__col_empty);
-    println!("{:?}", y__col_empty);
+    println!("{:?}", x_col_empty);
+    println!("{:?}", y_col_empty);
 
-    (x__col_empty,y__col_empty)
+    (x_col_empty,y_col_empty)
 
 }
 
@@ -121,6 +142,7 @@ fn determine_galaxies(contents: &str) ->Vec<Coord>
 {
     let mut x = 0;
     let mut y = 0;
+    let mut id = 1;
     let mut galaxies:Vec<Coord> = Vec::new();
     println!("initial coordinates:");
     for line in contents.lines() 
@@ -130,7 +152,8 @@ fn determine_galaxies(contents: &str) ->Vec<Coord>
             if c=='#'
             {
                 println!("[{},{}]",x,y);
-                galaxies.push(Coord { x_coord: x, y_coord: y })
+                galaxies.push(Coord { x_coord: x, y_coord: y ,id:id});
+                id += 1;
             }
             x+=1;
         }
