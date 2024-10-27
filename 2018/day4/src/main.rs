@@ -146,8 +146,6 @@ fn solution(input: &str) -> (u32, u32)
     (answer_part_1, answer_part_2)
 }
 
-
-
 fn main() 
 {
     let current_dir = env::current_dir().unwrap();
