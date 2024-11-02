@@ -100,15 +100,32 @@ impl Gridi32 {
             println!("{:?}",grid);
         }
     }
+
+    fn _max(&self) -> Option<i32> {
+        let max_value = self.grid_vec
+        .iter()
+        .flatten()
+        .max()
+        .cloned();
+        
+        return max_value;
+    }
 }
 
 fn main()
 {
-    let grid_init = parse_data("exampleinput2023day10");
-    let grid_mut_vec:Vec<Vec<i32>> = vec![vec![0; grid_init._width()]; grid_init._height()];
+    // assert_eq!(calculate_largest_path("exampleinput2023day10"), 4);
+    // assert_eq!(calculate_largest_path("exampleinput2023day10_2"), 8);
+    let path = calculate_largest_path("input2023day10");
+    println!("{}",path);
+}
+
+fn calculate_largest_path(input_file: &str) -> i32 {
+    let grid_init = parse_data(input_file);
+    let grid_mut_vec = vec![vec![0; grid_init._width()]; grid_init._height()];
     let mut grid_mut = Gridi32{grid_vec:grid_mut_vec};
     
-    let vec_dir:Vec<Direction> = vec![Direction::Left, Direction::Right, Direction::Up, Direction::Down];
+    let vec_dir= vec![Direction::Left, Direction::Right, Direction::Up, Direction::Down];
     let start_position = start_coord(&grid_init);
 
     for dir in vec_dir {
@@ -117,10 +134,10 @@ fn main()
         let mut next_elem: String = "S".to_string();
         let mut current_position = start_position.clone();
         let mut step = 1;
-        
+    
         mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step);
         current_step = next_step.clone();
-        
+    
         while current_step != Direction::None && next_elem != "S" {
             let elem = grid_mut._elem( current_position.x, current_position.y);
 
@@ -129,11 +146,14 @@ fn main()
             }
             mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step);
             current_step = next_step.clone();
-            grid_mut._print();
-            println!("{}", "");
+            // grid_mut._print();
+            // println!("{}", "");
             step += 1;
         }
     }
+    let max = grid_mut._max().unwrap_or(0);
+    // println!("{}", max);
+    return max;
 }
 
 fn mutate(current_step: Direction, next_elem: &mut String, 
@@ -181,13 +201,23 @@ fn mutate(current_step: Direction, next_elem: &mut String,
         } else {
             *next_step = Direction::Up;
         }
-    } else if *next_elem == "|" {
+    } 
+    else if *next_elem == "|" {
         if current_step == Direction::Down {
           *next_step = Direction::Down;
         } else {
           *next_step = Direction::Up;
         }
-    } else if *next_elem == "-" {
+    } 
+    else if *next_elem == "F" 
+    {
+        if current_step == Direction::Up {
+          *next_step = Direction::Right;
+        } else {
+          *next_step = Direction::Down;
+        }
+    }
+    else if *next_elem == "-" {
         *next_step = Direction::Left;
     } else {
         *next_step = Direction::None;
