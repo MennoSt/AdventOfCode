@@ -114,10 +114,13 @@ impl Gridi32 {
 
 fn main()
 {
-    // assert_eq!(calculate_largest_path("exampleinput2023day10"), 4);
-    // assert_eq!(calculate_largest_path("exampleinput2023day10_2"), 8);
-    let path = calculate_largest_path("input2023day10");
-    println!("{}",path);
+    assert_eq!(calculate_largest_path("exampleinput2023day10"), 4);
+    assert_eq!(calculate_largest_path("exampleinput2023day10_2"), 8);
+    assert_eq!(calculate_largest_path("exampleinput2023day10_3"), 0);
+    assert_eq!(calculate_largest_path("exampleinput2023day10_4"), 0);
+    
+    // let path = calculate_largest_path("input2023day10");
+    // println!("{}",path);
 }
 
 fn calculate_largest_path(input_file: &str) -> i32 {
@@ -128,6 +131,7 @@ fn calculate_largest_path(input_file: &str) -> i32 {
     let vec_dir= vec![Direction::Left, Direction::Right, Direction::Up, Direction::Down];
     let start_position = start_coord(&grid_init);
 
+    let mut init =true;
     for dir in vec_dir {
         let mut next_step = Direction::None;
         let mut current_step = dir;
@@ -135,16 +139,16 @@ fn calculate_largest_path(input_file: &str) -> i32 {
         let mut current_position = start_position.clone();
         let mut step = 1;
     
-        mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step);
+        mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step, init);
         current_step = next_step.clone();
-    
+        init = false;
         while current_step != Direction::None && next_elem != "S" {
             let elem = grid_mut._elem( current_position.x, current_position.y);
 
             if elem > step || elem == 0 {
                 grid_mut._set(current_position.x.clone(), current_position.y,step);
             }
-            mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step);
+            mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step,init);
             current_step = next_step.clone();
             // grid_mut._print();
             // println!("{}", "");
@@ -152,26 +156,46 @@ fn calculate_largest_path(input_file: &str) -> i32 {
         }
     }
     let max = grid_mut._max().unwrap_or(0);
-    // println!("{}", max);
+    println!("{}", max);
     return max;
 }
 
 fn mutate(current_step: Direction, next_elem: &mut String, 
-    grid_init: &Grid, current_position: &mut Coordinate, next_step: &mut Direction) {
+    grid_init: &Grid, current_position: &mut Coordinate, next_step: &mut Direction, init:bool) {
 
     // update current position
     if current_step == Direction::Right {
         *next_elem = grid_init._elem(current_position.x+1, current_position.y);
-        current_position.x +=1;
+        if (next_elem == "^"|| next_elem == "-"|| next_elem == "J") && !init{
+            current_position.x +=1;
+        }else {
+            *next_step = Direction::None;
+            return;
+        }
     } else if current_step == Direction::Left {
         *next_elem = grid_init._elem(current_position.x-1, current_position.y);
-        current_position.x -=1;
+        if (next_elem == "L" || next_elem == "F" || next_elem == "-") && !init{
+            current_position.x -=1;
+        } else {
+            *next_step = Direction::None;
+            return;
+        }
     } else if current_step == Direction::Up {
         *next_elem = grid_init._elem(current_position.x, current_position.y-1);
-        current_position.y -=1;
+        if (next_elem == "|" || next_elem == "F"||next_elem == "^") && !init{
+            current_position.y -=1;
+        }else {
+            *next_step = Direction::None;
+            return;
+        }       
     } else if current_step == Direction::Down {
         *next_elem = grid_init._elem(current_position.x, current_position.y+1);
-        current_position.y +=1;
+        if (next_elem == "L" || next_elem == "J" || next_elem == "|") && !init {
+            current_position.y +=1;
+        } else {
+            *next_step = Direction::None;
+            return;
+        }
     }
 
     // determine next step
@@ -217,9 +241,7 @@ fn mutate(current_step: Direction, next_elem: &mut String,
           *next_step = Direction::Down;
         }
     }
-    else if *next_elem == "-" {
-        *next_step = Direction::Left;
-    } else {
+    else {
         *next_step = Direction::None;
     }
 }
