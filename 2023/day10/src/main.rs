@@ -114,13 +114,11 @@ impl Gridi32 {
 
 fn main()
 {
-    assert_eq!(calculate_largest_path("exampleinput2023day10"), 4);
-    assert_eq!(calculate_largest_path("exampleinput2023day10_2"), 8);
-    assert_eq!(calculate_largest_path("exampleinput2023day10_3"), 0);
-    assert_eq!(calculate_largest_path("exampleinput2023day10_4"), 0);
-    
-    // let path = calculate_largest_path("input2023day10");
-    // println!("{}",path);
+    assert_eq!(calculate_largest_path("test1"), 4);
+    assert_eq!(calculate_largest_path("test2"), 8);
+    assert_eq!(calculate_largest_path("test3"), 0);
+    assert_eq!(calculate_largest_path("test4"), 2);
+    assert_eq!(calculate_largest_path("input2023day10"), 6806);
 }
 
 fn calculate_largest_path(input_file: &str) -> i32 {
@@ -150,13 +148,10 @@ fn calculate_largest_path(input_file: &str) -> i32 {
             }
             mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step,init);
             current_step = next_step.clone();
-            // grid_mut._print();
-            // println!("{}", "");
             step += 1;
         }
     }
     let max = grid_mut._max().unwrap_or(0);
-    println!("{}", max);
     return max;
 }
 
@@ -166,7 +161,7 @@ fn mutate(current_step: Direction, next_elem: &mut String,
     // update current position
     if current_step == Direction::Right {
         *next_elem = grid_init._elem(current_position.x+1, current_position.y);
-        if (next_elem == "^"|| next_elem == "-"|| next_elem == "J") && !init{
+        if next_elem == "^"|| next_elem == "-"|| next_elem == "J" {
             current_position.x +=1;
         }else {
             *next_step = Direction::None;
@@ -174,7 +169,7 @@ fn mutate(current_step: Direction, next_elem: &mut String,
         }
     } else if current_step == Direction::Left {
         *next_elem = grid_init._elem(current_position.x-1, current_position.y);
-        if (next_elem == "L" || next_elem == "F" || next_elem == "-") && !init{
+        if next_elem == "L" || next_elem == "F" || next_elem == "-" {
             current_position.x -=1;
         } else {
             *next_step = Direction::None;
@@ -182,7 +177,7 @@ fn mutate(current_step: Direction, next_elem: &mut String,
         }
     } else if current_step == Direction::Up {
         *next_elem = grid_init._elem(current_position.x, current_position.y-1);
-        if (next_elem == "|" || next_elem == "F"||next_elem == "^") && !init{
+        if next_elem == "|" || next_elem == "F"||next_elem == "^" {
             current_position.y -=1;
         }else {
             *next_step = Direction::None;
@@ -190,7 +185,7 @@ fn mutate(current_step: Direction, next_elem: &mut String,
         }       
     } else if current_step == Direction::Down {
         *next_elem = grid_init._elem(current_position.x, current_position.y+1);
-        if (next_elem == "L" || next_elem == "J" || next_elem == "|") && !init {
+        if next_elem == "L" || next_elem == "J" || next_elem == "|" {
             current_position.y +=1;
         } else {
             *next_step = Direction::None;
@@ -248,8 +243,8 @@ fn mutate(current_step: Direction, next_elem: &mut String,
 
 fn start_coord(grid_init: &Grid) -> Coordinate {
     let mut start_coord= Coordinate{x:0,y:0};
-    for x in 0..grid_init._height() {
-        for y in 0..grid_init._width() {
+    for y in 0..grid_init._height() {
+        for x in 0..grid_init._width() {
             if grid_init._elem(x as i32, y as i32) == "S" {
                 start_coord.x = x as i32;
                 start_coord.y = y as i32;
