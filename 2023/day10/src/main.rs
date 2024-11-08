@@ -57,6 +57,7 @@ impl Grid {
         for grid in &self.grid_vec {
             println!("{:?}",grid);
         }
+        println!("{}","");
     }
 }
 
@@ -99,6 +100,7 @@ impl Gridi32 {
         for grid in &self.grid_vec {
             println!("{:?}",grid);
         }
+        println!("{}","");
     }
 
     fn _max(&self) -> Option<i32> {
@@ -119,6 +121,164 @@ fn main()
     assert_eq!(calculate_largest_path("test3"), 0);
     assert_eq!(calculate_largest_path("test4"), 2);
     assert_eq!(calculate_largest_path("input2023day10"), 6806);
+
+    assert_eq!(calculate_n_enclosed("test5"), 2);
+    assert_eq!(calculate_n_enclosed("test6"), 4);
+    assert_eq!(calculate_n_enclosed("test7"), 2);
+    assert_eq!(calculate_n_enclosed("test8"), 3);
+    assert_eq!(calculate_n_enclosed("test9"), 8);
+    assert_eq!(calculate_n_enclosed("test10"), 10);
+    assert_eq!(calculate_n_enclosed("input2023day10"),449);
+}
+
+
+
+fn calculate_n_enclosed(input_file: &str) ->i32
+{
+    let grid_init = parse_data(input_file);
+    let mut grid_visited = visited_grid(&grid_init);
+    let mut n_enclosed =0;
+
+    for x in 0..grid_init._width() as i32 {
+        for y in 0..grid_init._height() as i32 {
+            if grid_visited._elem(x, y) == 0 {
+                if is_enclosed_up(&grid_init,&grid_visited, x, y) &&
+                is_enclosed_down(&grid_init,&grid_visited, x, y) &&
+                is_enclosed_left(&grid_init,&grid_visited, x, y) &&
+                is_enclosed_right(&grid_init,&grid_visited, x, y)
+                {
+                    n_enclosed +=1;
+                    grid_visited._set(x, y, 9);
+                }
+            }
+        }
+    }
+    return n_enclosed;
+
+}
+
+fn is_enclosed_left(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> bool {
+    let mut counter = 0;
+    let mut previous_elem = ".".to_string();
+    for i in 0..x as i32 {
+        let elem = grid_init._elem(i, y);
+        if grid_visited._elem(i, y) == 0 || grid_visited._elem(i, y) == 9 {
+
+        } else if elem == "^" && previous_elem == "L"{
+            counter +=1;
+        } else if elem == "J" && previous_elem == "F" {
+            counter +=1;
+        } else if elem == "|" {
+            counter +=1;
+        } else if elem == "-" || elem == "."
+        {
+        } else {
+            previous_elem = elem.clone();
+        }
+    }
+    is_odd(counter)
+}
+
+fn is_enclosed_right(grid_init: &Grid,grid_visited:&Gridi32, x: i32, y: i32) -> bool {
+    let mut counter = 0;
+    let mut previous_elem = ".".to_string();
+    let xit = x+1;
+    for i in xit..grid_init._width() as i32 {
+        let elem = grid_init._elem(i, y);
+        if grid_visited._elem(i, y) == 0 || grid_visited._elem(i, y) == 9  {
+
+        } else if elem == "^" && previous_elem == "L"{
+            counter +=1;
+        } else if elem == "J" && previous_elem == "F" {
+            counter +=1;
+        } else if elem == "|" {
+            counter +=1;
+        } else if elem == "-" || elem == "."
+        {
+        } else {
+            previous_elem = elem.clone();
+        }
+    }
+    is_odd(counter)
+}
+
+fn is_enclosed_down(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> bool {
+    let mut counter = 0;
+    let mut previous_elem = ".".to_string();
+    let yit = y+1;
+    for i in yit..grid_init._height() as i32 {
+        let elem = grid_init._elem(x, i);
+        if grid_visited._elem(x, i) == 0 || grid_visited._elem(x, i) == 9 {
+
+        } else if elem == "L" && previous_elem == "^"{
+            counter +=1;
+        } else if elem == "J" && previous_elem == "F" {
+            counter +=1;
+        } else if elem == "-" {
+            counter +=1;
+        } else if elem == "|" || elem == "."
+        {
+        } else {
+            previous_elem = elem.clone();
+        }
+    }
+    is_odd(counter)
+}
+
+fn is_enclosed_up(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> bool {
+    let mut counter = 0;
+    let mut previous_elem = ".".to_string();
+    for i in 0..y as i32 {
+        let elem = grid_init._elem(x, i);
+        if grid_visited._elem(x, i) == 0 || grid_visited._elem(x, i) == 9 {
+
+        } else if elem == "L" && previous_elem == "^"{
+            counter +=1;
+        } else if elem == "J" && previous_elem == "F" {
+            counter +=1;
+        } else if elem == "-" {
+            counter +=1;
+        } else if elem == "|" || elem == "."
+        {
+        } else {
+            previous_elem = elem.clone();
+        }
+    }
+    is_odd(counter)
+}
+
+fn is_odd(n: i32) -> bool {
+    n % 2 != 0
+}
+
+
+fn visited_grid(grid_init: &Grid) -> Gridi32 {
+    let grid_mut_vec = vec![vec![0; grid_init._width()]; grid_init._height()];
+    let mut grid_mut = Gridi32{grid_vec:grid_mut_vec};
+    
+    let vec_dir= vec![Direction::Left, Direction::Right, Direction::Up, Direction::Down];
+    let start_position = start_coord(&grid_init);
+    grid_mut._set(start_position.x, start_position.y,1);
+
+    for dir in vec_dir {
+        let mut next_step = Direction::None;
+        let mut current_step = dir;
+        let mut next_elem: String = "S".to_string();
+        let mut current_position = start_position.clone();
+
+        mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step);
+        current_step = next_step.clone();
+        while current_step != Direction::None && next_elem != "S" {
+            let elem = grid_mut._elem( current_position.x, current_position.y);
+
+            if elem == 0 {
+                grid_mut._set(current_position.x.clone(), current_position.y,1);
+            }
+            mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step);
+            current_step = next_step.clone();
+        }
+    }
+    grid_mut
 }
 
 fn calculate_largest_path(input_file: &str) -> i32 {
@@ -129,7 +289,6 @@ fn calculate_largest_path(input_file: &str) -> i32 {
     let vec_dir= vec![Direction::Left, Direction::Right, Direction::Up, Direction::Down];
     let start_position = start_coord(&grid_init);
 
-    let mut init =true;
     for dir in vec_dir {
         let mut next_step = Direction::None;
         let mut current_step = dir;
@@ -137,16 +296,15 @@ fn calculate_largest_path(input_file: &str) -> i32 {
         let mut current_position = start_position.clone();
         let mut step = 1;
     
-        mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step, init);
+        mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step);
         current_step = next_step.clone();
-        init = false;
         while current_step != Direction::None && next_elem != "S" {
             let elem = grid_mut._elem( current_position.x, current_position.y);
 
             if elem > step || elem == 0 {
                 grid_mut._set(current_position.x.clone(), current_position.y,step);
             }
-            mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step,init);
+            mutate(current_step.clone(), &mut next_elem, &grid_init, &mut current_position, &mut next_step);
             current_step = next_step.clone();
             step += 1;
         }
@@ -156,7 +314,7 @@ fn calculate_largest_path(input_file: &str) -> i32 {
 }
 
 fn mutate(current_step: Direction, next_elem: &mut String, 
-    grid_init: &Grid, current_position: &mut Coordinate, next_step: &mut Direction, init:bool) {
+    grid_init: &Grid, current_position: &mut Coordinate, next_step: &mut Direction) {
 
     // update current position
     if current_step == Direction::Right {
