@@ -1,4 +1,7 @@
 use lib::filereader;
+use lib::grid::Grid;
+use lib::grid::Gridi32;
+
 
 #[derive(Clone)]
 struct Coordinate {
@@ -16,122 +19,35 @@ enum Direction {
     None,
 }
 
-#[derive(Clone)]
-struct Grid {
-    grid_vec: Vec<Vec<String>>,
-}
-
-impl Grid {
-    fn _height(&self) -> usize {
-        return self.grid_vec.len();
-    }
-
-    fn _width(&self) -> usize {
-        return self.grid_vec[0].len();
-    }
-
-    fn _elem(&self, x: i32, y: i32) -> String {
-        let point_char = ".";
-
-        if x < 0 || y < 0 {
-            return point_char.to_string();
-        }
-
-        let x_usize: usize = x as usize;
-        let y_usize: usize = y as usize;
-
-        if x_usize > (self._width() -1) || y_usize > (self._height()-1) {
-            return point_char.to_string();
-        }
-
-        return self.grid_vec[y_usize][x_usize].clone();
-    }
-
-    fn _set(&mut self, x: i32, y: i32, value: i32) {
-        let x_usize: usize = x as usize;
-        let y_usize: usize = y as usize;
-        self.grid_vec[y_usize][x_usize] = value.to_string();
-    }
-
-    fn _print(&self) {
-        for grid in &self.grid_vec {
-            println!("{:?}",grid);
-        }
-        println!("{}","");
-    }
-}
-
-#[derive(Clone)]
-struct Gridi32 {
-    grid_vec: Vec<Vec<i32>>,
-}
-
-impl Gridi32 {
-    fn _height(&self) -> usize {
-        return self.grid_vec.len();
-    }
-
-    fn _width(&self) -> usize {
-        return self.grid_vec[0].len();
-    }
-
-    fn _elem(&self, x: i32, y: i32) -> i32 {
-        if x < 0 || y < 0 {
-            return 0;
-        }
-
-        let x_usize: usize = x as usize;
-        let y_usize: usize = y as usize;
-
-        if x_usize > (self._width() -1) || y_usize > (self._height()-1) {
-            return 0;
-        }
-
-        return self.grid_vec[y_usize][x_usize].clone();
-    }
-
-    fn _set(&mut self, x: i32, y: i32, value: i32) {
-        let x_usize: usize = x as usize;
-        let y_usize: usize = y as usize;
-        self.grid_vec[y_usize][x_usize] = value;
-    }
-
-    fn _print(&self) {
-        for grid in &self.grid_vec {
-            println!("{:?}",grid);
-        }
-        println!("{}","");
-    }
-
-    fn _max(&self) -> Option<i32> {
-        let max_value = self.grid_vec
-        .iter()
-        .flatten()
-        .max()
-        .cloned();
-        
-        return max_value;
-    }
-}
-
 fn main()
 {
-    assert_eq!(calculate_largest_path("test1"), 4);
-    assert_eq!(calculate_largest_path("test2"), 8);
-    assert_eq!(calculate_largest_path("test3"), 0);
-    assert_eq!(calculate_largest_path("test4"), 2);
-    assert_eq!(calculate_largest_path("input2023day10"), 6806);
-
-    assert_eq!(calculate_n_enclosed("test5"), 2);
-    assert_eq!(calculate_n_enclosed("test6"), 4);
-    assert_eq!(calculate_n_enclosed("test7"), 2);
-    assert_eq!(calculate_n_enclosed("test8"), 3);
-    assert_eq!(calculate_n_enclosed("test9"), 8);
-    assert_eq!(calculate_n_enclosed("test10"), 10);
-    assert_eq!(calculate_n_enclosed("input2023day10"),449);
+    let part1 = calculate_largest_path("../input/day10");
+    let part2 = calculate_n_enclosed("../input/day10");
+    println!("{} {}", part1, part2);
+    assert_eq!((part1, part2), (6806,449));
 }
 
+fn parse_data(contents: &str)-> Grid
+{
+    let contents = filereader::_input(&contents);
+    let contents = contents.replace('7',"^");
+    let grid = read_into_grid(&contents);
+    grid
+}
 
+fn read_into_grid(contents: &str) -> Grid {
+    let mut contents_vector: Vec<Vec<String>> = Vec::new();
+    for line in contents.lines() {
+        let test:Vec<char> = line.chars().collect();
+        let strings = test
+        .iter()
+        .map(|c| String::from(c.to_string()))
+        .collect::<Vec<String>>();
+        contents_vector.push(strings);
+    }
+    let grid = Grid{grid_vec:contents_vector};
+    grid
+}
 
 fn calculate_n_enclosed(input_file: &str) ->i32
 {
@@ -142,10 +58,10 @@ fn calculate_n_enclosed(input_file: &str) ->i32
     for x in 0..grid_init._width() as i32 {
         for y in 0..grid_init._height() as i32 {
             if grid_visited._elem(x, y) == 0 {
-                if is_enclosed_up(&grid_init,&grid_visited, x, y) &&
-                is_enclosed_down(&grid_init,&grid_visited, x, y) &&
-                is_enclosed_left(&grid_init,&grid_visited, x, y) &&
-                is_enclosed_right(&grid_init,&grid_visited, x, y)
+                if is_enclosed_up(&grid_init, &grid_visited, x, y) &&
+                is_enclosed_down(&grid_init, &grid_visited, x, y) &&
+                is_enclosed_left(&grid_init, &grid_visited, x, y) &&
+                is_enclosed_right(&grid_init, &grid_visited, x, y)
                 {
                     n_enclosed +=1;
                     grid_visited._set(x, y, 9);
@@ -182,8 +98,8 @@ fn is_enclosed_left(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> 
 fn is_enclosed_right(grid_init: &Grid,grid_visited:&Gridi32, x: i32, y: i32) -> bool {
     let mut counter = 0;
     let mut previous_elem = ".".to_string();
-    let xit = x+1;
-    for i in xit..grid_init._width() as i32 {
+
+    for i in x..grid_init._width() as i32 {
         let elem = grid_init._elem(i, y);
         if grid_visited._elem(i, y) == 0 || grid_visited._elem(i, y) == 9  {
 
@@ -205,8 +121,8 @@ fn is_enclosed_right(grid_init: &Grid,grid_visited:&Gridi32, x: i32, y: i32) -> 
 fn is_enclosed_down(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> bool {
     let mut counter = 0;
     let mut previous_elem = ".".to_string();
-    let yit = y+1;
-    for i in yit..grid_init._height() as i32 {
+    
+    for i in y..grid_init._height() as i32 {
         let elem = grid_init._elem(x, i);
         if grid_visited._elem(x, i) == 0 || grid_visited._elem(x, i) == 9 {
 
@@ -412,25 +328,66 @@ fn start_coord(grid_init: &Grid) -> Coordinate {
     start_coord
 }
 
-fn parse_data(contents: &str)->Grid
-{
-    let contents = filereader::_input(&contents);
-    let contents = contents.replace('7',"^");
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    let grid = read_into_grid(&contents);
-    grid
-}
+    mod calculate_largest_path {
+        use super::calculate_largest_path;
+        
+        #[test]
+        fn test1() {
+            assert_eq!(calculate_largest_path("testinput/test1"), 4);
+        }
 
-fn read_into_grid(contents: &str) -> Grid {
-    let mut contents_vector: Vec<Vec<String>> = Vec::new();
-    for line in contents.lines() {
-        let test:Vec<char> = line.chars().collect();
-        let strings = test
-        .iter()
-        .map(|c| String::from(c.to_string()))
-        .collect::<Vec<String>>();
-        contents_vector.push(strings);
+        #[test]
+        fn test2() {
+            assert_eq!(calculate_largest_path("testinput/test2"), 8);
+        }
+
+        #[test]
+        fn test3() {
+            assert_eq!(calculate_largest_path("testinput/test3"), 0);
+        }
+
+        #[test]
+        fn test4() {
+            assert_eq!(calculate_largest_path("testinput/test4"), 2);
+        }
     }
-    let grid = Grid{grid_vec:contents_vector};
-    grid
+    mod calculate_n_enclosed {
+        use super::calculate_n_enclosed;
+
+        #[test]
+        fn test5() {
+            assert_eq!(calculate_n_enclosed("testinput/test5"), 2);
+        }
+    
+        #[test]
+        fn test6() {
+            assert_eq!(calculate_n_enclosed("testinput/test6"), 4);
+        }
+    
+        #[test]
+        fn test7() {
+            assert_eq!(calculate_n_enclosed("testinput/test7"), 2);
+        }
+    
+        #[test]
+        fn test8() {
+            assert_eq!(calculate_n_enclosed("testinput/test8"), 3);
+        }
+    
+        #[test]
+        fn test9() {
+            assert_eq!(calculate_n_enclosed("testinput/test9"), 8);
+        }
+    
+        #[test]
+        fn test10() {
+            assert_eq!(calculate_n_enclosed("testinput/test10"), 10);
+        }
+        
+    }
+    //tests part 2
 }
