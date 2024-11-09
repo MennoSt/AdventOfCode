@@ -1,6 +1,7 @@
 use lib::filereader;
 use lib::grid::Grid;
 use lib::grid::Gridi32;
+use lib::utils;
 
 
 #[derive(Clone)]
@@ -70,7 +71,6 @@ fn calculate_n_enclosed(input_file: &str) ->i32
         }
     }
     return n_enclosed;
-
 }
 
 fn is_enclosed_left(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> bool {
@@ -92,10 +92,10 @@ fn is_enclosed_left(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> 
             previous_elem = elem.clone();
         }
     }
-    is_odd(counter)
+    utils::is_odd(counter)
 }
 
-fn is_enclosed_right(grid_init: &Grid,grid_visited:&Gridi32, x: i32, y: i32) -> bool {
+fn is_enclosed_right(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> bool {
     let mut counter = 0;
     let mut previous_elem = ".".to_string();
 
@@ -115,13 +115,13 @@ fn is_enclosed_right(grid_init: &Grid,grid_visited:&Gridi32, x: i32, y: i32) -> 
             previous_elem = elem.clone();
         }
     }
-    is_odd(counter)
+    utils::is_odd(counter)
 }
 
 fn is_enclosed_down(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> bool {
     let mut counter = 0;
     let mut previous_elem = ".".to_string();
-    
+
     for i in y..grid_init._height() as i32 {
         let elem = grid_init._elem(x, i);
         if grid_visited._elem(x, i) == 0 || grid_visited._elem(x, i) == 9 {
@@ -138,7 +138,7 @@ fn is_enclosed_down(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> 
             previous_elem = elem.clone();
         }
     }
-    is_odd(counter)
+    utils::is_odd(counter)
 }
 
 fn is_enclosed_up(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> bool {
@@ -160,13 +160,8 @@ fn is_enclosed_up(grid_init: &Grid, grid_visited:&Gridi32, x: i32, y: i32) -> bo
             previous_elem = elem.clone();
         }
     }
-    is_odd(counter)
+    utils::is_odd(counter)
 }
-
-fn is_odd(n: i32) -> bool {
-    n % 2 != 0
-}
-
 
 fn visited_grid(grid_init: &Grid) -> Gridi32 {
     let grid_mut_vec = vec![vec![0; grid_init._width()]; grid_init._height()];
@@ -316,16 +311,14 @@ fn mutate(current_step: Direction, next_elem: &mut String,
 }
 
 fn start_coord(grid_init: &Grid) -> Coordinate {
-    let mut start_coord= Coordinate{x:0,y:0};
     for y in 0..grid_init._height() {
         for x in 0..grid_init._width() {
             if grid_init._elem(x as i32, y as i32) == "S" {
-                start_coord.x = x as i32;
-                start_coord.y = y as i32;
-            } 
+                return Coordinate { x: x as i32, y: y as i32 };
+            }
         }
     }
-    start_coord
+    Coordinate { x: 0, y: 0 } 
 }
 
 #[cfg(test)]

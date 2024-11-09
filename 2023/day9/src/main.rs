@@ -1,4 +1,19 @@
-mod filereader;
+use lib::filereader;
+
+fn main()
+{
+    let answer = part1("exampleinput2023day9");
+    assert_eq!(answer, 114);
+
+    let answer = part1("input2023day9");
+    assert_eq!(answer, 1782868781);
+    
+    let answer = part2("exampleinput2023day9");
+    assert_eq!(answer, 2);
+    
+    let answer = part2("input2023day9");
+    assert_eq!(answer, 1057);
+}
 
 fn vec_to_int(input_vec: Vec<&str>) -> Vec<i32> {
     let mut result_vec = Vec::new();
@@ -21,22 +36,6 @@ fn is_all_zeros(vec: &Vec<i32>) -> bool {
     }
     true
 }
-
-fn main()
-{
-    let answer = part1("exampleinput2023day9");
-    assert_eq!(answer, 114);
-
-    let answer = part1("input2023day9");
-    assert_eq!(answer, 1782868781);
-
-    let answer = part2("exampleinput2023day9");
-    assert_eq!(answer, 2);
-
-    let answer = part2("input2023day9");
-    assert_eq!(answer, 1057);
-}
-
 fn part1(contents: &str) -> i32{
     let dataset = parse_data(contents);
     let mut count = 0;
