@@ -12,11 +12,21 @@ struct Spring {
 
 fn main()
 {
-    let springs = parse_data("testinput/test1");
+    let part1 = part1("../input/day12");
+    assert_eq!(part1, 7857);
+    println!("{}",part1);
 
+}
+
+fn part1(input:&str) -> i32{
+    let springs = parse_data(input);
+    
+    let mut arrangement_sum = 0;
     for spring in springs {
-        println!("{}",spring.record);
+        arrangement_sum += calculate_arrangements(&spring);
     }
+
+    arrangement_sum
 }
 
 fn parse_data(input:&str) -> Vec<Spring> {
@@ -42,15 +52,9 @@ fn replace_nth_character(s: &mut String, n: usize, new_char: char) {
         s.replace_range(n..n + char_len, &new_char.to_string());
     }
 }
-fn get_count(str:&str, char:char) {
 
-    for i in 0..str.len(){
-
-    }
-}
 fn calculate_arrangements(spring: &Spring) -> i32 {
     let sum:i32 = spring.numbers.iter().sum();
-    let unknowns = spring.record.chars().filter(|&c| c == '?').count() as i32;
     let hashes = spring.record.chars().filter(|&c| c == '#').count() as i32;
     let i_unknowns: Vec<usize>  = spring.record.chars()
                                   .enumerate()
@@ -80,12 +84,14 @@ fn calculate_arrangements(spring: &Spring) -> i32 {
                 counter = 0;
             }
         }
-        println!("{:?}",mutated_record);
+        if counter > 0 {
+            count_vec.push(counter);
+        }
+
         if count_vec == spring.numbers {
             arrangements += 1;
         }
     }
-
 
     return arrangements;
 }
@@ -148,4 +154,10 @@ mod tests {
         assert_eq!(calculate_arrangements(&spring), 10);
     }
     
+    #[test]
+    fn test7() {
+
+        assert_eq!(part1("testinput/test1"), 21);
+    }
+
 }
