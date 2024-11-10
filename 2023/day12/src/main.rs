@@ -4,18 +4,22 @@ use itertools::Itertools;
 
 struct Spring {
     record: String,
-    numbers: Vec<i32>,
+    numbers: Vec<i128>,
 }
 
 fn main()
 {
-    let part1 = part1("../input/day12");
-    assert_eq!(part1, 7857);
-    println!("{}",part1);
+    // let part1 = part1("../input/day12");
+    // assert_eq!(part1, 7857);
+    // println!("{}",part1);
+
+    let part2 = part2("../input/day12");
+    // assert_eq!(part2, 7857);
+    println!("{}",part2);
 
 }
 
-fn part1(input:&str) -> i32{
+fn part1(input:&str) -> i128{
     let springs = parse_data(input);
     
     let mut arrangement_sum = 0;
@@ -26,6 +30,38 @@ fn part1(input:&str) -> i32{
     arrangement_sum
 }
 
+fn part2(input:&str) -> i128{
+    let springs = parse_data(input);
+    
+    let mut arrangement_sum = 0;
+    for spring in springs {
+        arrangement_sum += calculate_arrangements_extended(&spring);
+    }
+
+    arrangement_sum
+}
+
+fn calculate_arrangements_extended(spring: &Spring) -> i128 {
+    let mut arrangements = 0;
+    let mut extended_record= spring.record.clone();
+    let mut extended_spring = Spring{record:extended_record, numbers:spring.numbers.clone()};
+
+    if spring.record.chars().last() != Some('#') {
+        extended_record = format!("{}{}{}", spring.record, '?', spring.record);
+        let mut extended_numbers = spring.numbers.clone();
+        extended_numbers.extend(extended_numbers.clone());
+        extended_spring = Spring{record:extended_record, numbers:extended_numbers};
+
+        let first = calculate_arrangements(spring);
+        let extended = calculate_arrangements(&extended_spring)/first;
+        arrangements = calculate_arrangements(spring) * extended.pow(4);
+    } else {
+        arrangements = calculate_arrangements(spring) * calculate_arrangements(&extended_spring).pow(4);
+    }
+
+    arrangements
+}
+
 fn parse_data(input:&str) -> Vec<Spring> {
     let contents = filereader::_input(input);
     let mut spring_collection:Vec<Spring> = Vec::new();
@@ -33,9 +69,9 @@ fn parse_data(input:&str) -> Vec<Spring> {
     for line in contents.lines() {
         let text:Vec<&str> =line.split_whitespace().collect();
         let record = text[0];
-        let numbers:Vec<i32>= text[1]
+        let numbers:Vec<i128>= text[1]
             .split(',')
-            .map(|s| s.parse::<i32>().expect("Not a valid integer"))
+            .map(|s| s.parse::<i128>().expect("Not a valid integer"))
             .collect();
 
         spring_collection.push(Spring{ record:record.to_string(), numbers:numbers});
@@ -50,9 +86,9 @@ fn replace_nth_character(s: &mut String, n: usize, new_char: char) {
     }
 }
 
-fn calculate_arrangements(spring: &Spring) -> i32 {
-    let sum:i32 = spring.numbers.iter().sum();
-    let hashes = spring.record.chars().filter(|&c| c == '#').count() as i32;
+fn calculate_arrangements(spring: &Spring) -> i128 {
+    let sum:i128 = spring.numbers.iter().sum();
+    let hashes = spring.record.chars().filter(|&c| c == '#').count() as i128;
     let unknowns: Vec<usize>  = spring.record.chars()
                                   .enumerate()
                                   .filter(|&(_, c)| c == '?')
@@ -69,7 +105,7 @@ fn calculate_arrangements(spring: &Spring) -> i32 {
             replace_nth_character(&mut mutated_record, *one, '#');
         }
         let mut counter = 0;
-        let mut count_vec:Vec<i32> = Vec::new();
+        let mut count_vec:Vec<i128> = Vec::new();
 
         for char in mutated_record.chars(){
             if char == '#' {
@@ -101,10 +137,10 @@ mod tests {
         #[test]
         fn test1() {
             let spring = Spring {
-                record:"???.###".to_string(),
-                numbers:vec![1,1,3]};
+                record:"?###????????".to_string(),
+                numbers:vec![3,2,1]};
     
-            assert_eq!(calculate_arrangements(&spring), 1);
+            assert_eq!(calculate_arrangements_extended(&spring), 506250);
         }
     }
     
@@ -113,10 +149,11 @@ mod tests {
         #[test]
         fn test1() {
             let spring = Spring {
-                record:"???.### 1,1,3".to_string(),
+                record:"???.###".to_string(),
                 numbers:vec![1,1,3]};
     
             assert_eq!(calculate_arrangements(&spring), 1);
+            assert_eq!(calculate_arrangements_extended(&spring), 1);
         }
     
         #[test]
@@ -126,6 +163,7 @@ mod tests {
                 numbers:vec![1,1,3]};
     
             assert_eq!(calculate_arrangements(&spring), 4);
+            assert_eq!(calculate_arrangements_extended(&spring), 16384);
         }
     
         #[test]
@@ -135,6 +173,7 @@ mod tests {
                 numbers:vec![1,3,1,6]};
     
             assert_eq!(calculate_arrangements(&spring), 1);
+            assert_eq!(calculate_arrangements_extended(&spring), 1);
         }
     
         #[test]
@@ -144,6 +183,7 @@ mod tests {
                 numbers:vec![4,1,1]};
     
             assert_eq!(calculate_arrangements(&spring), 1);
+            assert_eq!(calculate_arrangements_extended(&spring), 16);
         }
     
         #[test]
@@ -153,6 +193,7 @@ mod tests {
                 numbers:vec![1,6,5]};
     
             assert_eq!(calculate_arrangements(&spring), 4);
+            assert_eq!(calculate_arrangements_extended(&spring), 2500);
         }
     
         #[test]
@@ -163,12 +204,14 @@ mod tests {
     
             assert_eq!(calculate_arrangements(&spring), 10);
         }
-        
+
         #[test]
-        fn test7() {
+        fn test8() {
     
             assert_eq!(part1("testinput/test1"), 21);
         }
     }
 
 }
+
+// .??..??...?##.?.??..??...?##.?.??..??...?##.?.??..??...?##.?.??..??...?##.  
