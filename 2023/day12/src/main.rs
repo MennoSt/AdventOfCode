@@ -1,7 +1,4 @@
 use lib::filereader;
-use lib::grid::Grid;
-use lib::grid::Gridi32;
-use lib::utils;
 
 use itertools::Itertools;
 
@@ -56,17 +53,15 @@ fn replace_nth_character(s: &mut String, n: usize, new_char: char) {
 fn calculate_arrangements(spring: &Spring) -> i32 {
     let sum:i32 = spring.numbers.iter().sum();
     let hashes = spring.record.chars().filter(|&c| c == '#').count() as i32;
-    let i_unknowns: Vec<usize>  = spring.record.chars()
+    let unknowns: Vec<usize>  = spring.record.chars()
                                   .enumerate()
                                   .filter(|&(_, c)| c == '?')
                                   .map(|(i, _)| i) 
                                   .collect();
-
     let hashes_to_place = (sum - hashes) as usize;
+
     let mut arrangements = 0;
-
-
-    let combination = i_unknowns.iter().combinations(hashes_to_place);
+    let combination = unknowns.iter().combinations(hashes_to_place);
     for combination in combination {
         let mut mutated_record = spring.record.clone();
         for i in 0..hashes_to_place {
@@ -84,6 +79,7 @@ fn calculate_arrangements(spring: &Spring) -> i32 {
                 counter = 0;
             }
         }
+
         if counter > 0 {
             count_vec.push(counter);
         }
@@ -100,64 +96,79 @@ fn calculate_arrangements(spring: &Spring) -> i32 {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test1() {
-        let spring = Spring {
-            record:"???.### 1,1,3".to_string(),
-            numbers:vec![1,1,3]};
-
-        assert_eq!(calculate_arrangements(&spring), 1);
-    }
-
-    #[test]
-    fn test2() {
-        let spring = Spring {
-            record:".??..??...?##.".to_string(),
-            numbers:vec![1,1,3]};
-
-        assert_eq!(calculate_arrangements(&spring), 4);
-    }
-
-    #[test]
-    fn test3() {
-        let spring = Spring {
-            record:"?#?#?#?#?#?#?#?".to_string(),
-            numbers:vec![1,3,1,6]};
-
-        assert_eq!(calculate_arrangements(&spring), 1);
-    }
-
-    #[test]
-    fn test4() {
-        let spring = Spring {
-            record:"????.#...#...".to_string(),
-            numbers:vec![4,1,1]};
-
-        assert_eq!(calculate_arrangements(&spring), 1);
-    }
-
-    #[test]
-    fn test5() {
-        let spring = Spring {
-            record:"????.######..#####.".to_string(),
-            numbers:vec![1,6,5]};
-
-        assert_eq!(calculate_arrangements(&spring), 4);
-    }
-
-    #[test]
-    fn test6() {
-        let spring = Spring {
-            record:"?###????????".to_string(),
-            numbers:vec![3,2,1]};
-
-        assert_eq!(calculate_arrangements(&spring), 10);
+    mod part2 {
+        use super::*;
+        #[test]
+        fn test1() {
+            let spring = Spring {
+                record:"???.###".to_string(),
+                numbers:vec![1,1,3]};
+    
+            assert_eq!(calculate_arrangements(&spring), 1);
+        }
     }
     
-    #[test]
-    fn test7() {
-
-        assert_eq!(part1("testinput/test1"), 21);
+    mod part1 {
+        use super::*;
+        #[test]
+        fn test1() {
+            let spring = Spring {
+                record:"???.### 1,1,3".to_string(),
+                numbers:vec![1,1,3]};
+    
+            assert_eq!(calculate_arrangements(&spring), 1);
+        }
+    
+        #[test]
+        fn test2() {
+            let spring = Spring {
+                record:".??..??...?##.".to_string(),
+                numbers:vec![1,1,3]};
+    
+            assert_eq!(calculate_arrangements(&spring), 4);
+        }
+    
+        #[test]
+        fn test3() {
+            let spring = Spring {
+                record:"?#?#?#?#?#?#?#?".to_string(),
+                numbers:vec![1,3,1,6]};
+    
+            assert_eq!(calculate_arrangements(&spring), 1);
+        }
+    
+        #[test]
+        fn test4() {
+            let spring = Spring {
+                record:"????.#...#...".to_string(),
+                numbers:vec![4,1,1]};
+    
+            assert_eq!(calculate_arrangements(&spring), 1);
+        }
+    
+        #[test]
+        fn test5() {
+            let spring = Spring {
+                record:"????.######..#####.".to_string(),
+                numbers:vec![1,6,5]};
+    
+            assert_eq!(calculate_arrangements(&spring), 4);
+        }
+    
+        #[test]
+        fn test6() {
+            let spring = Spring {
+                record:"?###????????".to_string(),
+                numbers:vec![3,2,1]};
+    
+            assert_eq!(calculate_arrangements(&spring), 10);
+        }
+        
+        #[test]
+        fn test7() {
+    
+            assert_eq!(part1("testinput/test1"), 21);
+        }
     }
 
 }
