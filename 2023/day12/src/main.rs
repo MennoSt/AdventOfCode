@@ -14,7 +14,7 @@ fn main()
     // println!("{}",part1);
 
     let part2 = part2("../input/day12");
-    // assert_eq!(part2, 7857);
+    assert_eq!(part2, 7857);
     println!("{}",part2);
 
 }
@@ -36,9 +36,10 @@ fn part2(input:&str) -> i128{
     let mut arrangement_sum = 0;
     let mut it =0;
     for spring in springs {
-        println!("{} {}",it, arrangement_sum);
+        let arrangements = calculate_arrangements_extended(&spring);
+        println!("{} {}",it, arrangements);
         it+=1;
-        arrangement_sum += calculate_arrangements_extended(&spring);
+        arrangement_sum += arrangements;
     }
 
     arrangement_sum
@@ -49,17 +50,18 @@ fn calculate_arrangements_extended(spring: &Spring) -> i128 {
     let mut extended_record= spring.record.clone();
     let mut extended_spring = Spring{record:extended_record, numbers:spring.numbers.clone()};
 
+    let part1 = calculate_arrangements(spring);
+
     if spring.record.chars().last() != Some('#') {
         extended_record = format!("{}{}{}", spring.record, '?', spring.record);
         let mut extended_numbers = spring.numbers.clone();
         extended_numbers.extend(extended_numbers.clone());
         extended_spring = Spring{record:extended_record, numbers:extended_numbers};
 
-        let first = calculate_arrangements(spring);
-        let extended = calculate_arrangements(&extended_spring)/first;
-        arrangements = calculate_arrangements(spring) * extended.pow(4);
+        let extended = calculate_arrangements(&extended_spring)/part1;
+        arrangements = part1 * extended.pow(4);
     } else {
-        arrangements = calculate_arrangements(spring) * calculate_arrangements(&extended_spring).pow(4);
+        arrangements = part1 * calculate_arrangements(&extended_spring).pow(4);
     }
 
     arrangements
@@ -91,19 +93,34 @@ fn replace_nth_character(s: &mut String, n: usize, new_char: char) {
 
 fn calculate_arrangements(spring: &Spring) -> i128 {
     let sum:i128 = spring.numbers.iter().sum();
-    let hashes = spring.record.chars().filter(|&c| c == '#').count() as i128;
+    let hashes:Vec<usize> = spring.record.chars()
+    .enumerate()
+    .filter(|&(_, c)| c == '#')
+    .map(|(i, _)| i)
+    .collect();
     let unknowns: Vec<usize>  = spring.record.chars()
                                   .enumerate()
                                   .filter(|&(_, c)| c == '?')
                                   .map(|(i, _)| i) 
                                   .collect();
-    let hashes_to_place = (sum - hashes) as usize;
+
+    // let hash_or_unknown: Vec<usize>  = spring.record.chars()
+    //     .enumerate()
+    //     .filter(|&(_, c)| c == '?'|| c == '#')
+    //     .map(|(i, _)| i) 
+    //     .collect();
+    
+    let hashes_to_place = sum - hashes.len() as i128;
 
     let mut arrangements = 0;
-    let combination = unknowns.iter().combinations(hashes_to_place);
-    for combination in combination {
+    let combinations = unknowns.iter().combinations(hashes_to_place as usize);
+    // for combination in combinations.clone() {
+    //     println!("{:?}",combination);
+    // }
+
+    for combination in combinations {
         let mut mutated_record = spring.record.clone();
-        for i in 0..hashes_to_place {
+        for i in 0..hashes_to_place as usize {
             let one =combination[i];
             replace_nth_character(&mut mutated_record, *one, '#');
         }
@@ -153,8 +170,8 @@ mod tests {
                 numbers:vec![14,2]};
             
             assert_eq!(calculate_arrangements(&spring), 2);
-            // assert_eq!(calculate_arrangements_extended(&spring), 162);
         }
+        
     }
     
     mod part1 {
