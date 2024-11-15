@@ -34,7 +34,10 @@ fn part2(input:&str) -> i128{
     let springs = parse_data(input);
     
     let mut arrangement_sum = 0;
+    let mut it =0;
     for spring in springs {
+        println!("{} {}",it, arrangement_sum);
+        it+=1;
         arrangement_sum += calculate_arrangements_extended(&spring);
     }
 
@@ -141,6 +144,16 @@ mod tests {
                 numbers:vec![3,2,1]};
     
             assert_eq!(calculate_arrangements_extended(&spring), 506250);
+        }
+
+        #[test]
+        fn test2() {
+            let spring = Spring {
+                record:"#??#???????????.???".to_string(),
+                numbers:vec![14,2]};
+            
+            assert_eq!(calculate_arrangements(&spring), 2);
+            // assert_eq!(calculate_arrangements_extended(&spring), 162);
         }
     }
     
