@@ -1,0 +1,10 @@
+[package]
+name = "adventofcode"
+version = "0.1.0"
+authors = ["Menno Steensma <mennosteensma@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+lazy_static = "1.5.0"
+chrono = "0.4"
+regex = "1"

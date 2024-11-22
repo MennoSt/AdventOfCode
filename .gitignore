@@ -7,7 +7,6 @@
 *.egg-info
 *.sh
 target/
-*.toml
 build/
 debug/
 *.lock

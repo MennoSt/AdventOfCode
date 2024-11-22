@@ -14,7 +14,7 @@ fn main()
     // println!("{}",part1);
 
     let part2 = part2("../input/day12");
-    assert_eq!(part2, 7857);
+    assert_eq!(part2, 19236844035385);
     println!("{}",part2);
 
 }
@@ -109,15 +109,20 @@ fn calculate_arrangements(spring: &Spring) -> i128 {
     //     .filter(|&(_, c)| c == '?'|| c == '#')
     //     .map(|(i, _)| i) 
     //     .collect();
-
+    
     let hashes_to_place = sum - hashes.len() as i128;
 
-    let mut arrangements = 0;
-    let combinations = unknowns.iter().combinations(hashes_to_place as usize);
+
+    println!("{}","");
+    // let mut combinations_vec:Vec<Vec<&usize>>=Vec::new();
     // for combination in combinations.clone() {
-    //     println!("{:?}",combination);
+    //     let mut combination_ext = combination.clone();
+    //     combination_ext.extend(&hashes);
+    //     combination_ext.sort();
     // }
 
+    let combinations = unknowns.iter().combinations(hashes_to_place as usize);
+    let mut arrangements = 0;
     for combination in combinations {
         let mut mutated_record = spring.record.clone();
         for i in 0..hashes_to_place as usize {
