@@ -2,12 +2,12 @@ use lib::filereader;
 
 fn main()
 {
-    let contents = filereader::_input("inputday1");
+    let contents = filereader::_input("../puzzle_input/day1");
     let (vec1, vec2) = parse_data(contents);
     let part1 = part1(vec1.clone(), vec2.clone());
     assert_eq!(part1, 1666427);
     
-    let contents = filereader::_input("inputday1");
+    let contents = filereader::_input("../puzzle_input/day1");
     let (vec1, vec2) = parse_data(contents);
     let part2 = part2(vec1, vec2);
     println!("{} {}", part1, part2);
