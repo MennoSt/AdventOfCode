@@ -2,8 +2,6 @@
 **/AOCenv
 **/input
 *.pyc
-*.json
-*.vscode
 *.egg-info
 *.sh
 target/
@@ -15,7 +13,6 @@ debug/
 *build
 *CMakeFiles
 *googletest
-*lib
 *CMakeCache.txt
 *libExample.a
 *ExampleExec

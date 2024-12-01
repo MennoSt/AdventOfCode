@@ -13,7 +13,6 @@ fn main() {
     assert_eq!(sum, 430);
 
     //Examples part 2:
-    let str = "+3\n+3\n+4\n-2\n-4\n";
     assert_eq!(calculate_frequency(str.lines()), 10);
     let str = "-6\n+3\n+8\n+5\n-6\n";
     assert_eq!(calculate_frequency(str.lines()), 5);
