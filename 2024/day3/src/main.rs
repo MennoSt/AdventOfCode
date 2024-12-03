@@ -2,9 +2,13 @@ use lib::filereader;
 
 fn main()
 {
+    // let content = filereader::_input("../input/day3");
+    // let part1 = caculate_multiplication_sum(&content);
+    // println!("{}",part1);
+
     let content = filereader::_input("../input/day3");
-    let part1 = caculate_multiplication_sum(&content);
-    println!("{}",part1);
+    let part2 = caculate_multiplication_sum_part2(&content);
+    println!("{}",part2);
     
     // let part1 = total_distance(&int_vectors);
     // let part2 = total_similarity_score(&int_vectors);
@@ -74,7 +78,8 @@ fn caculate_multiplication_sum_part2(contents: &str) -> i32 {
     let mut enabled = true;
 
     for i in 0..contents.len() {
-        if starts_with_mulc(contents, i)
+        toggle_enabled(contents, i, &mut enabled);
+        if starts_with_mulc(contents, i) && enabled
             {
                 if let Some(ch) = contents.chars().nth(i+4){
                     if ch.is_ascii_digit() {
@@ -102,7 +107,6 @@ fn caculate_multiplication_sum_part2(contents: &str) -> i32 {
                     }
                     j+=1;
                 }
-                
 
                 multiplication_sum += first_digit.parse().unwrap_or(0) * 
                     second_digit.parse().unwrap_or(0);
@@ -122,16 +126,26 @@ fn starts_with_mulc(contents: &str, i: usize) -> bool {
         contents.chars().nth(i+3) == Some('(')
 }
 
-fn toggle_enabled(contents: &str, i: usize, enabled: &bool) {
+fn toggle_enabled(contents: &str, i: usize, enabled: &mut bool) {
     if *enabled {
-
         if contents.chars().nth(i) == Some('d') &&
             contents.chars().nth(i+1) == Some('o') && 
             contents.chars().nth(i+2) == Some('n') &&
             contents.chars().nth(i+3) == Some('\'') &&
-            contents.chars().nth(i+3) == Some('t') {
-                // *enabled = false;
+            contents.chars().nth(i+4) == Some('t') &&
+            contents.chars().nth(i+5) == Some('(') &&
+            contents.chars().nth(i+6) == Some(')') 
+            {
+                *enabled = false;
             }
+    } else {
+        if contents.chars().nth(i) == Some('d') &&
+        contents.chars().nth(i+1) == Some('o') &&
+        contents.chars().nth(i+2) == Some('(') &&
+        contents.chars().nth(i+3) == Some(')') 
+        {
+            *enabled = true;
+        }
     }
 }
 
@@ -162,7 +176,20 @@ mod tests {
 
     #[test]
     fn test4() {
-        let string = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
+        let string = "xmul(2,4)";
+        let sum = caculate_multiplication_sum_part2(string);
+        assert_eq!(sum, 8);
+    }
+    #[test]
+    fn test5() {
+        let string = "don't()xmul(2,4)";
+        let sum = caculate_multiplication_sum_part2(string);
+        assert_eq!(sum, 0);
+    }
+
+    #[test]
+    fn test6() {
+        let string = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
         let sum = caculate_multiplication_sum_part2(string);
         assert_eq!(sum, 48);
     }
