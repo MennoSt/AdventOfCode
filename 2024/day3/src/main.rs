@@ -2,52 +2,77 @@ use lib::filereader;
 
 fn main()
 {
-    let int_vectors = parse_data("../input/day1");
-    let part1 = total_distance(&int_vectors);
-    let part2 = total_similarity_score(&int_vectors);
+    let content = filereader::_input("../input/day3");
+    println!("{}",content);
     
-    assert_eq!(part1, 1666427);
-    assert_eq!(part2, 24316233);
-    println!("{} {}", part1, part2);
+    // let part1 = total_distance(&int_vectors);
+    // let part2 = total_similarity_score(&int_vectors);
+    
+    // assert_eq!(part1, 1666427);
+    // assert_eq!(part2, 24316233);
+    // println!("{} {}", part1, part2);
 }
 
-fn parse_data(input: &str) -> (Vec<i32>, Vec<i32>) {
+fn parse_data(input: &str) {
     let contents = filereader::_input(input);
-    let mut vec1: Vec<i32> = Vec::new();
-    let mut vec2: Vec<i32> = Vec::new();
-    for content in contents.lines() {
-        let numbers: Vec<i32> = content
-        .split_whitespace() 
-        .filter_map(|s| s.parse::<i32>().ok()) 
-        .collect();
-        vec1.push(numbers[0]);
-        vec2.push(numbers[1]);
-    }
-    vec1.sort();
-    vec2.sort();
-    (vec1, vec2)
 }
 
-fn total_distance(vectors: &(Vec<i32>, Vec<i32>)) -> i32 {
-    let distance: Vec<i32> = vectors.0.iter()
-    .zip(vectors.1.iter()) 
-    .map(|(a, b)| (a - b).abs())
-    .collect();
+fn caculate_multiplication_sum(contents: &str) -> i32 {
+    let mut first_digit = String::from("");
+    let mut second_digit = String::from("");
+    let mut start_second_digit = false;
+    let mut multiplication_sum = 0;
 
-    return distance.iter().sum();
+    for i in 0..contents.len() {
+        if starts_with_mulc(contents, i)
+            {
+                if let Some(ch) = contents.chars().nth(i+4){
+                    if ch.is_ascii_digit() {
+                        first_digit.push(ch);
+                    }
+                }
+                
+                let mut j = 5;
+                let mut ch = contents.chars().nth(i+j).unwrap();
+                while ch != ')' {
+                    ch = contents.chars().nth(i+j).unwrap();
+                    if ch.is_ascii_digit() && !start_second_digit{
+                        first_digit.push(ch);
+                    } else if ch == ',' {
+                        start_second_digit=true;
+                    } else if ch.is_ascii_digit() && start_second_digit {
+                        second_digit.push(ch);
+                    } else {
+                        break;
+                    }
+                    j+=1;
+                }
+                
+                multiplication_sum += first_digit.parse().unwrap_or(0) * 
+                    second_digit.parse().unwrap_or(0);
+                println!("{}{}",first_digit, second_digit);
+                first_digit.clear();
+                second_digit.clear();
+            }
+    }
+    return multiplication_sum;
 }
 
-fn total_similarity_score(vectors: &(Vec<i32>, Vec<i32>) ) -> i32 {
-    let mut count_vector: Vec<i32> = Vec::new();
-    for value in vectors.0.clone() {
-        let count = vectors.1.iter().filter(|&x| *x == value as i32).count();
-        count_vector.push(count as i32);
-    }
-    
-    let scores: Vec<i32> = vectors.0.iter()
-    .zip(count_vector.iter()) 
-    .map(|(a, b)| a * b)
-    .collect();
+fn starts_with_mulc(contents: &str, i: usize) -> bool {
+    contents.chars().nth(i) == Some('m') &&
+        contents.chars().nth(i+1) == Some('u') && 
+        contents.chars().nth(i+2) == Some('l') &&
+        contents.chars().nth(i+3) == Some('(')
+}
 
-    return scores.iter().sum();
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test1() {
+        let string = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
+        let sum = caculate_multiplication_sum(string);
+        assert_eq!(sum, 161);
+    }
 }
