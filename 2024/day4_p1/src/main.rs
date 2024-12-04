@@ -7,9 +7,6 @@ fn main()
     let grid = parse_data("../input/day4");
     let part1 = part1(&grid);
     println!("{}",part1);
-
-    let part2 = part2(&grid);
-    println!("{}",part2);
 }
 
 fn part1(grid:&Grid) ->i32
@@ -24,69 +21,18 @@ fn part1(grid:&Grid) ->i32
     return count;
 }
 
-fn part2(grid:&Grid) ->i32
+fn part2(grid:Grid) ->i32
 {
     let mut count = 0;
     for i in 0..grid._width() as i32 {
         for j in 0..grid._height() as i32 {
-            has_mas(&grid, i, j, &mut count);
+            has_xmas(&grid, i, j, &mut count);
         }
     }
 
     return count;
 }
 
-
-fn has_mas(grid: &Grid, i: i32, j: i32, count: &mut i32) {
-    
-    if grid._elem(i, j) == "A"
-    {
-        // if  grid._elem(i+1, j+1) == "M" &&
-        // grid._elem(i-1, j-1) == "M" &&
-        // grid._elem(i+1, j-1) == "S" &&
-        // grid._elem(i-1, j+1) == "S"
-        // {
-        //     println!("{}{}{}",i,j,"mas");
-        //     *count+=1;
-        // }
-
-        if  grid._elem(i+1, j+1) == "M" &&
-        grid._elem(i-1, j-1) == "S" &&
-        grid._elem(i+1, j-1) == "M" &&
-        grid._elem(i-1, j+1) == "S"
-        {
-            println!("{}{}{}",i,j,"mas");
-            *count+=1;
-        }
-
-        if  grid._elem(i+1, j+1) == "S" &&
-        grid._elem(i-1, j-1) == "M" &&
-        grid._elem(i+1, j-1) == "M" &&
-        grid._elem(i-1, j+1) == "S"
-        {
-            println!("{}{}{}",i,j,"mas");
-            *count+=1;
-        }
-
-        if  grid._elem(i+1, j+1) == "S" &&
-        grid._elem(i-1, j-1) == "M" &&
-        grid._elem(i+1, j-1) == "S" &&
-        grid._elem(i-1, j+1) == "M"
-        {
-            println!("{}{}{}",i,j,"mas");
-            *count+=1;
-        }
-
-        if  grid._elem(i+1, j+1) == "M" &&
-        grid._elem(i-1, j-1) == "S" &&
-        grid._elem(i+1, j-1) == "S" &&
-        grid._elem(i-1, j+1) == "M"
-        {
-            println!("{}{}{}",i,j,"mas");
-            *count+=1;
-        }
-    }
-}
 
 fn has_xmas(grid: &Grid, i: i32, j: i32, count: &mut i32) {
     
@@ -185,28 +131,7 @@ mod tests {
     #[test]
     fn test1() {
         let grid = parse_data("test1");
-        let sum = part1(&grid);
+        let sum = part1(grid);
         assert_eq!(sum, 18);
-    }
-
-    #[test]
-    fn test2() {
-        let grid = parse_data("test2");
-        let sum = part2(&grid);
-        assert_eq!(sum, 9);
-    }
-
-    #[test]
-    fn test3() {
-        let grid = parse_data("test3");
-        let sum = part2(&grid);
-        assert_eq!(sum, 1);
-    }
-
-    #[test]
-    fn test4() {
-        let grid = parse_data("test4");
-        let sum = part2(&grid);
-        assert_eq!(sum, 0);
     }
 }
