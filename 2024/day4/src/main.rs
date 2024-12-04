@@ -7,9 +7,11 @@ fn main()
     let grid = parse_data("../input/day4");
     let part1 = part1(&grid);
     println!("{}",part1);
-
     let part2 = part2(&grid);
     println!("{}",part2);
+    
+    assert_eq!(part1,2500);
+    assert_eq!(part2,1933);
 }
 
 fn part1(grid:&Grid) ->i32
@@ -38,52 +40,16 @@ fn part2(grid:&Grid) ->i32
 
 
 fn has_mas(grid: &Grid, i: i32, j: i32, count: &mut i32) {
-    
+    let borrowed_strings = vec!["MSMS", "SMMS", "SMSM", "MSSM"];
     if grid._elem(i, j) == "A"
     {
-        // if  grid._elem(i+1, j+1) == "M" &&
-        // grid._elem(i-1, j-1) == "M" &&
-        // grid._elem(i+1, j-1) == "S" &&
-        // grid._elem(i-1, j+1) == "S"
-        // {
-        //     println!("{}{}{}",i,j,"mas");
-        //     *count+=1;
-        // }
-
-        if  grid._elem(i+1, j+1) == "M" &&
-        grid._elem(i-1, j-1) == "S" &&
-        grid._elem(i+1, j-1) == "M" &&
-        grid._elem(i-1, j+1) == "S"
-        {
-            println!("{}{}{}",i,j,"mas");
-            *count+=1;
-        }
-
-        if  grid._elem(i+1, j+1) == "S" &&
-        grid._elem(i-1, j-1) == "M" &&
-        grid._elem(i+1, j-1) == "M" &&
-        grid._elem(i-1, j+1) == "S"
-        {
-            println!("{}{}{}",i,j,"mas");
-            *count+=1;
-        }
-
-        if  grid._elem(i+1, j+1) == "S" &&
-        grid._elem(i-1, j-1) == "M" &&
-        grid._elem(i+1, j-1) == "S" &&
-        grid._elem(i-1, j+1) == "M"
-        {
-            println!("{}{}{}",i,j,"mas");
-            *count+=1;
-        }
-
-        if  grid._elem(i+1, j+1) == "M" &&
-        grid._elem(i-1, j-1) == "S" &&
-        grid._elem(i+1, j-1) == "S" &&
-        grid._elem(i-1, j+1) == "M"
-        {
-            println!("{}{}{}",i,j,"mas");
-            *count+=1;
+        for elem in borrowed_strings {
+           if grid._elem(i+1, j+1) == elem.chars().nth(0).unwrap().to_string() &&
+            grid._elem(i-1, j-1) == elem.chars().nth(1).unwrap().to_string() &&
+            grid._elem(i+1, j-1) == elem.chars().nth(2).unwrap().to_string() &&
+            grid._elem(i-1, j+1) == elem.chars().nth(3).unwrap().to_string() {
+                *count+=1;
+            }
         }
     }
 }
