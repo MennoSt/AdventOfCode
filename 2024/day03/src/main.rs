@@ -2,7 +2,7 @@ use lib::filereader;
 
 fn main()
 {
-    let content = filereader::_input("../input/day3");
+    let content = filereader::_input("../input/day03");
     let part1 = part1(&content);
     let part2 = part2(&content);
     

@@ -2,7 +2,7 @@ use lib::filereader;
 
 fn main()
 {
-    let int_vectors = parse_data("../input/day1");
+    let int_vectors = parse_data("../input/day01");
     let part1 = total_distance(&int_vectors);
     let part2 = total_similarity_score(&int_vectors);
     

@@ -11,7 +11,7 @@ fn main()
 }
 
 fn calculate_safe_reports(tolerate_single_bad:bool) -> i32 {
-    let vec_numbers = parse_data("../input/day2");
+    let vec_numbers = parse_data("../input/day02");
     let mut counter = 0;
     for vec in &vec_numbers {
         if is_safe(&vec, tolerate_single_bad) {
