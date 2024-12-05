@@ -5,4 +5,5 @@ authors = ["Menno Steensma <mennosteensma@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+itertools = "0.13.0"
 lib = { path = "../../lib/rustutils" }
