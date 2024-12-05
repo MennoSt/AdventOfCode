@@ -1,90 +1,64 @@
 use lib::filereader;
-use lib::grid::Grid;
 
 fn main()
 {
-    let (part1,part2) = solve("../input/day04");
-    println!("{}", part1);
-    println!("{}", part2);
+    let (ordering_vec,pages_vec) = parse_data("../input/day05");
 
-    assert_eq!(part1, 2500);
-    assert_eq!(part2, 1933);
+    let part1 = part1(&ordering_vec, &pages_vec);
+    println!("{}", part1);
+    // println!("{}", part2);
+
+    // assert_eq!(part1, 2500);
+    // assert_eq!(part2, 1933);
 }
 
-fn solve(input:&str) ->(i32,i32)
-{
-    let grid = parse_data(input);
-    let mut xmas_count = 0;
-    let mut mas_count = 0;
-
-    for i in 0..grid._width() as i32 {
-        for j in 0..grid._height() as i32 {
-            has_mas(&grid, i, j, &mut mas_count);
-            has_xmas(&grid, i, j, &mut xmas_count);
+fn part1(ordering_vec: &Vec<Vec<i32>>, pages_vec: &Vec<Vec<i32>>) ->i32 {
+    let mut sum = 0;
+    for page in pages_vec {
+        if has_correct_order(&ordering_vec, &page) {
+            sum += get_middle_value(&page);
         }
     }
-    
-    (xmas_count, mas_count)
+    sum
 }
 
-fn parse_data(contents: &str)-> Grid
+fn get_middle_value (page:&Vec<i32>) -> i32{
+    return page[page.len()/2];
+}
+
+fn has_correct_order (ordering_vec:&Vec<Vec<i32>>, page:&Vec<i32>) -> bool {
+    for i in 0..(page.len()-1) {
+        let vec = vec![page[i],page[i+1]];
+        if !ordering_vec.contains(&vec) {
+            // println!("{:?}",vec);
+            return false;
+        }
+    }
+    return true;
+}
+
+fn parse_data(contents: &str) -> (Vec<Vec<i32>>, Vec<Vec<i32>>)
 {
     let contents = filereader::_input(&contents);
-    let grid = read_into_grid(&contents);
-    grid
-}
+    let mut vec1:Vec<Vec<i32>> = Vec::new();
+    let mut vec2:Vec<Vec<i32>> = Vec::new();
 
-fn read_into_grid(contents: &str) -> Grid {
-    let mut contents_vector: Vec<Vec<String>> = Vec::new();
-    for line in contents.lines() {
-        let test:Vec<char> = line.chars().collect();
-        let strings = test
-        .iter()
-        .map(|c| String::from(c.to_string()))
-        .collect::<Vec<String>>();
-        contents_vector.push(strings);
-    }
-    let grid = Grid{grid_vec:contents_vector};
-    grid
-}
-
-fn has_mas(grid: &Grid, i: i32, j: i32, count: &mut i32) 
-{
-    let mas_strings = vec!["MSMS", "SMMS", "SMSM", "MSSM"];
-    if grid._elem(i, j) == "A"
-    {
-        for mas in mas_strings {
-           if grid._elem(i+1, j+1) == mas.chars().nth(0).unwrap().to_string() &&
-            grid._elem(i-1, j-1) == mas.chars().nth(1).unwrap().to_string() &&
-            grid._elem(i+1, j-1) == mas.chars().nth(2).unwrap().to_string() &&
-            grid._elem(i-1, j+1) == mas.chars().nth(3).unwrap().to_string() {
-                *count+=1;
-            }
+    for content in contents.lines() {
+        if content.contains('|') {
+            let numbers: Vec<i32> = content
+            .split('|')    
+            .map(|s| s.parse::<i32>().unwrap()) 
+            .collect();
+            vec1.push(numbers);
+        } else if content.contains(',') {
+            let numbers: Vec<i32> = content
+            .split(',')
+            .map(|s| s.parse::<i32>().unwrap())
+            .collect();
+            vec2.push(numbers);
         }
     }
-}
-
-fn has_xmas(grid: &Grid, i: i32, j: i32, count: &mut i32) 
-{
-   let directions :Vec<Vec<(i32,i32)>> = vec![
-        vec![(i+1,j),(i+2,j),(i+3,j)],
-        vec![(i-1,j),(i-2,j),(i-3,j)],
-        vec![(i,j+1),(i,j+2),(i,j+3)],
-        vec![(i,j-1),(i,j-2),(i,j-3)],
-        vec![(i+1,j+1),(i+2,j+2),(i+3,j+3)],
-        vec![(i-1,j-1),(i-2,j-2),(i-3,j-3)],
-        vec![(i-1,j+1),(i-2,j+2),(i-3,j+3)],
-        vec![(i+1,j-1),(i+2,j-2),(i+3,j-3)]];
-    
-    if grid._elem(i,j) =="X" {
-        for dir in directions {
-            if grid._elem(dir.get(0).unwrap().0, dir.get(0).unwrap().1,) == "M" &&
-                grid._elem(dir.get(1).unwrap().0, dir.get(1).unwrap().1,) == "A" &&
-                grid._elem(dir.get(2).unwrap().0, dir.get(2).unwrap().1,) == "S" {
-                *count+=1;
-            }
-        }
-    }
+    (vec1,vec2)
 }
 
 #[cfg(test)]
@@ -93,25 +67,26 @@ mod tests {
 
     #[test]
     fn test1() {
-        let sum = solve("test1");
-        assert_eq!(sum.0, 18);
+        let data = parse_data("test1");
+        let page = vec![75,47,61,53,29];
+        let valid_order = has_correct_order(&data.0, &page);
+        assert!(valid_order);
     }
 
     #[test]
     fn test2() {
-        let sum = solve("test2");
-        assert_eq!(sum.1, 9);
+        let data = parse_data("test1");
+        let page = vec![97,13,75,29,47];
+        let valid_order = has_correct_order(&data.0, &page);
+        assert!(!valid_order);
     }
 
     #[test]
     fn test3() {
-        let sum = solve("test3");
-        assert_eq!(sum.1, 1);
+        let data = parse_data("test1");
+        let part1 = part1(&data.0, &data.1);
+        assert_eq!(part1,143);
     }
 
-    #[test]
-    fn test4() {
-        let sum = solve("test4");
-        assert_eq!(sum.1, 0);
-    }
+
 }
