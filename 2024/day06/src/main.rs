@@ -21,22 +21,24 @@ enum Direction {
 fn main()
 {
     let grid= parse_data("../input/day06");
-    let part1 = iterate(grid);
+    let part1 = iterate_part1(grid);
     println!("{}",part1);
     assert_eq!(part1, 4454);
     // assert_eq!(part2, 1933);
 }
 
-fn iterate(grid: Grid) -> usize{
-    let mut visited = Vec::new();
+
+fn iterate_part2(grid: Grid) -> usize{
+  
     let mut direction = Direction::Up;
     let start_pos = start_pos(&grid);
     let mut current_pos = start_pos.clone();
-    visited.push(start_pos.clone());
     let mut vec_coord:Vec<Coordinate> = Vec::new();
     
-    while (current_pos.x < (grid._width()-1) as i32)&& current_pos.x >= 0 && 
-        (current_pos.y < (grid._height()-1) as i32) && current_pos.y >= 0 
+    vec_coord.push(start_pos.clone());
+
+    while (current_pos.x < (grid._width()-1) as i32)&& current_pos.x > 0 && 
+        (current_pos.y < (grid._height()-1) as i32) && current_pos.y > 0 
         {
         let next_elem;
         if direction == Direction::Up {
@@ -56,23 +58,78 @@ fn iterate(grid: Grid) -> usize{
                 direction = Direction::Down;
             } else if direction == Direction::Down {
                 direction = Direction::Left;
-            } else if direction == Direction::Left {
+            } else {
                 direction = Direction::Up;
             }
         }
+
         if direction == Direction::Up {
             current_pos.y = current_pos.y-1;
         } else if direction == Direction::Right {
             current_pos.x = current_pos.x+1;
         } else if direction == Direction::Down {
             current_pos.y = current_pos.y+1;
-        } else if direction == Direction::Left {
+        } else {
             current_pos.x = current_pos.x-1;
         }
-        vec_coord.push(current_pos.clone());
+
+        if !vec_coord.contains(&current_pos) {
+            vec_coord.push(current_pos.clone());
+        }
     }
-    vec_coord.sort();
-    vec_coord.dedup();
+    vec_coord.len()
+}
+
+
+fn iterate_part1(grid: Grid) -> usize{
+    
+    let mut direction = Direction::Up;
+    let start_pos = start_pos(&grid);
+    let mut current_pos = start_pos.clone();
+    let mut vec_coord:Vec<Coordinate> = Vec::new();
+    
+    vec_coord.push(start_pos.clone());
+
+    while (current_pos.x < (grid._width()-1) as i32)&& current_pos.x > 0 && 
+        (current_pos.y < (grid._height()-1) as i32) && current_pos.y > 0 
+        {
+        let next_elem;
+        if direction == Direction::Up {
+            next_elem = grid._elem(current_pos.x, current_pos.y-1);
+        } else if direction == Direction::Right {
+            next_elem = grid._elem(current_pos.x+1, current_pos.y);
+        } else if direction == Direction::Down {
+            next_elem = grid._elem(current_pos.x, current_pos.y+1);
+        } else {
+            next_elem = grid._elem(current_pos.x-1, current_pos.y);
+        }
+
+        if next_elem == "#" {
+            if direction == Direction::Up {
+                direction = Direction::Right;
+            } else if direction == Direction::Right {
+                direction = Direction::Down;
+            } else if direction == Direction::Down {
+                direction = Direction::Left;
+            } else {
+                direction = Direction::Up;
+            }
+        }
+
+        if direction == Direction::Up {
+            current_pos.y = current_pos.y-1;
+        } else if direction == Direction::Right {
+            current_pos.x = current_pos.x+1;
+        } else if direction == Direction::Down {
+            current_pos.y = current_pos.y+1;
+        } else {
+            current_pos.x = current_pos.x-1;
+        }
+
+        if !vec_coord.contains(&current_pos) {
+            vec_coord.push(current_pos.clone());
+        }
+    }
     vec_coord.len()
 }
 
@@ -85,7 +142,6 @@ fn start_pos(grid: &Grid) -> Coordinate {
             }
         }
     }
-
     Coordinate {x:0, y:0}
 }
 
@@ -117,7 +173,7 @@ mod tests {
     #[test]
     fn test1() {
         let grid= parse_data("test1");
-        let answer = iterate(grid);
+        let answer = iterate_part1(grid);
         assert_eq!(answer,41);
     }
 }
