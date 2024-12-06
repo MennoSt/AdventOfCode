@@ -1,15 +1,13 @@
 use lib::filereader;
 use lib::grid::Grid;
 
-
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug,Clone)]
 struct Coordinate {
     x: i32,
     y: i32,
 }
 
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(PartialEq, Clone)]
 enum Direction {
     Up,
     Down,
@@ -25,9 +23,9 @@ fn main()
     println!("{}",part1);
     assert_eq!(part1, 4454);
 
-    // let part2 = iterate_part2(grid);
-    // println!("{}",part2);
-    // assert_eq!(part2, 1933);
+    let part2 = iterate_part2(grid);
+    println!("{}",part2);
+    assert_eq!(part2, 1503);
 }
 
 
@@ -49,18 +47,14 @@ fn iterate_part2(grid: Grid) -> usize{
             grid_mut._set_str(i as i32, j as i32, "#".to_string());
             if is_loop(&mut current_pos, &grid_mut, &mut direction, &mut vec_coord) {
                 number_of_obstructions +=1;
-                println!("{}","foundObstruction")
             }
             current_pos = start_pos.clone();
             vec_coord.clear();
             direction = Direction::Up;
             grid_mut = grid.clone();
             it+=1;
-            println!("iteration {}",it);
         }
     }
-
-
     number_of_obstructions
 }
 
@@ -70,7 +64,7 @@ fn is_loop(mut current_pos: &mut Coordinate, grid_mut: &Grid, direction: &mut Di
         (current_pos.y < (grid_mut._height()-1) as i32) && current_pos.y >= 0 
         {
         if next_element(&direction, &grid_mut, &current_pos) == "#" {
-            change_direction(direction);
+            change_direction(direction, &grid_mut,&current_pos);
         }
         update_current_position(&direction, current_pos);
         
@@ -81,22 +75,36 @@ fn is_loop(mut current_pos: &mut Coordinate, grid_mut: &Grid, direction: &mut Di
         }
         vec_coord.push((current_pos.clone(), direction.clone()));
     }
-
     is_loop
 }
 
-fn change_direction(direction: &mut Direction) {
+fn change_direction(direction: &mut Direction, grid: &Grid, current_pos: &Coordinate) {
     if *direction == Direction::Up {
         *direction = Direction::Right;
+        if grid._elem(current_pos.x+1, current_pos.y)=="#"
+        {
+            change_direction(direction, grid, current_pos);
+        }
     } else if *direction == Direction::Right {
         *direction = Direction::Down;
+        if grid._elem(current_pos.x, current_pos.y+1)=="#"
+        {
+            change_direction(direction, grid, current_pos);
+        }
     } else if *direction == Direction::Down {
         *direction = Direction::Left;
+        if grid._elem(current_pos.x-1, current_pos.y)=="#"
+        {
+            change_direction(direction, grid, current_pos);
+        }
     } else {
         *direction = Direction::Up;
+        if grid._elem(current_pos.x, current_pos.y-1)=="#"
+        {
+            change_direction(direction, grid, current_pos);
+        }
     }
 }
-
 
 fn iterate_part1(grid: Grid) -> usize{
     
@@ -112,7 +120,7 @@ fn iterate_part1(grid: Grid) -> usize{
         {
 
         if next_element(&direction, &grid, &current_pos) == "#" {
-            change_direction(&mut direction);
+            change_direction(&mut direction, &grid, &current_pos);
         }
 
         update_current_position(&direction, &mut current_pos);
@@ -210,10 +218,10 @@ mod tests {
     fn test2() {
         isloop_test("test2");
         isloop_test("test3");
-        isloop_test("test3");
+        isloop_test("test4");
+        isloop_test("test5");
     }
 
-    
     #[test]
     fn test3() {
         let grid= parse_data("test1");
