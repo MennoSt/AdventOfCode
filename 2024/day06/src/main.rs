@@ -5,16 +5,17 @@ use std::{cmp::Ordering, collections::HashSet};
 
 fn main()
 {
-    let (ordering_vec,pages_vec) = parse_data("../input/day05");
+    let (ordering_vec,pages_vec) = parse_data("../input/day06");
 
     let part1 = part1(&ordering_vec, &pages_vec);
     println!("{}", part1);
 
     let part2 = part2(&ordering_vec, &pages_vec);
     println!("{}", part2);
+    // println!("{}", part2);
 
-    assert_eq!(part1, 4959);
-    assert_eq!(part2, 4655);
+    // assert_eq!(part1, 2500);
+    // assert_eq!(part2, 1933);
 }
 
 fn part2(ordering_vec: &Vec<(i32,i32)>, pages_vec: &Vec<Vec<i32>>) ->i32 {
