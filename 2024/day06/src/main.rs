@@ -1,131 +1,113 @@
 use lib::filereader;
-use itertools::{concat, Itertools};
-use std::{cmp::Ordering, collections::HashSet};
+use lib::grid::Grid;
 
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug,Clone)]
+struct Coordinate {
+    x: i32,
+    y: i32,
+}
+
+#[derive(PartialEq)]
+#[derive(Clone)]
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+    None,
+}
 
 fn main()
 {
-    let (ordering_vec,pages_vec) = parse_data("../input/day06");
-
-    let part1 = part1(&ordering_vec, &pages_vec);
-    println!("{}", part1);
-
-    let part2 = part2(&ordering_vec, &pages_vec);
-    println!("{}", part2);
-    // println!("{}", part2);
-
-    // assert_eq!(part1, 2500);
+    let grid= parse_data("../input/day06");
+    let part1 = iterate(grid);
+    println!("{}",part1);
+    assert_eq!(part1, 4454);
     // assert_eq!(part2, 1933);
 }
 
-fn part2(ordering_vec: &Vec<(i32,i32)>, pages_vec: &Vec<Vec<i32>>) ->i32 {
-    let mut sum = 0;
-    for page in pages_vec {
-        if !has_correct_order(&ordering_vec, &page) {
-            let ordered_page = order_incorrect_page(ordering_vec, page);
-            sum += get_middle_value(&ordered_page);
-        } 
-    }
-    sum
-}
+fn iterate(grid: Grid) -> usize{
+    let mut visited = Vec::new();
+    let mut direction = Direction::Up;
+    let start_pos = start_pos(&grid);
+    let mut current_pos = start_pos.clone();
+    visited.push(start_pos.clone());
+    let mut vec_coord:Vec<Coordinate> = Vec::new();
+    
+    while (current_pos.x < (grid._width()-1) as i32)&& current_pos.x >= 0 && 
+        (current_pos.y < (grid._height()-1) as i32) && current_pos.y >= 0 
+        {
+        let next_elem;
+        if direction == Direction::Up {
+            next_elem = grid._elem(current_pos.x, current_pos.y-1);
+        } else if direction == Direction::Right {
+            next_elem = grid._elem(current_pos.x+1, current_pos.y);
+        } else if direction == Direction::Down {
+            next_elem = grid._elem(current_pos.x, current_pos.y+1);
+        } else {
+            next_elem = grid._elem(current_pos.x-1, current_pos.y);
+        }
 
-fn order_incorrect_page(ordering_vec: &Vec<(i32,i32)>, page:&Vec<i32>) -> Vec<i32> {
-    let mut corrected_page = Vec::new();
-    let mut found_page = Vec::new();
-    let possible_pairs = calculate_possible_pairs(page, ordering_vec);
-    let mut result = Vec::new();
-
-    for pair in &possible_pairs {
-        corrected_page.push(*pair);
-        calc_chain(&possible_pairs, pair, &mut corrected_page, &mut found_page,page.len() as i32);
-        corrected_page.pop();
-    }  
-
-    println!("found page pairs: {:?}",found_page);
-
-    result.push(found_page[0].0);
-    for pair in found_page {
-        result.push(pair.1);
-    }
-    return result;
-
-}
-
-fn calc_chain(possible_pairs: &Vec<(i32, i32)>, pair_prev: &(i32, i32), corrected_page: &mut Vec<(i32,i32)>, found_page: &mut Vec<(i32,i32)>, length:i32) {
-    for pair in possible_pairs {
-        if pair_prev.1 == pair.0 {
-            corrected_page.push(*pair);
-            if corrected_page.len() as i32 == (length-1) {
-                *found_page = corrected_page.clone();
+        if next_elem == "#" {
+            if direction == Direction::Up {
+                direction = Direction::Right;
+            } else if direction == Direction::Right {
+                direction = Direction::Down;
+            } else if direction == Direction::Down {
+                direction = Direction::Left;
+            } else if direction == Direction::Left {
+                direction = Direction::Up;
             }
-            calc_chain(possible_pairs, pair, corrected_page,found_page,length) ;
-            corrected_page.pop();
+        }
+        if direction == Direction::Up {
+            current_pos.y = current_pos.y-1;
+        } else if direction == Direction::Right {
+            current_pos.x = current_pos.x+1;
+        } else if direction == Direction::Down {
+            current_pos.y = current_pos.y+1;
+        } else if direction == Direction::Left {
+            current_pos.x = current_pos.x-1;
+        }
+        vec_coord.push(current_pos.clone());
+    }
+    vec_coord.sort();
+    vec_coord.dedup();
+    vec_coord.len()
+}
+
+fn start_pos(grid: &Grid) -> Coordinate {
+    for i in 0..grid._width() as i32 {
+        for j in 0..grid._height() as i32 {
+            if grid._elem(i, j) == "^"
+            {
+                return Coordinate {x:i , y: j};
+            }
         }
     }
+
+    Coordinate {x:0, y:0}
 }
 
-fn calculate_possible_pairs(page: &Vec<i32>, ordering_vec: &Vec<(i32, i32)>) -> Vec<(i32, i32)> {
-
-    let mut possible_pairs:Vec<(i32,i32)> = Vec::new();
-    for vec in ordering_vec {
-        if page.contains(&vec.0) && page.contains(&vec.1) {
-            possible_pairs.push(*vec);
-        }
-    }
-
-    possible_pairs.dedup();
-    possible_pairs
-}
-
-fn part1(ordering_vec: &Vec<(i32,i32)>, pages_vec: &Vec<Vec<i32>>) ->i32 {
-    let mut sum = 0;
-    for page in pages_vec {
-        if has_correct_order(&ordering_vec, &page) {
-            sum += get_middle_value(&page);
-        }
-    }
-    sum
-}
-
-fn get_middle_value(page:&Vec<i32>) -> i32{
-    return page[page.len()/2];
-}
-
-fn has_correct_order(ordering_vec:&Vec<(i32,i32)>, page:&Vec<i32>) -> bool {
-    for i in 0..(page.len()-1) {
-        let vec = (page[i],page[i+1]);
-        if !ordering_vec.contains(&vec) {
-            return false;
-        }
-    }
-    return true;
-}
-
-fn parse_data(contents: &str) -> (Vec<(i32,i32)>, Vec<Vec<i32>>)
+fn parse_data(contents: &str)-> Grid
 {
     let contents = filereader::_input(&contents);
-    let mut vec1:Vec<(i32,i32)> = Vec::new();
-    let mut vec2:Vec<Vec<i32>> = Vec::new();
+    let grid = read_into_grid(&contents);
+    grid
+}
 
-    for content in contents.lines() {
-        if content.contains('|') {
-            let numbers: Vec<i32> = content
-            .split('|')    
-            .map(|s| s.parse::<i32>().unwrap()) 
-            .collect();
-            let test = (numbers[0],numbers[1]);
-            vec1.push(test);
-        } else if content.contains(',') {
-            let numbers: Vec<i32> = content
-            .split(',')
-            .map(|s| s.parse::<i32>().unwrap())
-            .collect();
-            vec2.push(numbers);
-        }
+fn read_into_grid(contents: &str) -> Grid {
+    let mut contents_vector: Vec<Vec<String>> = Vec::new();
+    for line in contents.lines() {
+        let test:Vec<char> = line.chars().collect();
+        let strings = test
+        .iter()
+        .map(|c| String::from(c.to_string()))
+        .collect::<Vec<String>>();
+        contents_vector.push(strings);
     }
-    vec1.sort_by_key(|k| k.0);
-    // println!("{:?}",vec1);
-    (vec1,vec2)
+    let grid = Grid{grid_vec:contents_vector};
+    grid
 }
 
 #[cfg(test)]
@@ -134,39 +116,8 @@ mod tests {
 
     #[test]
     fn test1() {
-        let data = parse_data("test1");
-        let page = vec![75,47,61,53,29];
-        let valid_order = has_correct_order(&data.0, &page);
-        assert!(valid_order);
-    }
-
-    #[test]
-    fn test2() {
-        let data = parse_data("test1");
-        let page = vec![97,13,75,29,47];
-        let valid_order = has_correct_order(&data.0, &page);
-        assert!(!valid_order);
-    }
-
-    #[test]
-    fn test3() {
-        let data = parse_data("test1");
-        let part1 = part1(&data.0, &data.1);
-        assert_eq!(part1,143);
-    }
-
-    #[test]
-    fn test4() {
-        let data = parse_data("test1");
-        let invalid_page: Vec<i32> = vec![75,97,47,61,53];
-        let page = order_incorrect_page(&data.0, &invalid_page);
-        assert_eq!(page, vec![97,75,47,61,53]);
-    }
-
-    #[test]
-    fn test5() {
-        let data = parse_data("test1");
-        let part1 = part2(&data.0, &data.1);
-        assert_eq!(part1,123);
+        let grid= parse_data("test1");
+        let answer = iterate(grid);
+        assert_eq!(answer,41);
     }
 }
