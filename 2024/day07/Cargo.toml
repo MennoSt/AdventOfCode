@@ -2,7 +2,8 @@
 name = "adventofcode"
 version = "0.1.0"
 authors = ["Menno Steensma <mennosteensma@gmail.com>"]
-edition = "2024"
+edition = "2018"
 
 [dependencies]
-lib = { path = "../lib" }
+itertools = "0.13.0"
+lib = { path = "../../lib/rustutils" }

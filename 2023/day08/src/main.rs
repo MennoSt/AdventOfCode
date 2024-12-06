@@ -1,6 +1,6 @@
 use std::vec;
 
-mod filereader;
+use lib::filereader;
 
 #[derive(Clone)]
 struct Instruction {

@@ -1,4 +1,4 @@
-mod filereader;
+use lib::filereader;
 use std::{collections::HashMap, vec};
 
 #[derive(PartialEq)]

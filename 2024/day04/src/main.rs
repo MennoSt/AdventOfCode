@@ -13,7 +13,7 @@ fn main()
 
 fn solve(input:&str) ->(i32,i32)
 {
-    let grid = parse_data(input);
+    let grid = filereader::_input_into_grid(input);
     let mut xmas_count = 0;
     let mut mas_count = 0;
 
@@ -25,27 +25,6 @@ fn solve(input:&str) ->(i32,i32)
     }
     
     (xmas_count, mas_count)
-}
-
-fn parse_data(contents: &str)-> Grid
-{
-    let contents = filereader::_input(&contents);
-    let grid = read_into_grid(&contents);
-    grid
-}
-
-fn read_into_grid(contents: &str) -> Grid {
-    let mut contents_vector: Vec<Vec<String>> = Vec::new();
-    for line in contents.lines() {
-        let test:Vec<char> = line.chars().collect();
-        let strings = test
-        .iter()
-        .map(|c| String::from(c.to_string()))
-        .collect::<Vec<String>>();
-        contents_vector.push(strings);
-    }
-    let grid = Grid{grid_vec:contents_vector};
-    grid
 }
 
 fn has_mas(grid: &Grid, i: i32, j: i32, count: &mut i32) 

@@ -1,4 +1,4 @@
-mod filereader;
+use lib::filereader;
 
 #[derive(PartialEq)]
 #[derive(Debug)]

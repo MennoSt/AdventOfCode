@@ -1,7 +1,7 @@
-mod filereader;
+use lib::filereader;
 
 fn main() {
-    let contents = filereader::input("../input/day02");
+    let contents = filereader::_input("../input/day02");
 
     let answer_part1 = calculate_sum_part1(contents.clone());
     assert_eq!(answer_part1, 2156);

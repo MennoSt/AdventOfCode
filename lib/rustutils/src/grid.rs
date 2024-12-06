@@ -35,6 +35,12 @@ impl Grid {
         self.grid_vec[y_usize][x_usize] = value.to_string();
     }
 
+    pub fn _set_str(&mut self, x: i32, y: i32, value: String) {
+        let x_usize: usize = x as usize;
+        let y_usize: usize = y as usize;
+        self.grid_vec[y_usize][x_usize] = value;
+    }
+
     pub fn _print(&self) {
         for grid in &self.grid_vec {
             println!("{:?}",grid);

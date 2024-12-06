@@ -1,4 +1,4 @@
-mod filereader;
+use lib::filereader;
 use std::time::{SystemTime, Duration};
 use std::collections::HashMap;
 

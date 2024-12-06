@@ -1,4 +1,4 @@
-mod filereader;
+use lib::filereader;
 
 #[derive(PartialEq)]
 #[derive(Clone)]
@@ -42,7 +42,7 @@ impl Grid {
 }
 
 fn main() {
-    let contents_ex = filereader::input("../input/day03");
+    let contents_ex = filereader::_input("../input/day03");
     // let sum = calculate_sum_numbers(contents_ex.clone());
     // assert_eq!(sum, 4361);
 
@@ -56,7 +56,7 @@ fn main() {
     // println!("example {}",gear_ratio_sum);
     // assert_eq!(gear_ratio_sum, 0);
 
-    let contents_ex = filereader::input("exampleinput2023day3_3");
+    let contents_ex = filereader::_input("exampleinput2023day3_3");
     let gear_ratio_sum = calculate_gear_ratio(contents_ex.clone());
     println!("example {}",gear_ratio_sum);
     assert_eq!(gear_ratio_sum, 200);
@@ -66,12 +66,12 @@ fn main() {
     // println!("example {}",gear_ratio_sum);
     // assert_eq!(gear_ratio_sum, 200);
 
-    let contents_ex = filereader::input("exampleinput2023day3");
+    let contents_ex = filereader::_input("exampleinput2023day3");
     let gear_ratio_sum = calculate_gear_ratio(contents_ex.clone());
     println!("anwser {}",gear_ratio_sum);
     assert_eq!(gear_ratio_sum, 467835);
 
-    let contents = filereader::input("input2023day3");
+    let contents = filereader::_input("../input/day03");
     let gear_ratio_sum = calculate_gear_ratio(contents.clone());
     println!("anwser {}",gear_ratio_sum);
     assert_eq!(gear_ratio_sum, 87449461);

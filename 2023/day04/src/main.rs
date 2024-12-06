@@ -1,4 +1,4 @@
-mod filereader;
+use lib::filereader;
 
 struct Card {
     _number:i32,

@@ -1,7 +1,4 @@
 use lib::filereader;
-use itertools::{concat, Itertools};
-use std::{cmp::Ordering, collections::HashSet};
-
 
 fn main()
 {
@@ -40,14 +37,12 @@ fn order_incorrect_page(ordering_vec: &Vec<(i32,i32)>, page:&Vec<i32>) -> Vec<i3
         corrected_page.pop();
     }  
 
-    println!("found page pairs: {:?}",found_page);
-
     result.push(found_page[0].0);
     for pair in found_page {
         result.push(pair.1);
     }
-    return result;
 
+    return result;
 }
 
 fn calc_chain(possible_pairs: &Vec<(i32, i32)>, pair_prev: &(i32, i32), corrected_page: &mut Vec<(i32,i32)>, found_page: &mut Vec<(i32,i32)>, length:i32) {
@@ -123,7 +118,6 @@ fn parse_data(contents: &str) -> (Vec<(i32,i32)>, Vec<Vec<i32>>)
         }
     }
     vec1.sort_by_key(|k| k.0);
-    // println!("{:?}",vec1);
     (vec1,vec2)
 }
 

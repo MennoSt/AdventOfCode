@@ -5,4 +5,4 @@ authors = ["Menno Steensma <mennosteensma@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-lib = { path = "../lib" }
+lib = { path = "../../lib/rustutils" }
