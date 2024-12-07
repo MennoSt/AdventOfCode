@@ -1,195 +1,111 @@
+use itertools::Position;
 use lib::filereader;
 use lib::grid::Grid;
 use lib::utils::*;
 
+struct Calculation {
+    answer:i128,
+    values:Vec<i128>,
+}
+
 fn main()
 {
-    let grid= filereader::_input_into_grid("../input/day06");
-    let part1 = part1(grid.clone());
+    let part1 = part1("../input/day07");
+    
     println!("{}",part1);
-    assert_eq!(part1, 4454);
-
-    let part2 = part2(grid);
-    println!("{}",part2);
-    assert_eq!(part2, 1503);
+    assert_eq!(part1, 1260333054159);
+    
+    // let part2 = part2(grid);
+    // println!("{}",part2);
+    // assert_eq!(part2, 1503);
 }
-
-fn part1(grid: Grid) -> usize{
-    
-    let mut direction = Direction::Up;
-    let start_pos = start_pos(&grid);
-    let mut current_pos = start_pos.clone();
-    let mut vec_coord:Vec<Coordinate> = Vec::new();
-    
-    vec_coord.push(start_pos.clone());
-
-    while (current_pos.x < (grid._width()-1) as i32)&& current_pos.x > 0 && 
-        (current_pos.y < (grid._height()-1) as i32) && current_pos.y > 0 
-        {
-
-        if next_element(&direction, &grid, &current_pos) == "#" {
-            change_direction(&mut direction, &grid, &current_pos);
-        }
-
-        update_current_position(&direction, &mut current_pos);
-
-        if !vec_coord.contains(&current_pos) {
-            vec_coord.push(current_pos.clone());
+fn part1(input:&str) -> i128{
+    let calculations = parse_data(input);
+    let mut sum = 0;
+    for calculation in &calculations {
+        if calculate_configurations(calculation) > 0 {
+            sum += calculation.0;
         }
     }
-    vec_coord.len()
+    sum
 }
 
-fn part2(grid: Grid) -> usize{
-  
-    let mut number_of_obstructions = 0;
+fn calculate_configurations(calculation:&(i128,Vec<i128>)) ->i128 {
 
-    let mut direction = Direction::Up;
-    let start_pos = start_pos(&grid);
-    let mut current_pos = start_pos.clone();
-    let mut vec_coord:Vec<(Coordinate,Direction)> = Vec::new();
-    vec_coord.push((start_pos.clone(), Direction::Up));
+    let mut values = calculation.1.clone();
+    values.reverse();
+    let answer = calculation.0;
+    let mut configurations = 0;
 
-    let mut grid_mut = grid.clone();
-    
-    for i in 0..grid_mut._width() {
-        for j in 0..grid_mut._height(){
-            grid_mut._set_str(i as i32, j as i32, "#".to_string());
-            if is_loop(&mut current_pos, &grid_mut, &mut direction, &mut vec_coord) {
-                number_of_obstructions +=1;
+    let mut it_vec = vec![answer];
+    let mut i = 0;
+    while i < (values.len()-1){
+        let mut it_vec_copy = Vec::new();
+        for it in &it_vec {
+            if it%values[i] == 0 {
+                let it1 = it / values[i];
+                it_vec_copy.push(it1);
             }
-            current_pos = start_pos.clone();
-            vec_coord.clear();
-            direction = Direction::Up;
-            grid_mut = grid.clone();
+            
+            let it2 = it - values[i];
+            it_vec_copy.push(it2);
+        }
+        it_vec = it_vec_copy;
+        i += 1;
+    }
+
+    let vec_size = values.len();
+    for value in it_vec {
+        if value == values[vec_size-1] {
+            configurations += 1;
         }
     }
-    number_of_obstructions
+
+    configurations
 }
 
-fn is_loop(current_pos: &mut Coordinate, grid_mut: &Grid, direction: &mut Direction, 
-    vec_coord: &mut Vec<(Coordinate, Direction)>) -> bool {
-    let mut is_loop = false;
-    while (current_pos.x < (grid_mut._width()-1) as i32)&& current_pos.x >= 0 && 
-        (current_pos.y < (grid_mut._height()-1) as i32) && current_pos.y >= 0 
-        {
-        if next_element(&direction, &grid_mut, &current_pos) == "#" {
-            change_direction(direction, &grid_mut,&current_pos);
-        }
-        update_current_position(&direction, current_pos);
-        
-        let tuple = (current_pos.clone(),direction.clone());
-        if vec_coord.contains(&tuple) {
-            is_loop = true;
-            break;
-        }
-        vec_coord.push((current_pos.clone(), direction.clone()));
+fn parse_data(input:&str) -> Vec<(i128,Vec<i128>)> {
+    let mut calculations = Vec::new();
+    let content= filereader::_input(input);
+    for line in content.lines()
+    {
+        let test:Vec<&str> = line.split(": ").collect();   
+        let answer:i128 = test[0].parse().unwrap();
+        let values:Vec<i128> = test[1].split_whitespace()
+                                     .filter_map(|s| s.parse::<i128>().ok())
+                                     .collect();
+        calculations.push((answer,values));
     }
-    is_loop
-}
-
-fn change_direction(direction: &mut Direction, grid: &Grid, current_pos: &Coordinate) {
-    if *direction == Direction::Up {
-        *direction = Direction::Right;
-        if grid._elem(current_pos.x+1, current_pos.y)=="#"
-        {
-            change_direction(direction, grid, current_pos);
-        }
-    } else if *direction == Direction::Right {
-        *direction = Direction::Down;
-        if grid._elem(current_pos.x, current_pos.y+1)=="#"
-        {
-            change_direction(direction, grid, current_pos);
-        }
-    } else if *direction == Direction::Down {
-        *direction = Direction::Left;
-        if grid._elem(current_pos.x-1, current_pos.y)=="#"
-        {
-            change_direction(direction, grid, current_pos);
-        }
-    } else {
-        *direction = Direction::Up;
-        if grid._elem(current_pos.x, current_pos.y-1)=="#"
-        {
-            change_direction(direction, grid, current_pos);
-        }
-    }
-}
-
-
-fn update_current_position(direction: &Direction, current_pos: &mut Coordinate) {
-    if *direction == Direction::Up {
-        current_pos.y = current_pos.y-1;
-    } else if *direction == Direction::Right {
-        current_pos.x = current_pos.x+1;
-    } else if *direction == Direction::Down {
-        current_pos.y = current_pos.y+1;
-    } else {
-        current_pos.x = current_pos.x-1;
-    }
-}
-
-fn next_element(direction: &Direction, grid: &Grid, current_pos: &Coordinate) -> String {
-    let next_elem;
-    if *direction == Direction::Up {
-        next_elem = grid._elem(current_pos.x, current_pos.y-1);
-    } else if *direction == Direction::Right {
-        next_elem = grid._elem(current_pos.x+1, current_pos.y);
-    } else if *direction == Direction::Down {
-        next_elem = grid._elem(current_pos.x, current_pos.y+1);
-    } else {
-        next_elem = grid._elem(current_pos.x-1, current_pos.y);
-    }
-    next_elem
-}
-
-fn start_pos(grid: &Grid) -> Coordinate {
-    for i in 0..grid._width() as i32 {
-        for j in 0..grid._height() as i32 {
-            if grid._elem(i, j) == "^"
-            {
-                return Coordinate {x:i , y: j};
-            }
-        }
-    }
-    Coordinate {x:0, y:0}
+    calculations
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn isloop_test(str:&str) {
-        let grid= filereader::_input_into_grid(str);
-        let start_pos = start_pos(&grid);
-        let mut direction = Direction::Up;
-        let mut current_pos = start_pos.clone();
-        let mut vec_coord:Vec<(Coordinate,Direction)> = Vec::new();
-        vec_coord.push((start_pos.clone(), Direction::Up));
-    
-        let answer = is_loop(&mut current_pos, &grid, &mut direction, &mut vec_coord);
-        assert_eq!(answer,true);
-    }
-
     #[test]
     fn test1() {
-        let grid= filereader::_input_into_grid("test1");
-        let answer = part1(grid);
-        assert_eq!(answer,41);
+        let calculation = (190, vec![10,19]);
+        let answer = calculate_configurations(&calculation);
+        assert_eq!(answer,1);
     }
-
+    
     #[test]
     fn test2() {
-        isloop_test("test2");
-        isloop_test("test3");
-        isloop_test("test4");
-        isloop_test("test5");
+        let calculation = (3267, vec![81,40,27]);
+        let answer = calculate_configurations(&calculation);
+        assert_eq!(answer,2);
     }
-
     #[test]
     fn test3() {
-        let grid= filereader::_input_into_grid("test1");
-        let answer = part2(grid);
-        assert_eq!(answer,6);
+        let calculation = (292, vec![11,6,16,20]);
+        let answer = calculate_configurations(&calculation);
+        assert_eq!(answer,1);
+    }
+    
+    #[test]
+    fn test4() {
+        let answer = part1("test1");
+        assert_eq!(answer, 3749);
     }
 }
