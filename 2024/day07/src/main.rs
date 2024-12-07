@@ -1,33 +1,19 @@
 use lib::filereader;
 use std::time::Instant;
 
-fn remove_last_digit_if_matches(mut num: i128, x: i128) -> (i128, bool) {
+static INPUT: &str = "../input/day07";
+
+fn remove_last_digits_if_match(mut num: i128, x: i128) -> (i128, bool) {
     let mut match_found = false;
     let value = x.to_string();
     let n = value.len();
     let divisor = 10_i32.pow(n as u32) as i128;
+
     if num % divisor == x {
         num /= divisor;
         match_found=true;
     }
     (num, match_found)
-}
-
-fn main()
-{
-    let start = Instant::now();
-
-    let input = "../input/day07"; 
-    let part1 = sum(&input, false);
-    println!("{}",part1);
-    assert_eq!(part1, 1260333054159);
-    
-    let part2 = sum(&input, true);
-    println!("{}",part2);
-    assert_eq!(part2,162042343638683);
-
-    let duration = start.elapsed();
-    println!("Execution time: {:?}", duration);
 }
 
 fn parse_data(input:&str) -> Vec<(i128,Vec<i128>)> {
@@ -40,12 +26,12 @@ fn parse_data(input:&str) -> Vec<(i128,Vec<i128>)> {
         let values:Vec<i128> = test[1].split_whitespace()
                                       .filter_map(|s| s.parse::<i128>().ok())
                                       .collect();
-        calculations.push((answer,values));
-    }
-    calculations
-}
-
-fn sum(input:&str, concatenation_enabled:bool) -> i128{
+                                    calculations.push((answer,values));
+                                }
+                                calculations
+                            }
+                            
+                            fn sum(input:&str, concatenation_enabled:bool) -> i128{
     let calculations = parse_data(input);
     let mut sum = 0;
     for calculation in &calculations {
@@ -62,7 +48,7 @@ fn solve(calculation:&(i128,Vec<i128>), concatenation_enabled:bool ) -> bool {
     let answer = calculation.0;
     let mut it_vec = vec![answer];
     let mut i = 0;
-
+    
     while i < (values.len()-1){
         let mut it_vec_copy = Vec::new();
         for it in &it_vec {
@@ -75,7 +61,7 @@ fn solve(calculation:&(i128,Vec<i128>), concatenation_enabled:bool ) -> bool {
             it_vec_copy.push(it2);
             
             if concatenation_enabled {
-                let it3 = remove_last_digit_if_matches(it.clone(), values[i]);
+                let it3 = remove_last_digits_if_match(it.clone(), values[i]);
                 if it3.1 {
                     it_vec_copy.push(it3.0);
                 }
@@ -84,7 +70,7 @@ fn solve(calculation:&(i128,Vec<i128>), concatenation_enabled:bool ) -> bool {
         it_vec = it_vec_copy;
         i += 1;
     }
-
+    
     let vec_size = values.len();
     for value in it_vec {
         if value == values[vec_size-1] {
@@ -92,6 +78,22 @@ fn solve(calculation:&(i128,Vec<i128>), concatenation_enabled:bool ) -> bool {
         }
     }
     false
+}
+
+fn main()
+{
+    let start = Instant::now();
+
+    let part1 = sum(INPUT, false);
+    println!("{}",part1);
+    assert_eq!(part1, 1260333054159);
+    
+    let part2 = sum(INPUT, true);
+    println!("{}",part2);
+    assert_eq!(part2,162042343638683);
+    
+    let duration = start.elapsed();
+    println!("Execution time: {:?}", duration);
 }
 
 #[cfg(test)]
@@ -152,13 +154,13 @@ mod tests {
     
     #[test]
     fn test9() {
-        let answer = remove_last_digit_if_matches(1491,491);
+        let answer = remove_last_digits_if_match(1491,491);
         assert_eq!(answer,(1,true));
     }
 
     #[test]
     fn test10() {
-        let answer = remove_last_digit_if_matches(12,4);
+        let answer = remove_last_digits_if_match(12,4);
         assert_eq!(answer,(12,false));
     }
 }
