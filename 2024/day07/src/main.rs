@@ -1,5 +1,6 @@
 use lib::filereader;
 use std::time::Instant;
+use lib::utils;
 
 static INPUT: &str = "../input/day07";
 
@@ -84,13 +85,9 @@ fn main() {
     let start = Instant::now();
 
     let part1 = sum(INPUT, false);
-    println!("{}",part1);
-    assert_eq!(part1, 1260333054159);
-    
     let part2 = sum(INPUT, true);
-    println!("{}",part2);
-    assert_eq!(part2,162042343638683);
-    
+    utils::answer((part1, 1260333054159),(part2, 162042343638683));
+
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }

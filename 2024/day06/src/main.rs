@@ -1,6 +1,6 @@
 use lib::filereader;
-use lib::grid::Grid;
 use lib::utils::*;
+use lib::grid::Grid;
 
 fn part1(grid: Grid) -> usize{
     
