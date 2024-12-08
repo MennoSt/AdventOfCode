@@ -26,12 +26,12 @@ fn parse_data(input:&str) -> Vec<(i128,Vec<i128>)> {
         let values:Vec<i128> = test[1].split_whitespace()
                                       .filter_map(|s| s.parse::<i128>().ok())
                                       .collect();
-                                    calculations.push((answer,values));
-                                }
-                                calculations
-                            }
+        calculations.push((answer,values));
+    }
+        calculations
+}
                             
-                            fn sum(input:&str, concatenation_enabled:bool) -> i128{
+fn sum(input:&str, concatenation_enabled:bool) -> i128 {
     let calculations = parse_data(input);
     let mut sum = 0;
     for calculation in &calculations {
@@ -80,8 +80,7 @@ fn solve(calculation:&(i128,Vec<i128>), concatenation_enabled:bool ) -> bool {
     false
 }
 
-fn main()
-{
+fn main() {
     let start = Instant::now();
 
     let part1 = sum(INPUT, false);

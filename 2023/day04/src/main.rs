@@ -8,19 +8,19 @@ struct Card {
 }
 
 fn main() {
-    let contents = filereader::input("exampleinput2023day4");
+    let contents = filereader::_input("exampleinput2023day4");
     let points = calculate_points(contents);
     assert_eq!(points,13);
 
-    let contents = filereader::input("../input/day04");
+    let contents = filereader::_input("../input/day04");
     let points = calculate_points(contents);
     assert_eq!(points,23678);
 
-    let contents = filereader::input("exampleinput2023day4");
+    let contents = filereader::_input("exampleinput2023day4");
     let scratchcards = calculate_total_scratccards(contents);
     assert_eq!(scratchcards,30);
 
-    let contents = filereader::input("../input/day04");
+    let contents = filereader::_input("../input/day04");
     let scratchcards = calculate_total_scratccards(contents);
     assert_eq!(scratchcards,15455663);
 }

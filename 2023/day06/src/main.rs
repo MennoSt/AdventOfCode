@@ -1,7 +1,4 @@
 use lib::filereader;
-use std::{collections::HashMap};
-
-
 
 fn main() {
     let contents = filereader::_input("../input/day06");

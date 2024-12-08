@@ -2,18 +2,6 @@ use lib::filereader;
 use lib::grid::Grid;
 use lib::utils::*;
 
-fn main()
-{
-    let grid= filereader::_input_into_grid("../input/day06");
-    let part1 = part1(grid.clone());
-    println!("{}",part1);
-    assert_eq!(part1, 4454);
-
-    let part2 = part2(grid);
-    println!("{}",part2);
-    assert_eq!(part2, 1503);
-}
-
 fn part1(grid: Grid) -> usize{
     
     let mut direction = Direction::Up;
@@ -153,6 +141,18 @@ fn start_pos(grid: &Grid) -> Coordinate {
         }
     }
     Coordinate {x:0, y:0}
+}
+
+fn main()
+{
+    let grid= filereader::_input_into_grid("../input/day06");
+    let part1 = part1(grid.clone());
+    println!("{}",part1);
+    assert_eq!(part1, 4454);
+
+    let part2 = part2(grid);
+    println!("{}",part2);
+    assert_eq!(part2, 1503);
 }
 
 #[cfg(test)]
