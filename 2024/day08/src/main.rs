@@ -15,9 +15,9 @@ struct Frequency {
 fn main() {
     let start = Instant::now();
     
-    let part1 = part1();
+    let part1 = part1(INPUT);
     
-    // println!("{}",part1);
+    println!("{}",part1);
     // assert_eq!(part1, 1260333054159);
     
     // let part2 = sum(INPUT, true);
@@ -28,11 +28,29 @@ fn main() {
     println!("Execution time: {:?}", duration);
 }
 
-fn part1() -> i32{
-    let grid = filereader::_input_into_grid(TESTINPUT);
-    let frequencies = create_frequencies(grid);
-    println!("{:?}",frequencies);
-    0
+fn part1(input: &str) -> usize{
+    let grid = filereader::_input_into_grid(input);
+    let frequencies = create_frequencies(&grid);
+
+    let mut antinodes_vec:Vec<Coordinate> =Vec::new();
+    for freq in frequencies {
+        let coordinates = freq.coordinates;
+        let antinodes = calculate_antinodes(coordinates);
+        antinodes_vec.extend(antinodes);
+    }
+    antinodes_vec.sort();
+    antinodes_vec.dedup();
+    let alen = antinodes_vec.len();
+    let mut out_of_grid =0;
+    for i in 0..alen {
+        if antinodes_vec[i].x < 0 || antinodes_vec[i].y < 0 || 
+            antinodes_vec[i].x >= grid._width() as i32 || antinodes_vec[i].y >= grid._height() as i32 {
+                out_of_grid+=1;
+        } 
+    }
+
+
+    antinodes_vec.len()-out_of_grid
 }
 
 fn calculate_antinodes (frequencies: Vec<Coordinate>) -> Vec<Coordinate> {
@@ -48,40 +66,33 @@ fn calculate_antinodes (frequencies: Vec<Coordinate>) -> Vec<Coordinate> {
     for pair in &pairs {
         let coordinate1 = &pair.0;
         let coordinate2 = &pair.1;
-
-        let diffx = (coordinate1.x-coordinate2.x).abs();
-        let diffy = (coordinate1.y-coordinate2.y).abs();
         
-        let mut antinodex1 =0;
-        let mut antinodex2 =0;
-        let mut antinodey1 =0;
-        let mut antinodey2 =0;
-        if coordinate1.x > coordinate2.x {
-            antinodex1 = coordinate1.x + diffx;
-            antinodex2 = coordinate2.x - diffx;
-        } else {
-            antinodex1 = coordinate1.x - diffx;
-            antinodex2 = coordinate2.x + diffx;
-        }
+        let (antinodex1, antinodex2) = calc_antinode(coordinate1.x, coordinate2.x);
+        let (antinodey1, antinodey2) = calc_antinode(coordinate1.y, coordinate2.y);
 
-        if coordinate1.y > coordinate2.y {
-            antinodey1 = coordinate1.y + diffy;
-            antinodey2 = coordinate2.y - diffy;
-        } else {
-            antinodey1 = coordinate1.y - diffy;
-            antinodey2 = coordinate2.y + diffy;
-        }
-        
         let antinode1 = Coordinate{x:antinodex1,y:antinodey1};
         let antinode2 = Coordinate{x:antinodex2,y:antinodey2};
         antinodes.push(antinode1);
         antinodes.push(antinode2);
     }
-    println!("Unique pairs: {:?}", pairs);
     antinodes 
 }
 
-fn create_frequencies(grid: lib::grid::Grid) -> Vec<Frequency> {
+fn calc_antinode(coordinate1: i32, coordinate2: i32) -> (i32, i32) {
+    let antinode1;
+    let antinode2;
+    let diff = (coordinate1-coordinate2).abs();
+    if coordinate1 > coordinate2 {
+        antinode1 = coordinate1 + diff;
+        antinode2 = coordinate2 - diff;
+    } else {
+        antinode1 = coordinate1 - diff;
+        antinode2 = coordinate2 + diff;
+    }
+    (antinode1, antinode2)
+}
+
+fn create_frequencies(grid: &lib::grid::Grid) -> Vec<Frequency> {
     let mut frequencies:Vec<Frequency> = Vec::new();
     for i in 0..grid._width() as i32 {
         for j in 0..grid._height() as i32{
@@ -116,5 +127,18 @@ mod tests {
         let coordinates = vec![Coordinate { x: 8, y: 8 }, Coordinate { x: 9, y: 9 }];
         let antinodes = calculate_antinodes(coordinates);
         assert_eq!(antinodes, vec![Coordinate { x: 7, y: 7 }, Coordinate { x: 10, y: 10 }]);
+    }
+    
+    #[test]
+    fn test2() {
+        let coordinates = vec![Coordinate { x: 8, y: 7 }, Coordinate { x: 9, y: 9 }];
+        let antinodes = calculate_antinodes(coordinates);
+        assert_eq!(antinodes, vec![Coordinate { x: 7, y: 5 }, Coordinate { x: 10, y: 11 }]);
+    }
+    
+    #[test]
+    fn test3() {
+        let part1 = part1(TESTINPUT);
+        assert_eq!(part1, 14);
     }
 }

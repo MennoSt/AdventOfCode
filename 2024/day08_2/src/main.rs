@@ -1,5 +1,6 @@
 use lib::filereader;
 use lib::utils::*;
+use lib::grid::Grid;
 use std::time::Instant;
 use itertools::Itertools;
 
@@ -35,7 +36,7 @@ fn part2(input: &str) -> usize{
     let mut antinodes_vec:Vec<Coordinate> =Vec::new();
     for freq in frequencies {
         let coordinates = freq.coordinates;
-        let antinodes = calculate_antinodes(coordinates);
+        let antinodes = calculate_antinodes(coordinates,&grid);
         antinodes_vec.extend(antinodes);
     }
     antinodes_vec.sort();
@@ -53,7 +54,7 @@ fn part2(input: &str) -> usize{
     antinodes_vec.len()-out_of_grid
 }
 
-fn calculate_antinodes (frequencies: Vec<Coordinate>) -> Vec<Coordinate> {
+fn calculate_antinodes (frequencies: Vec<Coordinate>, grid:&Grid) -> Vec<Coordinate> {
     let mut antinodes = Vec::new();    
     
     let pairs: Vec<(Coordinate, Coordinate)> = frequencies
@@ -67,21 +68,39 @@ fn calculate_antinodes (frequencies: Vec<Coordinate>) -> Vec<Coordinate> {
         let coordinate1 = &pair.0;
         let coordinate2 = &pair.1;
         
-        let (antinodex1, antinodex2) = calc_antinode(coordinate1.x, coordinate2.x);
-        let (antinodey1, antinodey2) = calc_antinode(coordinate1.y, coordinate2.y);
-
-        let antinode1 = Coordinate{x:antinodex1,y:antinodey1};
-        let antinode2 = Coordinate{x:antinodex2,y:antinodey2};
-        antinodes.push(antinode1);
-        antinodes.push(antinode2);
+        let mut antinode1 = coordinate1.clone();
+        let mut antinode2 = coordinate2.clone();
+        
+        antinodes.push(antinode1.clone());
+        antinodes.push(antinode2.clone());
+        let xdiff = (antinode1.x -antinode2.x).abs();
+        let ydiff = (antinode1.y - antinode2.y).abs();
+        while antinode1.x >= 0 && antinode1.x < grid._width() as i32 && antinode1.y >= 0 && antinode1.y < grid._height() as i32{
+            let (antinodex1, antinodex2) = calc_antinode(antinode1.x, antinode2.x, xdiff);
+            let (antinodey1, antinodey2) = calc_antinode(antinode1.y, antinode2.y, ydiff);
+            antinode1 = Coordinate{x:antinodex1,y:antinodey1};
+            antinode2 = Coordinate{x:antinodex2,y:antinodey2};
+            antinodes.push(antinode1.clone());
+            antinodes.push(antinode2.clone());
+        }
+        
+        let mut antinode1 = coordinate1.clone();
+        let mut antinode2 = coordinate2.clone();
+        while antinode2.x >= 0 && antinode2.x < grid._width() as i32 && antinode2.y >= 0 && antinode2.y < grid._height() as i32{
+            let (antinodex1, antinodex2) = calc_antinode(antinode1.x, antinode2.x, xdiff);
+            let (antinodey1, antinodey2) = calc_antinode(antinode1.y, antinode2.y, ydiff);
+            antinode1 = Coordinate{x:antinodex1,y:antinodey1};
+            antinode2 = Coordinate{x:antinodex2,y:antinodey2};
+            antinodes.push(antinode1.clone());
+            antinodes.push(antinode2.clone());
+        }
     }
     antinodes 
 }
 
-fn calc_antinode(coordinate1: i32, coordinate2: i32) -> (i32, i32) {
+fn calc_antinode(coordinate1: i32, coordinate2: i32, diff:i32) -> (i32, i32) {
     let antinode1;
     let antinode2;
-    let diff = (coordinate1-coordinate2).abs();
     if coordinate1 > coordinate2 {
         antinode1 = coordinate1 + diff;
         antinode2 = coordinate2 - diff;
@@ -124,21 +143,20 @@ mod tests {
     #[test]
     fn test1() {
 
-        let coordinates = vec![Coordinate { x: 8, y: 8 }, Coordinate { x: 9, y: 9 }];
-        let antinodes = calculate_antinodes(coordinates);
-        assert_eq!(antinodes, vec![Coordinate { x: 7, y: 7 }, Coordinate { x: 10, y: 10 }]);
+        // let coordinates = vec![Coordinate { x: 8, y: 8 }, Coordinate { x: 9, y: 9 }];
+        // let antinodes = calculate_antinodes(coordinates);
+        // assert_eq!(antinodes, vec![Coordinate { x: 7, y: 7 }, Coordinate { x: 10, y: 10 }]);
     }
     
     #[test]
     fn test2() {
-        let coordinates = vec![Coordinate { x: 8, y: 7 }, Coordinate { x: 9, y: 9 }];
-        let antinodes = calculate_antinodes(coordinates);
-        assert_eq!(antinodes, vec![Coordinate { x: 7, y: 5 }, Coordinate { x: 10, y: 11 }]);
+        let part2 = part2("test2");
+        assert_eq!(part2, 4);
     }
-    
+
     #[test]
     fn test3() {
-        let part1 = part1(TESTINPUT);
-        assert_eq!(part1, 34);
+        let part2 = part2(TESTINPUT);
+        assert_eq!(part2, 34);
     }
 }
