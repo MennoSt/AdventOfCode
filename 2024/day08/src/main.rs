@@ -1,8 +1,10 @@
 use lib::filereader;
+use lib::utils;
 use lib::utils::*;
 use lib::grid::Grid;
 use std::time::Instant;
 use itertools::Itertools;
+use std::fmt::Debug;
 
 static INPUT: &str = "../input/day08";
 static TESTINPUT: &str = "test1";
@@ -11,21 +13,6 @@ static TESTINPUT: &str = "test1";
 struct Frequency {
     value:String,
     coordinates: Vec<Coordinate>
-}
-
-fn main() {
-    let start = Instant::now();
-
-    let part1 = part1(INPUT);
-    println!("{}",part1);
-    assert_eq!(part1, 311);
-    
-    let part2 = part2(INPUT);
-    println!("{}",part2);
-    assert_eq!(part2, 1115);
-    
-    let duration = start.elapsed();
-    println!("Execution time: {:?}", duration);
 }
 
 fn part1(input: &str) -> usize{
@@ -108,12 +95,12 @@ fn part2(input: &str) -> usize{
     let mut out_of_grid =0;
     for i in 0..alen {
         if antinodes_vec[i].x < 0 || antinodes_vec[i].y < 0 || 
-            antinodes_vec[i].x >= grid._width() as i32 || antinodes_vec[i].y >= grid._height() as i32 {
-                out_of_grid+=1;
+        antinodes_vec[i].x >= grid._width() as i32 || antinodes_vec[i].y >= grid._height() as i32 {
+            out_of_grid+=1;
         } 
     }
-
-
+    
+    
     antinodes_vec.len()-out_of_grid
 }
 
@@ -197,6 +184,15 @@ fn create_frequencies(grid: &lib::grid::Grid) -> Vec<Frequency> {
         }
     }
     frequencies
+}
+
+fn main() {
+    let start = Instant::now();
+    
+    utils::answer((part1(INPUT), 311),(part2(INPUT), 1115));
+
+    let duration = start.elapsed();
+    println!("Execution time: {:?}", duration);
 }
 
 #[cfg(test)]
