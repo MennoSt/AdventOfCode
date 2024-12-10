@@ -31,64 +31,47 @@ fn main() {
 
 fn move_file_blocks_p2(disk_map:(Vec<i32>, Vec<i32>)) -> Vec<FileBlock> {
     let filled = disk_map.0.clone();
-    let mut empty = (disk_map.1.clone(),vec![0;disk_map.1.len()]);
+    let empty = disk_map.1.clone();
     let mut fileblock = Vec::new();
-    
+    let mut filled_fb = Vec::new();
 
     for i in 0..filled.len() {
-        fileblock.push(FileBlock {value:i as i32, count:filled[i]});
+        fileblock.push(FileBlock {value:i as i32, count: filled[i]});
+        filled_fb.push(FileBlock {value:i as i32, count: filled[i]});
+        if i < empty.len(){
+            fileblock.push(FileBlock {value: -1,count: empty[i]});
+        }
     }
 
-    let mut i_em = 0;
-    let mut insert_index = 1;
-    let mut fb_index = fileblock.len() -1;
+    filled_fb.reverse();
+    for i in 0..filled_fb.len() {
+        let mut j = 0;
+        while j < fileblock.len(){
+            if fileblock[j].value == -1 {
+                if filled_fb[i].count <= fileblock[j].count{
+                    let count1 = fileblock[j].count;
+                    let count2 = filled_fb[i].count; 
+                    fileblock[j].count -= filled_fb[i].count;
+                    fileblock.insert(j,FileBlock{value:filled_fb[i].value, count:filled_fb[i].count});
+                    
+                    let mut found_first = false;
+                    let mut remove_index=0;
+                    for k in 0..fileblock.len() {
+                        if fileblock[k].value == filled_fb[i].value {
+                            if found_first {
+                                remove_index=k;
+                            }
+                            found_first = true;
+                        }
+                    }
 
-    // while fb_index > 0 {
-    for i in 1..fileblock.len() {
-        while i_em < (empty.0.len() -1) && insert_index < (fileblock.len()-1) {
-            if insert_index + empty.1[i_em] < fb_index {
-                if fileblock[fb_index].count < empty.0[i_em] {
-                    fileblock.insert(insert_index + empty.1[i_em],FileBlock{value:fileblock[fb_index].value, count:fileblock[fb_index].count});
-                    empty.0[i_em] -= fileblock[fb_index+1].count;
-                    empty.0[fb_index-1] += fileblock[fb_index].count;
-                    empty.1[i_em] +=1;
-                    fileblock.remove(fb_index+1);
-                    insert_index+= 1;
-                    fb_index = fileblock.len() -1;
-                } else if  fileblock[fb_index].count == empty.0[i_em] {
-                    fileblock.insert(insert_index + empty.1[i_em],FileBlock{value:fileblock[fb_index].value, count:empty.0[i_em]});
-                    fileblock.remove(fb_index+1);
-                    empty.0[i_em] = 0;
-                    empty.0[fb_index-1] += fileblock[fb_index].count;
+                    fileblock[remove_index]=FileBlock{value:-1, count:filled_fb[i].count};
                     break;
-                } else {
-                    insert_index+=2;
-                    i_em +=1;
                 }
-            } else {
-                insert_index+=2;
-                i_em +=1;
             }
-
+            j += 1;
         }
-        fb_index= fileblock.len() -i;
-        i_em=0;
-        insert_index=1;
     }
-
-    for j in 0..fileblock.len() {
-        fileblock.insert(j+2,FileBlock{value:0, count:empty.0[j]});
-    }
-
-    let mut index = 0;
-    while index < fileblock.len(){
-        if fileblock[index].count == 0 {
-            fileblock.remove(index);
-        }
-        index+=1;
-    }
-
-    // let fileblock = FileBlock {value:0,count:0};
     fileblock
 }
 
@@ -101,7 +84,9 @@ fn calculate_checksum_p2(input:&str) -> i128 {
     let mut checksum:i128 = 0;
     for block in fileblocks {
         for _ in 0..block.count {
-            checksum += block.value as i128 * position as i128;
+            if block.value != -1 {
+                checksum += block.value as i128 * position as i128;
+            }
             position += 1;
         }
     }
@@ -132,22 +117,6 @@ fn parse_data(content: String) -> (Vec<i32>, Vec<i32>) {
 mod tests {
     use super::*;
 
-    // #[test]
-    // fn test1() {
-    //     let diskmap = (vec![1,3,5],vec![2,4]);
-    //     let fileblock = move_file_blocks(diskmap);
-    //     let expected_fileblock = vec![FileBlock{value:0,count:1}, FileBlock{value:2,count:2},
-    //                                                   FileBlock{value:1,count:3}, FileBlock{value:2,count:3}];
-        
-    //     assert_eq!(fileblock, expected_fileblock);
-    // }
-    
-    // #[test]
-    // fn test2() {
-    //     let checksum = calculate_checksum(TESTINPUT); 
-    //     assert_eq!(checksum, 1928);
-    // }
-    
     #[test]
     fn test3() {
         let checksum = calculate_checksum_p2(TESTINPUT); 
