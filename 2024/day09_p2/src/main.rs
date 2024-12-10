@@ -31,8 +31,9 @@ fn main() {
 
 fn move_file_blocks_p2(disk_map:(Vec<i32>, Vec<i32>)) -> Vec<FileBlock> {
     let filled = disk_map.0.clone();
-    let mut empty = disk_map.1.clone();
+    let mut empty = (disk_map.1.clone(),vec![0;disk_map.1.len()]);
     let mut fileblock = Vec::new();
+    
 
     for i in 0..filled.len() {
         fileblock.push(FileBlock {value:i as i32, count:filled[i]});
@@ -40,25 +41,43 @@ fn move_file_blocks_p2(disk_map:(Vec<i32>, Vec<i32>)) -> Vec<FileBlock> {
 
     let mut i_em = 0;
     let mut insert_index = 1;
-    for i in 0..1000 {
-        i_em = 0;
-        let mut insert_index = 1;
-        while i_em < (empty.len() -1) && insert_index < (fileblock.len()-1) {
-            let fb_index = fileblock.len() -1;
-            if fileblock[fb_index].count < empty[i_em] {
-                fileblock.insert(insert_index,FileBlock{value:fileblock[fb_index].value, count:fileblock[fb_index].count});
-                empty[i_em] -= fileblock[fb_index+1].count;
-                fileblock.pop();
-                insert_index+=1
-            } else if  fileblock[fb_index].count == empty[i_em] {
-                fileblock.insert(insert_index,FileBlock{value:fileblock[fb_index].value, count:empty[i_em]});
-                fileblock.pop();
-                i_em += 1;
+    let mut fb_index = fileblock.len() -1;
+
+    // while fb_index > 0 {
+    for i in 1..fileblock.len() {
+        while i_em < (empty.0.len() -1) && insert_index < (fileblock.len()-1) {
+            if insert_index + empty.1[i_em] < fb_index {
+                if fileblock[fb_index].count < empty.0[i_em] {
+                    fileblock.insert(insert_index + empty.1[i_em],FileBlock{value:fileblock[fb_index].value, count:fileblock[fb_index].count});
+                    empty.0[i_em] -= fileblock[fb_index+1].count;
+                    empty.0[fb_index-1] += fileblock[fb_index].count;
+                    empty.1[i_em] +=1;
+                    fileblock.remove(fb_index+1);
+                    insert_index+= 1;
+                    fb_index = fileblock.len() -1;
+                } else if  fileblock[fb_index].count == empty.0[i_em] {
+                    fileblock.insert(insert_index + empty.1[i_em],FileBlock{value:fileblock[fb_index].value, count:empty.0[i_em]});
+                    fileblock.remove(fb_index+1);
+                    empty.0[i_em] = 0;
+                    empty.0[fb_index-1] += fileblock[fb_index].count;
+                    break;
+                } else {
+                    insert_index+=2;
+                    i_em +=1;
+                }
+            } else {
                 insert_index+=2;
+                i_em +=1;
             }
-            i_em+=1;
+
         }
-        println!{"length fileblock {}", fileblock.len()};
+        fb_index= fileblock.len() -i;
+        i_em=0;
+        insert_index=1;
+    }
+
+    for j in 0..fileblock.len() {
+        fileblock.insert(j+2,FileBlock{value:0, count:empty.0[j]});
     }
 
     let mut index = 0;
