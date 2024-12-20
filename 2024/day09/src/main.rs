@@ -1,13 +1,6 @@
-use itertools::rev;
 use lib::filereader;
 use lib::utils;
-use lib::utils::*;
-use lib::grid::Grid;
-use std::f32::consts::E;
-use std::fs::File;
 use std::time::Instant;
-use itertools::Itertools;
-use std::fmt::Debug;
 
 static INPUT: &str = "../input/day09";
 static TESTINPUT: &str = "test1";
@@ -110,7 +103,7 @@ fn move_file_blocks_p2(disk_map:(Vec<i32>, Vec<i32>)) -> Vec<FileBlock> {
             if fileblock[j].value == -1 {
                 if filled_fb[i].count <= fileblock[j].count{
                     fileblock[j].count -= filled_fb[i].count;
-                    
+
                     fileblock.insert(j,FileBlock{value:filled_fb[i].value, count:filled_fb[i].count});
                     
                     let mut found_first = false;
