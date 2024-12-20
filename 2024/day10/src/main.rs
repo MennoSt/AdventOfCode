@@ -66,9 +66,9 @@ fn find_trailheads(x:i32, y:i32, grid: &mut Gridi32, visited_grid: &mut Gridi32,
                 }
             }
 
-            if *depth == 10 && grid._elem(x,y)!=-1 {
+            if *depth == 10 {
                 *trailheads +=1 ;
-                grid._set(x,y,-1);
+                // grid._set(x,y,-1);
                 println!("{}{}", x, y);
                 break;
             }
