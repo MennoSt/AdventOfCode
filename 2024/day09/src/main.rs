@@ -21,18 +21,17 @@ struct FileBlock {
 fn main() {
     let start = Instant::now();
 
-    let part1 = calculate_checksum(INPUT);
-    println!("{}",part1);
-    assert_eq!(part1,6398252054886);
+    utils::answer((calculate_checksum_p1(INPUT), 6398252054886),
+        (calculate_checksum_p2(INPUT), 6415666220005));
 
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
 
-fn calculate_checksum(input:&str) -> i128 {
+fn calculate_checksum_p1(input:&str) -> i128 {
     let content = filereader::_input(input);
     let diskmap = parse_data(content);
-    let fileblocks = move_file_blocks(diskmap);
+    let fileblocks = move_file_blocks_p1(diskmap);
 
     let mut position:i128 = 0;
     let mut checksum:i128 = 0;
@@ -45,7 +44,7 @@ fn calculate_checksum(input:&str) -> i128 {
     checksum
 }
 
-fn move_file_blocks(disk_map:(Vec<i32>, Vec<i32>)) -> Vec<FileBlock> {
+fn move_file_blocks_p1(disk_map:(Vec<i32>, Vec<i32>)) -> Vec<FileBlock> {
     let filled = disk_map.0.clone();
     let mut empty = disk_map.1.clone();
     let mut fileblock = Vec::new();
@@ -90,6 +89,69 @@ fn move_file_blocks(disk_map:(Vec<i32>, Vec<i32>)) -> Vec<FileBlock> {
     fileblock
 }
 
+fn move_file_blocks_p2(disk_map:(Vec<i32>, Vec<i32>)) -> Vec<FileBlock> {
+    let filled = disk_map.0.clone();
+    let empty = disk_map.1.clone();
+    let mut fileblock = Vec::new();
+    let mut filled_fb = Vec::new();
+
+    for i in 0..filled.len() {
+        fileblock.push(FileBlock {value:i as i32, count: filled[i]});
+        filled_fb.push(FileBlock {value:i as i32, count: filled[i]});
+        if i < empty.len(){
+            fileblock.push(FileBlock {value: -1,count: empty[i]});
+        }
+    }
+
+    filled_fb.reverse();
+    for i in 0..filled_fb.len() {
+        let mut j = 0;
+        while j < fileblock.len(){
+            if fileblock[j].value == -1 {
+                if filled_fb[i].count <= fileblock[j].count{
+                    fileblock[j].count -= filled_fb[i].count;
+                    
+                    fileblock.insert(j,FileBlock{value:filled_fb[i].value, count:filled_fb[i].count});
+                    
+                    let mut found_first = false;
+                    let mut remove_index=0;
+                    for k in 0..fileblock.len() {
+                        if fileblock[k].value == filled_fb[i].value {
+                            if found_first {
+                                remove_index=k;
+                            }
+                            found_first = true;
+                        }
+                    }
+
+                    fileblock[remove_index]=FileBlock{value:-1, count:filled_fb[i].count};
+                    break;
+                }
+            }
+            j += 1;
+        }
+    }
+    fileblock
+}
+
+fn calculate_checksum_p2(input:&str) -> i128 {
+    let content = filereader::_input(input);
+    let diskmap = parse_data(content);
+    let fileblocks = move_file_blocks_p2(diskmap);
+
+    let mut position:i128 = 0;
+    let mut checksum:i128 = 0;
+    for block in fileblocks {
+        for _ in 0..block.count {
+            if block.value != -1 {
+                checksum += block.value as i128 * position as i128;
+            }
+            position += 1;
+        }
+    }
+    checksum
+}
+
 fn parse_data(content: String) -> (Vec<i32>, Vec<i32>) {
     let mut filled = Vec::new();
     let mut empty = Vec::new();
@@ -117,7 +179,7 @@ mod tests {
     #[test]
     fn test1() {
         let diskmap = (vec![1,3,5],vec![2,4]);
-        let fileblock = move_file_blocks(diskmap);
+        let fileblock = move_file_blocks_p1(diskmap);
         let expected_fileblock = vec![FileBlock{value:0,count:1}, FileBlock{value:2,count:2},
                                                       FileBlock{value:1,count:3}, FileBlock{value:2,count:3}];
         
@@ -126,8 +188,14 @@ mod tests {
     
     #[test]
     fn test2() {
-        let checksum = calculate_checksum(TESTINPUT); 
+        let checksum = calculate_checksum_p1(TESTINPUT); 
         assert_eq!(checksum, 1928);
+    }
+
+    #[test]
+    fn test3() {
+        let checksum = calculate_checksum_p2(TESTINPUT); 
+        assert_eq!(checksum, 2858);
     }
     
 }
