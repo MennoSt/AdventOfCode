@@ -164,7 +164,7 @@ fn calc_antinode(coordinate1: i32, coordinate2: i32, diff:i32) -> (i32, i32) {
 fn create_frequencies(grid: &lib::grid::Grid) -> Vec<Frequency> {
     let mut frequencies:Vec<Frequency> = Vec::new();
     for i in 0..grid._width() as i32 {
-        for j in 0..grid._height() as i32{
+        for j in 0..grid._height() as i32 {
             let elem = grid._elem(i,j);
             if elem != "." {
                 let mut contains_elem = false;
