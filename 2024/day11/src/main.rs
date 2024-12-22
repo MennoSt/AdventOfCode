@@ -1,18 +1,20 @@
 use lib::filereader;
 use lib::utils;
-use lib::utils::*;
-use lib::grid::Gridi32;
 use std::time::Instant;
 
 static INPUT: &str = "../input/day11";
 static TESTINPUT: &str = "test1";
 
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
+struct Stone {
+    value: i128,
+    count: i128,
+}
+
 fn main() {
     let start = Instant::now();
     
-    // utils::answer((part1(INPUT), 794),(part2(INPUT), 1706));
-
-    assert_eq!(part1(INPUT),193899);
+    utils::answer((part1(INPUT), 193899),(part2(INPUT), 229682160383225));
 
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
@@ -20,30 +22,40 @@ fn main() {
 
 fn part1(file:&str) -> usize
 {
-    let stones = parse_data(file);
+    let stones_val = parse_data(file);
+    let mut stones: Vec<Stone> = Vec::new();
+    for val in stones_val {
+        stones.push(Stone{value: val, count: 1});
+    }
     
     calculate_stone_length(&stones, 25)
 }
 
 fn part2(file:&str) -> usize
 {
-    let stones = parse_data(file);
-    
+    let stones_val = parse_data(file);
+    let mut stones: Vec<Stone> = Vec::new();
+    for val in stones_val {
+        stones.push(Stone{value: val, count: 1});
+    }
+
     calculate_stone_length(&stones, 75)
 }
 
-fn calculate_stone_length(vector:&Vec<i128>, blinks:i32) -> usize
+fn calculate_stone_length(vector:&Vec<Stone>, blinks:i32) -> usize
 {   
     let mut it =0;
     let mut vec_mutated = vector.clone();
     while it < blinks {
         vec_mutated = blink(&vec_mutated);
         it+=1;
-        println!("{}",it);
-        println!("{:?}", vec_mutated);
     }
 
-    vec_mutated.len()
+    let mut length = 0;
+    for stone in vec_mutated {
+        length += stone.count;
+    }
+    length as usize
 }
 
 fn parse_data(string:&str) -> Vec<i128>
@@ -75,22 +87,40 @@ fn split_number(number:i128) ->(i128,i128)
     let value2 = values.1.parse::<i128>().unwrap();
     (value1,value2)
 }
-fn blink(vec_ints:&Vec<i128>) -> Vec<i128>
+fn is_stone_present(new_stone: &Stone, stones: &mut Vec<Stone>) -> bool
 {
-    let mut vec_mutated:Vec<i128> = Vec::new();
-    for val in vec_ints {
-        if *val == 0 {
-            vec_mutated.push(1);
-        } else if even_digits(*val) {
-            let values = split_number(*val);
-            vec_mutated.push(values.0);
-            vec_mutated.push(values.1);
-        } else {
-            let new = *val*2024;
-            vec_mutated.push(new);
+    for stone in stones {
+        if stone.value == new_stone.value {
+            stone.count += new_stone.count;
+            return true;
         }
     }
+    false
+}
+
+fn blink(vec_stones:&Vec<Stone>) -> Vec<Stone>
+{
+    let mut vec_mutated:Vec<Stone> = Vec::new();
+    for stone in vec_stones {
+        if stone.value == 0 {
+            update_stones(&mut vec_mutated, Stone{value:1,count:stone.count});
+        } else if even_digits(stone.value) {
+            let values = split_number(stone.value);
+            update_stones(&mut vec_mutated, Stone{value:values.0,count:stone.count});
+            update_stones(&mut vec_mutated, Stone{value:values.1,count:stone.count});
+        } else {
+            let new = stone.value*2024;
+            update_stones(&mut vec_mutated, Stone{value:new,count:stone.count});
+        }
+    }
+
     vec_mutated
+}
+
+fn update_stones(vec_mutated: &mut Vec<Stone>, new_stone: Stone) {
+    if !is_stone_present(&new_stone, vec_mutated) {
+        vec_mutated.push(Stone{value:new_stone.value, count:new_stone.count});
+    }
 }
 
 #[cfg(test)]
@@ -100,12 +130,13 @@ mod tests {
     #[test]
     fn test1() 
     {
-        let vector: Vec<i128> = vec![125,17];
+        let vector: Vec<Stone> = vec![Stone{value:125,count:1},Stone{value:17, count:1}];
         let vector_blinked = blink(&vector);
-        assert_eq!(vector_blinked, vec![253000, 1, 7]);
+        assert_eq!(vector_blinked, vec![Stone{value:253000, count:1},Stone{value:1, count:1}, Stone{value:7,count:1}]);
+        
         let vector_blinked = blink(&vector_blinked);
-        assert_eq!(vector_blinked, vec![253, 0, 2024,14168]);
-
+        assert_eq!(vector_blinked, vec![Stone{value:253, count:1},Stone{value:0, count:1}, 
+            Stone{value:2024,count:1}, Stone{value:14168,count:1}]);
     }
 
     #[test]
@@ -118,9 +149,9 @@ mod tests {
     #[test]
     fn test3() 
     {
-        let stones = vec![0];
-        let stone_length = calculate_stone_length(&stones, 40);
+        let stones = vec![Stone{value:125, count:1},Stone{value: 17, count:1}];
+        let length = calculate_stone_length(&stones,6);
 
-        assert_eq!(stone_length, 55312);
+        assert_eq!(length, 22);
     }
 }
