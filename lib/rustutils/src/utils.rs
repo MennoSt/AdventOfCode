@@ -15,7 +15,7 @@ pub enum Direction {
     None,
 }
 
-pub fn is_odd(n: i32) -> bool {
+pub fn is_odd(n: i128) -> bool {
     n % 2 != 0
 }
 
