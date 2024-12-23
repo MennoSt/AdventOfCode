@@ -3,7 +3,6 @@ use lib::utils;
 use std::time::Instant;
 
 static INPUT: &str = "../input/day11";
-static TESTINPUT: &str = "test1";
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
 struct Stone {
@@ -125,6 +124,7 @@ fn update_stones(vec_mutated: &mut Vec<Stone>, new_stone: Stone) {
 
 #[cfg(test)]
 mod tests {
+    static TESTINPUT: &str = "test1";
     use super::*;
 
     #[test]

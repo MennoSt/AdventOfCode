@@ -1,5 +1,3 @@
-use std::time::Instant;
-
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
 pub struct Coordinate {
     pub x: i32,

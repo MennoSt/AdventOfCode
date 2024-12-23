@@ -5,16 +5,6 @@ use lib::grid::Gridi32;
 use std::time::Instant;
 
 static INPUT: &str = "../input/day10";
-static TESTINPUT: &str = "test1";
-
-fn main() {
-    let start = Instant::now();
-    
-    utils::answer((part1(INPUT), 794),(part2(INPUT), 1706));
-
-    let duration = start.elapsed();
-    println!("Execution time: {:?}", duration);
-}
 
 fn part1(input: &str) -> i32 {
     let mut grid = filereader::_input_into_grid_i32(input);
@@ -65,7 +55,7 @@ fn find_trailheads(x:i32, y:i32, grid: &mut Gridi32, visited_grid: &mut Gridi32,
                                             Coordinate{x:x,y:y+1}];
 
     for dir in directions {
-        if dir.x < grid._width() as i32 && dir.x >= 0 && dir.y < grid._height() as i32 && dir.y >= 0 {
+        if is_within_grid(grid, &dir) {
             if grid._elem(dir.x,dir.y) == current_elem+1 && visited_grid._elem(dir.x,dir.y) != 1 {
                 if *depth < 10 {
                     find_trailheads(dir.x, dir.y, grid, visited_grid, trailheads, depth, unique);
@@ -85,12 +75,27 @@ fn find_trailheads(x:i32, y:i32, grid: &mut Gridi32, visited_grid: &mut Gridi32,
     *depth -= 1;
 }
 
+fn is_within_grid(grid: &mut Gridi32, dir: &Coordinate) -> bool {
+    dir.x < grid._width() as i32 && dir.x >= 0 && dir.y < grid._height() as i32 && dir.y >= 0
+}
+
+fn main() {
+    let start = Instant::now();
+    
+    utils::answer((part1(INPUT), 794),(part2(INPUT), 1706));
+
+    let duration = start.elapsed();
+    println!("Execution time: {:?}", duration);
+}
+
 #[cfg(test)]
 mod tests {
+
+    static TESTINPUT: &str = "test1";
     use super::*;
 
     #[test]
-    fn test1() {
+    fn test1_p1() {
         let part1 = part1(TESTINPUT);
         assert_eq!(part1, 36);
     }
