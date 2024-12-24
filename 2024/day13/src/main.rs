@@ -8,16 +8,16 @@ static INPUT: &str = "../input/day13";
 
 #[derive(Debug, Default, Clone)]
 struct Button {
-    x : i32,
-    y : i32
+    x : i128,
+    y : i128
 }
 
 #[derive(Debug, Default, Clone)]
 struct Machine {
     button_a: Button,
     button_b: Button,
-    prize_x: i32,
-    prize_y: i32
+    prize_x: i128,
+    prize_y: i128
 }
 
 fn parse_data(file:&str) -> Vec<Machine>
@@ -31,9 +31,9 @@ fn parse_data(file:&str) -> Vec<Machine>
 
 
     for line in content.lines() {
-        let numbers: Vec<i32> = re
+        let numbers: Vec<i128> = re
         .find_iter(line)
-        .filter_map(|mat| mat.as_str().parse::<i32>().ok())
+        .filter_map(|mat| mat.as_str().parse::<i128>().ok())
         .collect();
     
         if it == 1 {
@@ -53,7 +53,14 @@ fn parse_data(file:&str) -> Vec<Machine>
     machines
 }
 
-fn calculate_posibilities(machine: &Machine) -> Vec<Vec<i32>> {
+fn increase_input(machines: &mut Vec<Machine>) {
+    for machine in machines {
+        machine.prize_x += 10000000000000;
+        machine.prize_y += 10000000000000;
+    }
+}
+
+fn calculate_posibilities(machine: &Machine) -> Vec<Vec<i128>> {
     let xa = machine.button_a.x;
     let xb = machine.button_b.x;
     let px = machine.prize_x;
@@ -61,33 +68,19 @@ fn calculate_posibilities(machine: &Machine) -> Vec<Vec<i32>> {
     let yb = machine.button_b.y;
     let py = machine.prize_y;
 
-    let mut tokens_a = Vec::new();
-    let mut tokens_b = Vec::new();
-    let mut tokens_common = Vec::new();
+    let mut posibilities = Vec::new();
 
-    for i in 0..1000 {
-        for j in 0..1000 {
-            if i*xa + j*xb == px {
-                tokens_a.push(vec![i,j]);
-            }
-            if i*ya + j*yb == py {
-                tokens_b.push(vec![i,j]);
+    for i in 0..100 {
+        for j in 0..100 {
+            if i*xa + j*xb == px && i*ya + j*yb == py {
+                posibilities.push(vec![i,j]);
             }
         }
     }
-
-    for set1 in &tokens_a {
-        for set2 in &tokens_b {
-            if set1 == set2 {
-                tokens_common.push(set1.clone());
-            }
-        }
-    }
-
-    tokens_common
+    posibilities
 }
 
-fn cheapest_win(machine: &Machine) -> i32
+fn cheapest_win(machine: &Machine) -> i128
 {
     let posibilities = calculate_posibilities(machine);
     
@@ -105,19 +98,29 @@ fn cheapest_win(machine: &Machine) -> i32
             }
         }
     }
-
     cheapest_win
 }
 
-fn part1 (input: &str) -> i32 {
+fn part1 (input: &str) -> i128 {
     let machines = parse_data(input);
-
     let mut total_tokens = 0;
-    
+
     for machine in &machines {
         total_tokens += cheapest_win(&machine);
     }
+    total_tokens
+}
 
+fn part2 (input: &str) -> i128 {
+    let mut machines = parse_data(input);
+    increase_input(&mut machines);
+
+    let mut total_tokens = 0;
+    println!{"{:?}", machines};
+
+    // for machine in &machines {
+    //     total_tokens += cheapest_win(&machine);
+    // }
     total_tokens
 }
 
@@ -156,8 +159,8 @@ mod tests {
        
      #[test]
     fn test3() {
-        let tokens = part1(&TESTINPUT);
-        assert_eq!(tokens, 480);
+        let tokens = part2(&TESTINPUT);
+        assert_eq!(tokens, 0);
     }
        
 }
