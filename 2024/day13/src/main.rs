@@ -1,6 +1,5 @@
 use lib::filereader;
 use lib::utils;
-use lib::utils::*;
 use std::time::Instant;
 use regex::Regex;
 
@@ -59,6 +58,32 @@ fn increase_input(machines: &mut Vec<Machine>) {
         machine.prize_y += 10000000000000;
     }
 }
+fn solve_linear_equations(
+    xa: i128, xb: i128, ya: i128, yb: i128, px: i128, py: i128,
+) -> Option<(i128, i128)> {
+    // Calculate the determinant
+    let determinant = xa * yb - xb * ya;
+
+    // Check if the determinant is zero (no unique solution)
+    if determinant == 0 {
+        return None; // No solution or infinite solutions
+    }
+
+    // Calculate the numerator for i and j
+    let i_numerator = px * yb - py * xb;
+    let j_numerator = xa * py - ya * px;
+
+    // Check if the solutions are integers
+    if i_numerator % determinant != 0 || j_numerator % determinant != 0 {
+        return None; // No integer solution exists
+    }
+
+    // Compute i and j
+    let i = i_numerator / determinant;
+    let j = j_numerator / determinant;
+
+    Some((i, j)) // Return the solution
+}
 
 fn calculate_posibilities(machine: &Machine) -> Vec<Vec<i128>> {
     let xa = machine.button_a.x;
@@ -70,11 +95,11 @@ fn calculate_posibilities(machine: &Machine) -> Vec<Vec<i128>> {
 
     let mut posibilities = Vec::new();
 
-    for i in 0..100 {
-        for j in 0..100 {
-            if i*xa + j*xb == px && i*ya + j*yb == py {
-                posibilities.push(vec![i,j]);
-            }
+    match solve_linear_equations(xa, xb, ya, yb, px, py) {
+        Some((i, j)) => {
+            posibilities.push(vec![i,j]);
+        }
+        None => {
         }
     }
     posibilities
@@ -116,22 +141,17 @@ fn part2 (input: &str) -> i128 {
     increase_input(&mut machines);
 
     let mut total_tokens = 0;
-    println!{"{:?}", machines};
-
-    // for machine in &machines {
-    //     total_tokens += cheapest_win(&machine);
-    // }
+    for machine in &machines {
+        total_tokens += cheapest_win(&machine);
+    }
     total_tokens
 }
 
 fn main() {
     let start = Instant::now();
     
-    // utils::answer((part1(INPUT), 1370258),(part2(INPUT), 805814));
-    let total_tokens = part1(INPUT);
-    assert_eq!(total_tokens,26005);
-    println! ("{}", total_tokens);
-    
+    utils::answer((part1(INPUT), 26005),(part2(INPUT), 105620095782547));
+
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
@@ -151,16 +171,11 @@ mod tests {
         let tokens = cheapest_win(&machine);
         assert_eq!(tokens, 280);
     }
+    
      #[test]
     fn test2() {
         let tokens = part1(&TESTINPUT);
         assert_eq!(tokens, 480);
-    }
-       
-     #[test]
-    fn test3() {
-        let tokens = part2(&TESTINPUT);
-        assert_eq!(tokens, 0);
     }
        
 }
