@@ -1,11 +1,8 @@
 use lib::filereader;
 use lib::utils;
 use lib::utils::*;
-use lib::grid::*;
-use core::num;
 use std::time::Instant;
 use regex::Regex;
-use std::collections::HashSet;
 
 static INPUT: &str = "../input/day13";
 
@@ -52,9 +49,42 @@ fn parse_data(file:&str) -> Vec<Machine>
             }
         it+=1;
     }
-    println!("{:?}",machines);
 
     machines
+}
+
+fn calculate_posibilities(machine: &Machine) -> Vec<Vec<i32>> {
+    let xa = machine.button_a.x;
+    let xb = machine.button_b.x;
+    let px = machine.prize_x;
+    let ya = machine.button_a.y;
+    let yb = machine.button_b.y;
+    let py = machine.prize_y;
+
+    let mut tokens_a = Vec::new();
+    let mut tokens_b = Vec::new();
+    let mut tokens_common = Vec::new();
+
+    for i in 0..1000 {
+        for j in 0..1000 {
+            if i*xa + j*xb == px {
+                tokens_a.push(vec![i,j]);
+            }
+            if i*ya + j*yb == py {
+                tokens_b.push(vec![i,j]);
+            }
+        }
+    }
+
+    for set1 in &tokens_a {
+        for set2 in &tokens_b {
+            if set1 == set2 {
+                tokens_common.push(set1.clone());
+            }
+        }
+    }
+
+    tokens_common
 }
 
 fn cheapest_win(machine: &Machine) -> i32
@@ -79,47 +109,25 @@ fn cheapest_win(machine: &Machine) -> i32
     cheapest_win
 }
 
-fn calculate_posibilities(machine: &Machine) -> Vec<Vec<i32>> {
-    let xa = machine.button_a.x;
-    let xb = machine.button_b.x;
-    let px = machine.prize_x;
-    let ya = machine.button_a.y;
-    let yb = machine.button_b.y;
-    let py = machine.prize_y;
+fn part1 (input: &str) -> i32 {
+    let machines = parse_data(input);
 
-    let mut tokens_a = Vec::new();
-    let mut tokens_b = Vec::new();
-    let mut tokens_common = Vec::new();
-
-    for i in 0..100 {
-        for j in 0..100 {
-            if i*xa + j*xb == px {
-                println!("xtokens: xa: {} xb: {}", i, j);
-                tokens_a.push(vec![i,j]);
-            }
-            if i*ya + j*yb == py {
-                println!("ytokens: ya: {} yb: {}", i, j);
-                tokens_b.push(vec![i,j]);
-            }
-        }
+    let mut total_tokens = 0;
+    
+    for machine in &machines {
+        total_tokens += cheapest_win(&machine);
     }
 
-    for set1 in &tokens_a {
-        for set2 in &tokens_b {
-            if set1 == set2 {
-                tokens_common.push(set1.clone());
-            }
-        }
-    }
-
-    tokens_common
+    total_tokens
 }
 
 fn main() {
     let start = Instant::now();
     
     // utils::answer((part1(INPUT), 1370258),(part2(INPUT), 805814));
-    let machines = parse_data(INPUT);
+    let total_tokens = part1(INPUT);
+    assert_eq!(total_tokens,26005);
+    println! ("{}", total_tokens);
     
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
@@ -140,5 +148,16 @@ mod tests {
         let tokens = cheapest_win(&machine);
         assert_eq!(tokens, 280);
     }
-    
+     #[test]
+    fn test2() {
+        let tokens = part1(&TESTINPUT);
+        assert_eq!(tokens, 480);
+    }
+       
+     #[test]
+    fn test3() {
+        let tokens = part1(&TESTINPUT);
+        assert_eq!(tokens, 480);
+    }
+       
 }
