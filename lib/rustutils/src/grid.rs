@@ -1,3 +1,8 @@
+use std::fs::File;
+use std::io::{self,Write};
+use std::fs::OpenOptions;
+
+
 #[derive(Clone)]
 pub struct Grid {
     pub grid_vec: Vec<Vec<String>>,
@@ -82,6 +87,25 @@ impl Grid {
         }
         println!("{}","");
     }
+
+    pub fn _print_special(&self, it:i32)-> io::Result<()> {
+
+        let mut file = OpenOptions::new()
+        .append(true)       // Open for appending
+        .create(true)       // Create the file if it doesn't exist
+        .open("example.txt")?; // Open the file
+        
+        writeln!(file, "After {} seconds", it)?;
+        for grid in &self.grid_vec {
+                let result: String = grid.iter().map(|num| num.to_string()).collect();
+                // fs::write("output.txt",result);
+                writeln!(file, "{}", result)?;
+            }
+        writeln!(file, "")?;
+        Ok(())
+
+        // println!("{}","");
+    }
     
     pub fn _create_visiter_grid(&self) -> Gridi32{
         let rows = self._width(); 
@@ -128,6 +152,14 @@ impl Gridi32 {
     pub fn _print(&self) {
         for grid in &self.grid_vec {
             println!("{:?}",grid);
+        }
+        println!("{}","");
+    }
+
+    pub fn _print_special(&self) {
+        for grid in &self.grid_vec {
+            let result: String = grid.iter().map(|num| num.to_string()).collect();
+            println!("{}", result); // Output: 12345
         }
         println!("{}","");
     }

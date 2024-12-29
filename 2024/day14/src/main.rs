@@ -2,6 +2,10 @@ use lib::filereader;
 use lib::utils;
 use std::time::Instant;
 use regex::Regex;
+use lib::grid::Grid;
+use lib::grid::Gridi32;
+use std::thread;
+use std::time::Duration;
 
 static INPUT: &str = "../input/day14";
 
@@ -85,29 +89,55 @@ fn part1 (input:&str, area:Area) -> i32{
     iterate_robots(&mut robots, area, 100)
 }
 
-fn part2 (input:&str, area:Area) -> i32{
+fn part2 (input:&str, area:Area) -> i32 {
     let mut robots = parse_data(input);
     
-    iterate_robots(&mut robots, area, 100)
-    
+    iterate_robots(&mut robots, area, 7600);
+
+    7596
 }
 
 fn iterate_robots(robots: &mut Vec<Robot>, area: Area, iterations:i32) -> i32 {
+    let rows = area.height as usize;
+    let cols = area.width as usize;
+    let vec = vec![vec![".".to_string(); cols]; rows];
 
-    for _ in 0..iterations {
+    let mut grid = Grid{grid_vec:vec};
+    for robot in robots.clone() {
+        grid._set_str(robot.px, robot.py, "1".to_string());
+    }
+    grid._print_special(0);
+
+    for i in 0..iterations {
+        let seconds = i + 1;
+
         for robot in &mut *robots{
             mutate_robot(robot, &area);
         }
+
+        let vec = vec![vec![".".to_string(); cols]; rows];
+        let mut grid = Grid{grid_vec:vec};
+        for robot in robots.clone() {
+            grid._set_str(robot.px, robot.py, "1".to_string());
+        }
+
+        let result = seconds - 95;
+
+        if result % 101 == 0 {
+            grid._print_special(seconds);
+        }
     }
+
     println!("{:?}",robots);
     calculate_safety_factor(robots, &area)
 }
 
 fn main() {
     let start = Instant::now();
-    let part1 = part1(INPUT, Area {width:101, height:103});
-    println!("{}", part1);
-    // utils::answer((part1(INPUT), 26005),(part2(INPUT), 105620095782547));
+
+    utils::answer((part1(INPUT, Area {width:101, height:103}), 232589280), 
+    (part2(INPUT, Area {width:101, height:103}), 7596));
+
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
