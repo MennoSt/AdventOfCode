@@ -94,14 +94,14 @@ impl Grid {
         }
     }
 
-    pub fn _print_special(&self, it:String)-> io::Result<()> {
+    pub fn _print_special(&self, it:String, count:i32)-> io::Result<()> {
 
         let mut file = OpenOptions::new()
         .append(true)       // Open for appending
         .create(true)       // Create the file if it doesn't exist
         .open("example.txt")?; // Open the file
         
-        writeln!(file, "Move {}", it)?;
+        writeln!(file, "Move {} count: {}",it,count)?;
         for grid in &self.grid_vec {
                 let result: String = grid.iter().map(|num| num.to_string()).collect();
                 // fs::write("output.txt",result);

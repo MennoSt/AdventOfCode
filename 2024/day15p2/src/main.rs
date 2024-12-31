@@ -65,32 +65,31 @@ fn move_robot_p2(robot_pos:&mut Coordinate, grid:&mut Grid, movement:&str) {
         linked_boxes.dedup();
         if !blocked {
 
-            update_boxes(grid, movement, &linked_boxes);
-            grid._print();
+            update_boxes(grid, movement, &mut linked_boxes);
+            // grid._print();
             update_robot_pos(robot_pos, movement, grid);
             remove_brackets(grid);
         }
     }
 }
 
-fn update_boxes(grid:&mut Grid, movement:&str, linked_boxes:&Vec<Coordinate>) {
+fn update_boxes(grid:&mut Grid, movement:&str, linked_boxes:&mut Vec<Coordinate>) {
     if movement == "^" {
         for coor in linked_boxes {
             let elem = grid._elem(coor.x, coor.y+1);
             if elem == "[" || elem =="]"{
                 grid._set_str(coor.x, coor.y, elem);
-                // grid._set_str(coor.x, coor.y+1, ".".to_string());
             }
         }
     }
-    else if movement == "v" {
+    else if movement == "v" 
+        {
+        linked_boxes.sort_by(|a, b| b.y.cmp(&a.y));
         for coor in linked_boxes {
             let elem = grid._elem(coor.x, coor.y-1);
             if elem == "[" || elem =="]"{
                 grid._set_str(coor.x, coor.y, elem);
-                // grid._set_str(coor.x, coor.y-1, ".".to_string());
             }
-            // grid._set_str(coor.x, coor.y, elem);
         }
     }    
 }
@@ -110,30 +109,33 @@ fn remove_brackets(grid: &mut Grid) {
 
 fn is_blocked(it_pos:&mut Coordinate, movement:&str, grid:&mut Grid, elems_to_check: &Vec<Coordinate>, blocked:&mut bool, linked_boxes:&mut Vec<Coordinate>)
 {
-
-    if is_free(grid, elems_to_check){
+    let mut blocked_exception = false;
+    if is_free(grid, elems_to_check) {
         *blocked = false;
     }
 
     let mut new_elems_to_check = Vec::new();
 
     if *blocked {
-        //up
         if movement == "^" {
             for e in elems_to_check{
                 let elem = grid._elem(e.x, e.y);
                 if elem == "#" {
                     *blocked = true;
-                    break;
+                    if grid._elem(e.x, e.y+1)!="."{
+                        blocked_exception=true;
+                    }
                 }
                 let ynew = e.y - 1;
-                new_elems_to_check.push(Coordinate{x:e.x, y:ynew});
+
                 if elem == "[" {
                     let xnew=e.x+1;
+                    new_elems_to_check.push(Coordinate{x:e.x, y:ynew});
                     new_elems_to_check.push(Coordinate{x:xnew, y:ynew});
                 }
                 if elem == "]" {
                     let xnew=e.x-1;
+                    new_elems_to_check.push(Coordinate{x:e.x, y:ynew});
                     new_elems_to_check.push(Coordinate{x:xnew, y:ynew});
                 }
             }
@@ -142,23 +144,26 @@ fn is_blocked(it_pos:&mut Coordinate, movement:&str, grid:&mut Grid, elems_to_ch
                 let elem = grid._elem(e.x, e.y);
                 if elem == "#" {
                     *blocked = true;
-                    break;
+                    if grid._elem(e.x, e.y-1)!="."{
+                        blocked_exception=true;
+                    }
                 }
                 let ynew = e.y + 1;
-                new_elems_to_check.push(Coordinate{x:e.x, y:ynew});
                 if elem == "[" {
                     let xnew=e.x+1;
+                    new_elems_to_check.push(Coordinate{x:e.x, y:ynew});
                     new_elems_to_check.push(Coordinate{x:xnew, y:ynew});
                 }
                 if elem == "]" {
                     let xnew=e.x-1;
+                    new_elems_to_check.push(Coordinate{x:e.x, y:ynew});
                     new_elems_to_check.push(Coordinate{x:xnew, y:ynew});
                 }
             }
         }
     }
 
-   if new_elems_to_check.len()>0 {
+   if new_elems_to_check.len()>0 && !blocked_exception {
       linked_boxes.extend(new_elems_to_check.clone());
       is_blocked(it_pos, movement, grid, &new_elems_to_check, blocked, linked_boxes);
    }
@@ -247,18 +252,30 @@ fn part2(input:&str) -> i32 {
     let mut grid = extend_grid(&grid);
     let mut rp = start_pos(&grid);
 
-    grid._print();
     for m in moves {
         move_robot_p2(&mut rp, &mut grid, m.as_str());
-        // println!("move {}",m);
+        let count = count_boxes(&grid);
+        grid._print_special(m, count);
+
         // grid._print();
-        // grid._print_special(m);
     }
 
 
     sum_gps_boxes(grid)
 }
 
+fn count_boxes(grid:&Grid)-> i32{
+    let mut sum_gps_boxes = 0;
+
+    for i in 0..grid._width() as i32 {
+        for j in 0..grid._height() as i32 {
+           if grid._elem(i, j) == "[" {
+            sum_gps_boxes += 1;
+           }
+        }
+    }
+    sum_gps_boxes
+}
 fn sum_gps_boxes(grid: Grid) -> i32 {
     let mut sum_gps_boxes = 0;
 
@@ -271,7 +288,7 @@ fn sum_gps_boxes(grid: Grid) -> i32 {
     }
     sum_gps_boxes
 }
-
+//1538279 too low
 fn main() {
     let start = Instant::now();
 
@@ -294,11 +311,11 @@ mod tests {
         assert_eq!(part1, 618);
     }
  
-    //  #[test]
-    // fn test2() {
-    //     let part1 = part2("test2");
-    //     assert_eq!(part1, 9021);
-    // }
+     #[test]
+    fn test2() {
+        let part2 = part2("test2");
+        assert_eq!(part2, 9021);
+    }
 
     #[test]
     fn test3() {
@@ -319,7 +336,32 @@ mod tests {
         
         let mut rp = start_pos(&grid);
         move_robot_p2(&mut rp, &mut grid, m);
-        grid._print();
+        let sum = sum_gps_boxes(grid.clone());
+        assert_eq!(sum,511);
     }
-    
+
+     #[test]
+    fn test6() {
+        let mut grid = filereader::_input_into_grid("test6");
+        let  m = "v";
+        
+        let mut rp = start_pos(&grid);
+        move_robot_p2(&mut rp, &mut grid, m);
+        let sum = sum_gps_boxes(grid.clone());
+        grid._print();
+        assert_eq!(sum,711);
+    }
+
+    #[test]
+    fn test7() {
+        let mut grid = filereader::_input_into_grid("test7");
+        let  m = "v";
+        
+        grid._print();
+        let mut rp = start_pos(&grid);
+        move_robot_p2(&mut rp, &mut grid, m);
+        let sum = sum_gps_boxes(grid.clone());
+        grid._print();
+        assert_eq!(sum,1124);
+    }
 }
