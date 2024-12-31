@@ -160,7 +160,7 @@ fn is_blocked(it_pos:&mut Coordinate, movement:&str, grid:&mut Grid, coordinates
                     if grid._elem(coor.x, coor.y-1)!="."{
                         blocked_by_hash=true;
                     }
-                t}
+                }
 
                 let ynew = coor.y + 1;
                 if elem == "[" {
