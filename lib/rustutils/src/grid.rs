@@ -17,6 +17,10 @@ impl Grid {
         return self.grid_vec[0].len();
     }
 
+    pub fn grid_vec(&self) -> Vec<Vec<String>> {
+        return self.grid_vec.clone();
+    }
+
     pub fn _elem(&self, x: i32, y: i32) -> String {
         let point_char = ".";
 
@@ -83,19 +87,21 @@ impl Grid {
 
     pub fn _print(&self) {
         for grid in &self.grid_vec {
-            println!("{:?}",grid);
+            for val in grid {
+                print!("{}", val);
+            }
+            println!();
         }
-        println!("{}","");
     }
 
-    pub fn _print_special(&self, it:i32)-> io::Result<()> {
+    pub fn _print_special(&self, it:String)-> io::Result<()> {
 
         let mut file = OpenOptions::new()
         .append(true)       // Open for appending
         .create(true)       // Create the file if it doesn't exist
         .open("example.txt")?; // Open the file
         
-        writeln!(file, "After {} seconds", it)?;
+        writeln!(file, "Move {}", it)?;
         for grid in &self.grid_vec {
                 let result: String = grid.iter().map(|num| num.to_string()).collect();
                 // fs::write("output.txt",result);
