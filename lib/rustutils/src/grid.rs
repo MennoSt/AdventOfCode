@@ -1,4 +1,3 @@
-use std::fs::File;
 use std::io::{self,Write};
 use std::fs::OpenOptions;
 
@@ -109,8 +108,6 @@ impl Grid {
             }
         writeln!(file, "")?;
         Ok(())
-
-        // println!("{}","");
     }
     
     pub fn _create_visiter_grid(&self) -> Gridi32{
