@@ -170,9 +170,9 @@ impl Gridi32 {
         
         writeln!(file)?;
         for grid in &self.grid_vec {
-                for val in grid {
-                    write!("{:7}", val);
-                }
+                let result: String = grid.iter().map(|num| num.to_string()).collect();
+                // fs::write("output.txt",result);
+                writeln!(file, "{:7}", result)?;
             }
         writeln!(file, "")?;
         Ok(())

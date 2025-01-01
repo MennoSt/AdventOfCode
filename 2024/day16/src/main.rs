@@ -130,6 +130,6 @@ mod tests {
     #[test]
     fn test2() {
         let part1 = part1("test2");
-        assert_eq!(part1, 7036);
+        assert_eq!(part1, 11048);
     }
 }
