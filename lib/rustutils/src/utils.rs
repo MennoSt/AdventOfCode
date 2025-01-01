@@ -4,7 +4,7 @@ pub struct Coordinate {
     pub y: i32,
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
 pub enum Direction {
     Up,
     Down,

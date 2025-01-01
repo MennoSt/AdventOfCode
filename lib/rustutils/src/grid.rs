@@ -154,17 +154,28 @@ impl Gridi32 {
 
     pub fn _print(&self) {
         for grid in &self.grid_vec {
-            println!("{:?}",grid);
+            for val in grid {
+                print!("{:7}", val);
+            }
+            println!();
         }
-        println!("{}","");
     }
 
-    pub fn _print_special(&self) {
+    pub fn _print_special(&self)-> io::Result<()> {
+        let mut file = OpenOptions::new()
+        .append(true)       // Open for appending
+        .create(true)       // Create the file if it doesn't exist
+        .open("example.txt")?; // Open the file
+        
+        
+        writeln!(file)?;
         for grid in &self.grid_vec {
-            let result: String = grid.iter().map(|num| num.to_string()).collect();
-            println!("{}", result); // Output: 12345
-        }
-        println!("{}","");
+                for val in grid {
+                    write!("{:7}", val);
+                }
+            }
+        writeln!(file, "")?;
+        Ok(())
     }
 
     pub fn _max(&self) -> Option<i32> {

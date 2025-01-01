@@ -135,52 +135,50 @@ fn is_blocked(it_pos:&mut Coordinate, movement:&str, grid:&mut Grid, coordinates
 
     if *blocked {
         for coor in coordinates{
+            let yup = coor.y + 1;
+            let ydown = coor.y - 1;
+            let elem = grid._elem(coor.x, coor.y);
+
             if movement == "^" {
-                let elem = grid._elem(coor.x, coor.y);
                 if elem == "#" {
-                    if grid._elem(coor.x, coor.y+1)!="."{
-                        blocked_by_hash=true;
-                    }
+                    blocked_by_hash = is_blocked_by_hash(grid,Coordinate{x:coor.x,y:yup});
                 }
-
-                let ynew = coor.y - 1;
-                if elem == "[" {
-                    let xnew=coor.x+1;
-                    new_coordinates.push(Coordinate{x:coor.x, y:ynew});
-                    new_coordinates.push(Coordinate{x:xnew, y:ynew});
-                }
-                if elem == "]" {
-                    let xnew=coor.x-1;
-                    new_coordinates.push(Coordinate{x:coor.x, y:ynew});
-                    new_coordinates.push(Coordinate{x:xnew, y:ynew});
-                }
+                fill_new_coordinates(&mut new_coordinates, coor, elem, ydown);
             } else if movement=="v"{
-                let elem = grid._elem(coor.x, coor.y);
                 if elem == "#" {
-                    if grid._elem(coor.x, coor.y-1)!="."{
-                        blocked_by_hash=true;
-                    }
+                    blocked_by_hash = is_blocked_by_hash(grid,Coordinate{x:coor.x,y:ydown});
                 }
-
-                let ynew = coor.y + 1;
-                if elem == "[" {
-                    let xnew=coor.x+1;
-                    new_coordinates.push(Coordinate{x:coor.x, y:ynew});
-                    new_coordinates.push(Coordinate{x:xnew, y:ynew});
-                }
-                if elem == "]" {
-                    let xnew=coor.x-1;
-                    new_coordinates.push(Coordinate{x:coor.x, y:ynew});
-                    new_coordinates.push(Coordinate{x:xnew, y:ynew});
+                fill_new_coordinates(&mut new_coordinates, coor, elem, yup);
                 }
             }
         }
-    }
 
    if new_coordinates.len()>0 && !blocked_by_hash {
       linked_boxes.extend(new_coordinates.clone());
       is_blocked(it_pos, movement, grid, &new_coordinates, blocked, linked_boxes);
    }
+   
+}
+
+fn is_blocked_by_hash(grid: &mut Grid, coor: Coordinate) -> bool {
+    
+    if grid._elem(coor.x, coor.y) != "." {
+        return true;
+    }
+    false
+}
+
+fn fill_new_coordinates(new_coordinates: &mut Vec<Coordinate>, coor: &Coordinate, elem: String, ynew:i32) {
+    if elem == "[" {
+        let xnew=coor.x+1;
+        new_coordinates.push(Coordinate{x:coor.x, y:ynew});
+        new_coordinates.push(Coordinate{x:xnew, y:ynew});
+    }
+    if elem == "]" {
+        let xnew=coor.x-1;
+        new_coordinates.push(Coordinate{x:coor.x, y:ynew});
+        new_coordinates.push(Coordinate{x:xnew, y:ynew});
+    }
 }
 
 fn is_free(grid: &mut Grid, elems_to_check:&Vec<Coordinate>) -> bool{

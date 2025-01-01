@@ -106,7 +106,6 @@ fn iterate_robots(robots: &mut Vec<Robot>, area: Area, iterations:i32) -> i32 {
     for robot in robots.clone() {
         grid._set_str(robot.px, robot.py, "1".to_string());
     }
-    grid._print_special(0);
 
     for i in 0..iterations {
         let seconds = i + 1;
@@ -124,11 +123,10 @@ fn iterate_robots(robots: &mut Vec<Robot>, area: Area, iterations:i32) -> i32 {
         let result = seconds - 95;
 
         if result % 101 == 0 {
-            grid._print_special(seconds);
+            grid._print();
         }
     }
 
-    println!("{:?}",robots);
     calculate_safety_factor(robots, &area)
 }
 
