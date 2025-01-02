@@ -3,6 +3,7 @@ use lib::utils;
 use lib::utils::*;
 use std::time::Instant;
 use lib::grid::*;
+use std::collections::HashSet;
 
 static INPUT: &str = "../input/day16";
 
@@ -23,7 +24,7 @@ fn find_single_elem(grid:&Grid, elem:&str) -> Coordinate {
     Coordinate{x:0,y:0}
 }
 
-fn iterate_maze(grid:&mut Grid, score_grid:&mut Gridi32, shortest_paths:&mut Vec<Coordinate>, lowest_score:i32) {
+fn iterate_maze(grid:&mut Grid, score_grid:&mut Gridi32, shortest_paths:&mut HashSet<Coordinate>, lowest_score:i32) {
 
     let start_pos = find_single_elem(grid, "S");
     let mut score = 0;
@@ -35,7 +36,7 @@ fn iterate_maze(grid:&mut Grid, score_grid:&mut Gridi32, shortest_paths:&mut Vec
     grid._set_str(start_pos.x, start_pos.y ,"S".to_string());
 }
 
-fn next_it(grid: &mut Grid, score_grid: &mut Gridi32, mut pos:Movement, score: &mut i32, shortest_paths:&mut Vec<Coordinate>, lowest_score:i32) {
+fn next_it(grid: &mut Grid, score_grid: &mut Gridi32, mut pos:Movement, score: &mut i32, shortest_paths:&mut HashSet<Coordinate>, lowest_score:i32) {
 
     let x = pos.coordinate.x.clone();
     let y = pos.coordinate.y.clone();
@@ -74,19 +75,15 @@ fn next_it(grid: &mut Grid, score_grid: &mut Gridi32, mut pos:Movement, score: &
     }
 }
 
-fn update_shortest_path(grid: &mut Grid, score: &mut i32, lowest_score_coord: &mut Vec<Coordinate>, lowest_score: i32, grid_elem: String) {
+fn update_shortest_path(grid: &mut Grid, score: &mut i32, lowest_score_coord: &mut HashSet<Coordinate>, lowest_score: i32, grid_elem: String) {
     if grid_elem == "E" && *score == lowest_score {
-
         for i in 0..grid._width() as i32{
             for j in 0..grid._height() as i32 {
                 if grid._elem(i, j) ==  "x" || grid._elem(i, j) ==  "E"{
-                    lowest_score_coord.push(Coordinate { x: i , y: j });
+                    lowest_score_coord.insert(Coordinate { x: i , y: j });
                 }
             }
         }
-
-        lowest_score_coord.sort();
-        lowest_score_coord.dedup();
     }
 }
 
@@ -99,7 +96,7 @@ fn calculate_score_increase(first: &Direction, second: &Direction) -> i32 {
 }
 
 fn is_cross_or_t(grid:&Grid, coordinate:&Coordinate) -> bool {
-    if n_directions(grid, coordinate) >2 {
+    if n_directions(grid, coordinate) > 2 {
         true
     } else {
         false
@@ -111,20 +108,20 @@ fn n_directions(grid: &Grid, coordinate: &Coordinate) -> i32 {
     let y = coordinate.y;
     let vec_elems = vec![grid._elem(x+1,y), grid._elem(x-1,y), grid._elem(x,y+1), grid._elem(x,y-1)];
 
-    let mut counter = 0;
+    let mut directions = 0;
     for elem in vec_elems {
         if elem == "." || elem == "x"
         {
-            counter += 1;
+            directions += 1;
         }
     }
-    counter
+    directions
 }
 
 fn solve(input:&str, lowest_score:i32) -> (i32,i32) {
     let mut grid = filereader::_input_into_grid(input);
     let end = find_single_elem(&grid,"E");
-    let mut lowest_score_coord = Vec::new();
+    let mut lowest_score_coord = HashSet::new();
     let rows = grid._width(); 
     let cols = grid._height();
     let mut score_grid = Gridi32 { grid_vec: vec![vec![0; rows]; cols]};
