@@ -3,7 +3,6 @@ use lib::utils;
 use lib::utils::*;
 use std::time::Instant;
 use lib::grid::*;
-use std::collections::VecDeque;
 
 static INPUT: &str = "../input/day16";
 
@@ -24,23 +23,19 @@ fn find_single_elem(grid:&Grid, elem:&str) -> Coordinate {
     Coordinate{x:0,y:0}
 }
 
-fn iterate_maze(grid:&mut Grid, score_grid:&mut Gridi32) {
+fn iterate_maze(grid:&mut Grid, score_grid:&mut Gridi32, shortest_paths:&mut Vec<Coordinate>, lowest_score:i32) {
 
-    let mut pos = find_single_elem(grid, "S");
-    let mut dir = Direction::Right;
-
-
+    let start_pos = find_single_elem(grid, "S");
     let mut score = 0;
-    let start_pos = pos.clone();
+    let pos = start_pos.clone();
     grid._set_str(start_pos.x, start_pos.y ,"x".to_string());
 
-    next_it(grid, score_grid, Movement{coordinate:pos, direction:dir}, &mut score);
+    next_it(grid, score_grid, Movement{coordinate:pos, direction:Direction::Right}, &mut score, shortest_paths, lowest_score);
+
     grid._set_str(start_pos.x, start_pos.y ,"S".to_string());
-    // score_grid._print();
-    // score_grid._print_special();
 }
 
-fn next_it(grid: &mut Grid, score_grid: &mut Gridi32, mut pos:Movement, score: &mut i32) {
+fn next_it(grid: &mut Grid, score_grid: &mut Gridi32, mut pos:Movement, score: &mut i32, shortest_paths:&mut Vec<Coordinate>, lowest_score:i32) {
 
     let x = pos.coordinate.x.clone();
     let y = pos.coordinate.y.clone();
@@ -50,116 +45,101 @@ fn next_it(grid: &mut Grid, score_grid: &mut Gridi32, mut pos:Movement, score: &
         Movement{coordinate:Coordinate{x:x,y:y-1}, direction:Direction::Up}, 
         Movement{coordinate:Coordinate{x:x,y:y+1},direction:Direction::Down}];
 
-        
     for movement in movements {
         let grid_elem = grid._elem(movement.coordinate.x, movement.coordinate.y);
 
-
         if grid_elem == "." || grid_elem == "E"{
                 
-                
-            grid._set_str(x, y ,"x".to_string());
             let current_pos = pos.clone();
-            pos = movement.clone();
-            
             let score_increase= calculate_score_increase(&current_pos.direction, &movement.direction);
-
-            *score += score_increase;
             
-            //update score
+            pos = movement.clone();
+            *score += score_increase;
+            grid._set_str(x, y ,"x".to_string());
+            
             let score_elem = score_grid._elem(pos.coordinate.x, pos.coordinate.y);
             if *score <= score_elem || score_elem == 0 || is_cross_or_t(grid, &pos.coordinate) {
                 score_grid._set(pos.coordinate.x, pos.coordinate.y, *score);
                 if grid_elem != "E"{
-                    next_it(grid, score_grid, pos, score);
+                    next_it(grid, score_grid, pos, score, shortest_paths, lowest_score);
                 }
             }
+            
+            update_shortest_path(grid, score, shortest_paths, lowest_score, grid_elem);
 
             pos = current_pos;
             *score -= score_increase;
-
             grid._set_str(x, y, ".".to_string());
         }
     }
 }
 
-fn calculate_score_increase(first: &Direction, second: &Direction) -> i32 {
-    let mut score_increase = 1;
+fn update_shortest_path(grid: &mut Grid, score: &mut i32, lowest_score_coord: &mut Vec<Coordinate>, lowest_score: i32, grid_elem: String) {
+    if grid_elem == "E" && *score == lowest_score {
 
-    if *first != *second {
-        score_increase += 1000;
+        for i in 0..grid._width() as i32{
+            for j in 0..grid._height() as i32 {
+                if grid._elem(i, j) ==  "x" || grid._elem(i, j) ==  "E"{
+                    lowest_score_coord.push(Coordinate { x: i , y: j });
+                }
+            }
+        }
+
+        lowest_score_coord.sort();
+        lowest_score_coord.dedup();
     }
+}
 
-    score_increase
+fn calculate_score_increase(first: &Direction, second: &Direction) -> i32 {
+    if first == second {
+        1
+    } else {
+        1001
+    }
 }
 
 fn is_cross_or_t(grid:&Grid, coordinate:&Coordinate) -> bool {
-    
-    let x=coordinate.x;
-    let y = coordinate.y;
-
-
-    let elemright=grid._elem(x+1,y);
-    let elemleft=grid._elem(x-1,y);
-    let elemdown=grid._elem(x,y+1);
-    let elemup= grid._elem(x,y-1);
-
-    let mut counter = 0;
-
-    if elemright == "." || elemright == "x"
-    {
-        counter += 1;
-
+    if n_directions(grid, coordinate) >2 {
+        true
+    } else {
+        false
     }
-    if elemleft == "." || elemleft == "x"
-    {
-        counter += 1;
-
-    }
-    if elemdown == "." || elemdown == "x"
-    {
-        counter += 1;
-
-    }
-    if elemup == "." || elemup == "x"
-    {
-        counter += 1;
-    }
-
-    if counter >2 {
-        return true;
-    }
-
-    false
 }
 
-fn part1(input:&str) -> i32 {
+fn n_directions(grid: &Grid, coordinate: &Coordinate) -> i32 {
+    let x=coordinate.x;
+    let y = coordinate.y;
+    let vec_elems = vec![grid._elem(x+1,y), grid._elem(x-1,y), grid._elem(x,y+1), grid._elem(x,y-1)];
+
+    let mut counter = 0;
+    for elem in vec_elems {
+        if elem == "." || elem == "x"
+        {
+            counter += 1;
+        }
+    }
+    counter
+}
+
+fn solve(input:&str, lowest_score:i32) -> (i32,i32) {
     let mut grid = filereader::_input_into_grid(input);
     let end = find_single_elem(&grid,"E");
-
-    // grid._print();
+    let mut lowest_score_coord = Vec::new();
     let rows = grid._width(); 
     let cols = grid._height();
     let mut score_grid = Gridi32 { grid_vec: vec![vec![0; rows]; cols]};
 
-    iterate_maze(&mut grid, &mut score_grid);
+    iterate_maze(&mut grid, &mut score_grid, &mut lowest_score_coord, lowest_score);
 
-    // grid._print();
-    
-    // score_grid._print();
-
-    score_grid._elem(end.x,end.y)
+    (score_grid._elem(end.x,end.y), lowest_score_coord.len() as i32)
 }
-// 134596 too high
-// 134588
 
 fn main() {
     let start = Instant::now();
 
-    // utils::answer((part1(INPUT), 1538871),(part2(INPUT), 1543338));
-    let answer = part1(INPUT);
-    println!("{}",answer);
-    assert_eq!(answer, 134588);
+    let solution = solve(INPUT,134588);
+    utils::answer((solution.0, 134588),(solution.1, 631));
+
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
@@ -171,25 +151,25 @@ mod tests {
 
     #[test]
     fn test1() {
-        let part1 = part1(TESTINPUT);
-        assert_eq!(part1, 7036);
+        let part1 = solve(TESTINPUT, 0);
+        assert_eq!(part1.0, 7036);
     }
     
     #[test]
     fn test2() {
-        let part1 = part1("test2");
-        assert_eq!(part1, 11048);
+        let part1= solve("test2", 0);
+        assert_eq!(part1.0, 11048);
     }
 
-    // #[test]
-    // fn test3() {
-    //     let part1 = part1("test3");
-    //     assert_eq!(part1, 3031);
-    // }
+    #[test]
+    fn test3() {
+        let part2 = solve(TESTINPUT,7036);
+        assert_eq!(part2.1, 45);
+    }
 
-    // #[test]
-    // fn test4() {
-    //     let part1 = part1("test4");
-    //     assert_eq!(part1, 3031);
-    // }
+    #[test]
+    fn test4() {
+        let part2 = solve("test2",11048);
+        assert_eq!(part2.1, 64);
+    }
 }
