@@ -44,26 +44,27 @@ fn operate(program:&mut Program) {
             let mut increase_step = true;
     
             set_combo_operand(program, operand, &mut combo_operand);
-    
+
             if opcode == 0 {
-                program.register_a = program.register_a/(2_i128.pow(combo_operand as u32));
+                program.register_a = dv_instruction(program, combo_operand);
             } else if opcode == 1 {
-                program.register_b = program.register_b ^ operand;
+                program.register_b ^= operand;
             } else if opcode == 2 {
-                program.register_b = (combo_operand % 8) & 0b111;
+                program.register_b = combo_operand % 8;
             } else if opcode == 3 {
                 if program.register_a != 0 {
                   increase_step = false; 
                   ip = operand as usize;
                 }
             } else if opcode == 4 {
-                program.register_b = program.register_b ^ program.register_c;
+                program.register_b ^= program.register_c;
             } else if opcode == 5 {
-                program.output.push(combo_operand % 8);
+                let value = combo_operand % 8;
+                program.output.push(value);
             } else if opcode == 6 {
-                program.register_b = program.register_a/(2_i128.pow(combo_operand as u32));
+                program.register_b = dv_instruction(program, combo_operand);
             } else if opcode == 7 {
-                program.register_c = program.register_a/(2_i128.pow(combo_operand as u32));
+                program.register_c = dv_instruction(program, combo_operand);
             }
 
             if increase_step {
@@ -71,6 +72,11 @@ fn operate(program:&mut Program) {
             }
         }
 
+}
+
+fn dv_instruction(program: &mut Program, combo_operand: i128) -> i128{
+
+    program.register_a/(2_i32.pow(combo_operand as u32)) as i128
 }
 
 fn set_combo_operand(program: &mut Program, operand: i128, combo_operand: &mut i128) {
@@ -84,20 +90,22 @@ fn set_combo_operand(program: &mut Program, operand: i128, combo_operand: &mut i
     }
 }
 
-fn part1(input: &str) -> i128 {
+fn part1(input: &str) -> String {
     let mut program = parse_data(input);
     operate(&mut program);
 
-    let mut number = 0;
+    let mut number:String = "".to_string();
 
-    for digit in program.output {
-        number = number * 10 + digit as i128;
+    for digit in &program.output {
+        let dig = digit.to_string();
+        number.push_str(&dig);
+        number.push_str(",");
     }
+    number.pop();
 
     number
 }
 
-//731363602
 fn main() {
     let start = Instant::now();
 
@@ -183,6 +191,7 @@ mod tests {
     #[test]
     fn test6() {
         let part1 = part1(TESTINPUT);
-        assert_eq!(part1, 4635635210);
+        assert_eq!(part1, "4,6,3,5,6,3,5,2,1,0");
     }
+
 }
