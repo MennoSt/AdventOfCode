@@ -45,26 +45,19 @@ fn operate(program:&mut Program) {
     
             set_combo_operand(program, operand, &mut combo_operand);
 
-            if opcode == 0 {
-                program.register_a = dv_instruction(program, combo_operand);
-            } else if opcode == 1 {
-                program.register_b ^= operand;
-            } else if opcode == 2 {
-                program.register_b = combo_operand % 8;
-            } else if opcode == 3 {
-                if program.register_a != 0 {
-                  increase_step = false; 
-                  ip = operand as usize;
-                }
-            } else if opcode == 4 {
-                program.register_b ^= program.register_c;
-            } else if opcode == 5 {
-                let value = combo_operand % 8;
-                program.output.push(value);
-            } else if opcode == 6 {
-                program.register_b = dv_instruction(program, combo_operand);
-            } else if opcode == 7 {
-                program.register_c = dv_instruction(program, combo_operand);
+            match opcode {
+                0 => program.register_a = dv_instruction(program, combo_operand),
+                1 => program.register_b ^= operand,
+                2 => program.register_b = combo_operand % 8,
+                3 => if program.register_a != 0 {
+                        increase_step = false; 
+                        ip = operand as usize;
+                    }
+                4 => program.register_b ^= program.register_c,
+                5 => program.output.push(combo_operand % 8),
+                6 => program.register_b = dv_instruction(program, combo_operand),
+                7 => program.register_c = dv_instruction(program, combo_operand),
+                _ => println!("Invalid operand"),
             }
 
             if increase_step {
@@ -111,6 +104,7 @@ fn main() {
 
     let part1 = part1(INPUT);
     println!("{:?}",part1);
+    assert_eq!(part1, "7,3,1,3,6,3,6,0,2");
     
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
