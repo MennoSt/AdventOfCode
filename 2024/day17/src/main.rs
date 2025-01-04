@@ -67,8 +67,50 @@ fn operate(program:&mut Program) {
 
 }
 
-fn dv_instruction(program: &mut Program, combo_operand: i128) -> i128{
+fn operate_p2(program:&mut Program) {
 
+    let mut ip = 0;
+    let mut pos_it = 0;
+    while ip < program.instruction.len() {
+        let opcode = program.instruction[ip];
+        let operand = program.instruction[ip+1];
+        let mut combo_operand = 0;
+        let mut increase_step = true;
+
+        set_combo_operand(program, operand, &mut combo_operand);
+
+        match opcode {
+            0 => program.register_a >>= combo_operand,
+            1 => program.register_b ^= operand,
+            2 => program.register_b = combo_operand % 8,
+            3 => if program.register_a != 0 {
+                    increase_step = false; 
+                    ip = operand as usize;
+                },
+            4 => program.register_b ^= program.register_c,
+            5 => { 
+                    let new_val = combo_operand % 8;
+                    if program.instruction[pos_it] != new_val {
+                        break;
+                    } else{
+                        program.output.push(new_val);
+                    }
+                    pos_it+= 1;
+                },
+            6 => program.register_b = program.register_a >> combo_operand,
+            7 => program.register_c = program.register_a >> combo_operand,
+            _ => println!("Invalid operand"),
+        }
+
+
+        if increase_step {
+            ip += 2;
+        }
+    }
+
+}
+
+fn dv_instruction(program: &mut Program, combo_operand: i128) -> i128{
     program.register_a/(2_i32.pow(combo_operand as u32)) as i128
 }
 
@@ -83,10 +125,7 @@ fn set_combo_operand(program: &mut Program, operand: i128, combo_operand: &mut i
     }
 }
 
-fn part1(input: &str) -> String {
-    let mut program = parse_data(input);
-    operate(&mut program);
-
+fn convert_to_commastr(program: Program) -> String {
     let mut number:String = "".to_string();
 
     for digit in &program.output {
@@ -95,17 +134,66 @@ fn part1(input: &str) -> String {
         number.push_str(",");
     }
     number.pop();
-
     number
 }
 
+fn part1(input: &str) -> String {
+    let mut program = parse_data(input);
+    operate(&mut program);
+
+    convert_to_commastr(program)
+}
+// first start it(95562138,4194304)
+// 
+fn part2(input: &str, start_it:i128, increase:i128) -> i128{
+    let mut program = parse_data(input);
+    let mut program_clone = program.clone();
+
+    let mut it = start_it;
+    let mut it_prev = 0;
+
+    loop {
+        program_clone = program.clone();
+        program_clone.register_a = it;
+        
+        operate_p2(&mut program_clone);
+        
+        if program_clone.instruction == program_clone.output {
+            println!("{:?}", program_clone.instruction);
+            println!("{:?}", program_clone.output);
+
+            println!("start it rega :{:?}",it);
+            // break;
+        }
+        if program_clone.output.len() >= 4 {
+            let diff = it -it_prev;
+            println!("{:?}",it);
+            println!("diff {:?}", diff);
+            println!("{:?}",program_clone);
+            it_prev = it;
+        }
+
+        it += increase;
+        // println!("{}",it);
+    }
+
+    it
+
+}
+
+
+// let part2 = part2(INPUT,95562138, 4194304); //values found by checking diffs between output results
+// 105843717712282
 fn main() {
     let start = Instant::now();
 
     let part1 = part1(INPUT);
     println!("{:?}",part1);
     assert_eq!(part1, "7,3,1,3,6,3,6,0,2");
-    
+
+    // let part2 = part2(INPUT,1117961, 2782);
+    // let part2 = part2(INPUT,105843717712274, -8);
+    // println!("{:?}",part2);
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
@@ -188,4 +276,15 @@ mod tests {
         assert_eq!(part1, "4,6,3,5,6,3,5,2,1,0");
     }
 
+    #[test]
+    fn test7() {
+        let part2 = part2("test2",0,1);
+        assert_eq!(part2, 117440);
+    }
+    #[test]
+    fn test8() {
+        let part2 = part2(INPUT,0,1);
+        // assert_eq!(part2, 117440);
+
+    } 
 }
