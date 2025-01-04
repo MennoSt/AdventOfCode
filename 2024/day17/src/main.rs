@@ -2,8 +2,6 @@ use lib::filereader;
 use lib::utils;
 use lib::utils::*;
 use std::time::Instant;
-use lib::grid::*;
-use std::collections::HashSet;
 use regex::Regex;
 
 static INPUT: &str = "../input/day17";
@@ -143,8 +141,7 @@ fn part1(input: &str) -> String {
 
     convert_to_commastr(program)
 }
-// first start it(95562138,4194304)
-// 
+
 fn part2(input: &str, start_it:i128, increase:i128) -> i128{
     let mut program = parse_data(input);
     let mut program_clone = program.clone();
@@ -163,37 +160,35 @@ fn part2(input: &str, start_it:i128, increase:i128) -> i128{
             println!("{:?}", program_clone.output);
 
             println!("start it rega :{:?}",it);
-            // break;
+            break;
         }
-        if program_clone.output.len() >= 4 {
-            let diff = it -it_prev;
-            println!("{:?}",it);
-            println!("diff {:?}", diff);
-            println!("{:?}",program_clone);
-            it_prev = it;
-        }
+        
+        
+        // print values to check the iteration input for the next iteration
+        // if program_clone.output.len() >= 11 {
+        //     let diff = it -it_prev;
+        //     println!("{:?}",it);
+        //     println!("diff {:?}", diff);
+        //     println!("{:?}",program_clone);
+        //     it_prev = it;
+        // }
 
         it += increase;
-        // println!("{}",it);
     }
 
     it
 
 }
 
-
-// let part2 = part2(INPUT,95562138, 4194304); //values found by checking diffs between output results
-// 105843717712282
 fn main() {
     let start = Instant::now();
 
     let part1 = part1(INPUT);
     println!("{:?}",part1);
     assert_eq!(part1, "7,3,1,3,6,3,6,0,2");
+    let part2 = part2(INPUT,17918362, 262144); //input values found by checking which values/iterations are "hot"/which have a five or more correct elements, this manual step should be automated.
+    assert_eq!(part2, 105843716614554);
 
-    // let part2 = part2(INPUT,1117961, 2782);
-    // let part2 = part2(INPUT,105843717712274, -8);
-    // println!("{:?}",part2);
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
@@ -281,10 +276,5 @@ mod tests {
         let part2 = part2("test2",0,1);
         assert_eq!(part2, 117440);
     }
-    #[test]
-    fn test8() {
-        let part2 = part2(INPUT,0,1);
-        // assert_eq!(part2, 117440);
 
-    } 
 }
