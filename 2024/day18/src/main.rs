@@ -35,6 +35,23 @@ fn parse_data (input:&str) -> Vec<Coordinate> {
     coordinates
 }
 
+fn initiate_grid(coordinates: Vec<Coordinate>, size:usize, bytes:usize) -> Grid {
+    let rows = size;
+    let cols = size;
+    let mut grid = Grid { grid_vec: vec![vec![".".to_string(); rows]; cols]};
+    
+    let n_bytes = bytes;
+    let mut it = 0;
+    for c in coordinates {
+        if it < n_bytes {
+            grid._set_str(c.x, c.y,"#".to_string());
+        }
+        it += 1;
+    }
+
+    grid
+}
+
 fn iterate_grid(collection: &mut SearchCollection) {
 
     let mut pos = Coordinate{x:0,y:0};
@@ -43,6 +60,7 @@ fn iterate_grid(collection: &mut SearchCollection) {
     next_it(collection, &mut pos, &mut score);
 
 }
+
 fn next_it(collection: &mut SearchCollection, pos: &mut Coordinate, score: &mut i32) {
 
     let current_pos = pos.clone();
@@ -81,16 +99,37 @@ fn next_it(collection: &mut SearchCollection, pos: &mut Coordinate, score: &mut 
 
 fn part1 (input:&str, grid_size:usize, n_bytes:usize) -> i32 {
     let coordinates = parse_data(input);
+    let mut collection= setup_search(grid_size, n_bytes, coordinates);
+
+    iterate_grid(&mut collection);
+
+    collection.score_grid._elem(collection.target.x, collection.target.y)
+}
+
+fn setup_search(grid_size: usize, n_bytes: usize, coordinates: Vec<Coordinate>) -> SearchCollection {
     let grid = initiate_grid(coordinates, grid_size, n_bytes);
     let target = (grid_size-1) as i32;
     let score_grid = Gridi32 { grid_vec: vec![vec![0; grid._height()]; grid._width()]};
-    let mut collection = SearchCollection{grid:grid, 
-        score_grid:score_grid, visited_nodes:VecDeque::new(), target:Coordinate{x:target,y:target}};
-
     
-    iterate_grid(&mut collection);
+    SearchCollection{grid:grid, 
+        score_grid:score_grid, visited_nodes:VecDeque::new(), target:Coordinate{x:target,y:target}}
+}
 
-    collection.score_grid._elem(target, target)
+fn part2 (input:&str, grid_size:usize) -> String {
+    
+    let coordinates = parse_data(input);
+    let mut bytes = coordinates.len();
+    let mut result = 0;
+
+    while result == 0 {
+        bytes -= 1;
+        let mut collection= setup_search(grid_size, bytes, coordinates.clone());
+        iterate_grid(&mut collection);
+        result = collection.score_grid._elem(collection.target.x, collection.target.y);
+    }
+    let answer = &coordinates[bytes];
+
+    answer.x.to_string() + "," + &answer.y.to_string()
 }
 
 fn main() {
@@ -98,27 +137,14 @@ fn main() {
 
     let part1 = part1(INPUT, 71, 1024);
     println!("{}",part1);
-    // utils::answer((solution.0, 134588),(solution.1, 631));
+    assert_eq!(part1,306);
+    
+    let part2 = part2(INPUT, 71);
+    println!("{}",part2);
+    assert_eq!(part2,"38,63");
 
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
-}
-
-fn initiate_grid(coordinates: Vec<Coordinate>, size:usize, bytes:usize) -> Grid {
-    let rows = size;
-    let cols = size;
-    let mut grid = Grid { grid_vec: vec![vec![".".to_string(); rows]; cols]};
-    
-    let n_bytes = bytes;
-    let mut it = 0;
-    for c in coordinates {
-        if it < n_bytes {
-            grid._set_str(c.x, c.y,"#".to_string());
-        }
-        it += 1;
-    }
-
-    grid
 }
 
 #[cfg(test)]
@@ -131,5 +157,10 @@ mod tests {
         let part1 = part1(TESTINPUT, 7, 12);
         assert_eq!(part1, 22);
     }
-    
+
+    #[test]
+    fn test2() {
+        let part2 = part2(TESTINPUT, 7);
+        assert_eq!(part2, "6,1");
+    }  
 }
