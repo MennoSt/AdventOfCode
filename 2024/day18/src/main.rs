@@ -57,24 +57,24 @@ fn next_it(collection: &mut SearchCollection, pos: &mut Coordinate, score: &mut 
     for movement in movements {
         let grid_elem = collection.grid._elem(movement.x, movement.y);
 
-        if grid_elem == "." && collection.grid._is_within_grid(movement.x, movement.y) {
+        if grid_elem == "." && !collection.visited_nodes.contains(&current_pos) && 
+            collection.grid._is_within_grid(movement.x, movement.y) {
             
             *pos = movement.clone();
             *score += 1;
-            collection.grid._set_str(x, y ,"x".to_string());
-            // collection.visited_nodes.push_back(value);
+            collection.visited_nodes.push_back(Coordinate { x: x, y: y });
 
             let score_elem = collection.score_grid._elem(pos.x, pos.y);
-            if *score <= score_elem || score_elem == 0 {
+            if *score < score_elem || score_elem == 0 {
                 collection.score_grid._set(pos.x, pos.y, *score);
                 if *pos !=  collection.target {
                     next_it(collection, pos, score);
                 }
             }
-            
+            collection.visited_nodes.pop_back();
+
             *pos = current_pos.clone();
             *score -=  1;
-            collection.grid._set_str(x, y, ".".to_string());
         }
     }
 }
