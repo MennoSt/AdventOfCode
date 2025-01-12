@@ -1,9 +1,8 @@
+
 use lib::filereader;
-use lib::utils;
 use lib::utils::*;
 use std::time::Instant;
 use lib::grid::*;
-use std::collections::HashSet;
 use std::collections::VecDeque;
 use regex::Regex;
 
@@ -21,16 +20,16 @@ fn parse_data (input:&str) -> Vec<Coordinate> {
     let content = filereader::_input(input);
     let mut coordinates = Vec::new();
 
-        let re = Regex::new(r"\d+").unwrap();
+    let re = Regex::new(r"\d+").unwrap();
 
-        for line in content.lines() {
-            let line_numbers:Vec<i32> = re
-            .find_iter(line)
-            .filter_map(|mat| mat.as_str().parse::<i32>().ok())
-            .collect();
-    
-            coordinates.push(Coordinate{x:line_numbers[0], y:line_numbers[1]});
-        }
+    for line in content.lines() {
+        let line_numbers:Vec<i32> = re
+        .find_iter(line)
+        .filter_map(|mat| mat.as_str().parse::<i32>().ok())
+        .collect();
+
+        coordinates.push(Coordinate{x:line_numbers[0], y:line_numbers[1]});
+    }
 
     coordinates
 }
@@ -53,34 +52,31 @@ fn initiate_grid(coordinates: Vec<Coordinate>, size:usize, bytes:usize) -> Grid 
 }
 
 fn iterate_grid(collection: &mut SearchCollection) {
-
     let mut pos = Coordinate{x:0,y:0};
     let mut score = 0;
 
     next_it(collection, &mut pos, &mut score);
-
 }
 
 fn next_it(collection: &mut SearchCollection, pos: &mut Coordinate, score: &mut i32) {
-
     let current_pos = pos.clone();
     let x = pos.x.clone();
     let y = pos.y.clone();
 
-    let movements = vec![Coordinate{x:x-1,y:y}, 
-                    Coordinate{x:x+1,y:y},
-                    Coordinate{x:x,y:y-1}, 
-                    Coordinate{x:x,y:y+1}];
+    let directions = vec![Coordinate{x:x-1,y:y}, 
+                                            Coordinate{x:x+1,y:y},
+                                            Coordinate{x:x,y:y-1}, 
+                                            Coordinate{x:x,y:y+1}];
 
-    for movement in movements {
-        let grid_elem = collection.grid._elem(movement.x, movement.y);
+    for dir in directions {
+        let grid_elem = collection.grid._elem(dir.x, dir.y);
 
         if grid_elem == "." && !collection.visited_nodes.contains(&current_pos) && 
-            collection.grid._is_within_grid(movement.x, movement.y) {
+            collection.grid._is_within_grid(dir.x, dir.y) {
             
-            *pos = movement.clone();
+            *pos = dir.clone();
             *score += 1;
-            collection.visited_nodes.push_back(Coordinate { x: x, y: y });
+            collection.visited_nodes.push_back(current_pos.clone());
 
             let score_elem = collection.score_grid._elem(pos.x, pos.y);
             if *score < score_elem || score_elem == 0 {
@@ -89,12 +85,23 @@ fn next_it(collection: &mut SearchCollection, pos: &mut Coordinate, score: &mut 
                     next_it(collection, pos, score);
                 }
             }
+            
             collection.visited_nodes.pop_back();
-
             *pos = current_pos.clone();
             *score -=  1;
         }
     }
+}
+
+fn setup_search(grid_size: usize, n_bytes: usize, coordinates: Vec<Coordinate>) -> SearchCollection {
+    let grid = initiate_grid(coordinates, grid_size, n_bytes);
+    let target = (grid_size-1) as i32;
+    let score_grid = Gridi32 {grid_vec: vec![vec![0; grid._height()]; grid._width()]};
+    
+    SearchCollection{grid:grid, 
+                     score_grid:score_grid, 
+                     visited_nodes:VecDeque::new(), 
+                     target:Coordinate{x:target,y:target}}
 }
 
 fn part1 (input:&str, grid_size:usize, n_bytes:usize) -> i32 {
@@ -106,17 +113,7 @@ fn part1 (input:&str, grid_size:usize, n_bytes:usize) -> i32 {
     collection.score_grid._elem(collection.target.x, collection.target.y)
 }
 
-fn setup_search(grid_size: usize, n_bytes: usize, coordinates: Vec<Coordinate>) -> SearchCollection {
-    let grid = initiate_grid(coordinates, grid_size, n_bytes);
-    let target = (grid_size-1) as i32;
-    let score_grid = Gridi32 { grid_vec: vec![vec![0; grid._height()]; grid._width()]};
-    
-    SearchCollection{grid:grid, 
-        score_grid:score_grid, visited_nodes:VecDeque::new(), target:Coordinate{x:target,y:target}}
-}
-
 fn part2 (input:&str, grid_size:usize) -> String {
-    
     let coordinates = parse_data(input);
     let mut bytes = coordinates.len();
     let mut result = 0;
@@ -128,7 +125,7 @@ fn part2 (input:&str, grid_size:usize) -> String {
         result = collection.score_grid._elem(collection.target.x, collection.target.y);
     }
     let answer = &coordinates[bytes];
-
+    
     answer.x.to_string() + "," + &answer.y.to_string()
 }
 

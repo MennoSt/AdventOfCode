@@ -25,7 +25,6 @@ fn find_single_elem(grid:&Grid, elem:&str) -> Coordinate {
 }
 
 fn iterate_maze(grid:&mut Grid, score_grid:&mut Gridi32, shortest_paths:&mut HashSet<Coordinate>, lowest_score:i32) {
-
     let start_pos = find_single_elem(grid, "S");
     let mut score = 0;
     let pos = start_pos.clone();
