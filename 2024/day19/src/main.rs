@@ -13,6 +13,12 @@ struct Arrangement {
     designs:Vec<String>,
 }
 
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
+struct VisitedNodes {
+    index:usize,
+    substr:String,
+}
+
 fn parse_data (input:&str) -> Arrangement {
     let mut towels = Vec::new();
     let mut designs = Vec::new();
@@ -52,25 +58,30 @@ fn is_possible_design (towels:&Vec<String>, design:&str) -> bool{
     let mut start_i = 0;
     let mut end_i = 0;
     let mut found = false;
+    let mut visited_nodes = Vec::new();
 
-    next_pos(towels, design, start_i, &mut found);
+    next_pos(towels, design, start_i, &mut found, &mut visited_nodes);
 
     found
 }
 
-fn next_pos(towels: &Vec<String>, design: &str, start_index: usize, found:&mut bool) {
+fn next_pos(towels: &Vec<String>, design: &str, start_index: usize, found:&mut bool, visited_nodes:&mut Vec<VisitedNodes>) {
 
-    if start_index == design.len()-1 {
+    let mut x = "".to_string();
+    if start_index == design.len() {
         *found = true;
     } else if !*found {
         for j in start_index..design.len() {
-            let x = &design[start_index..j].to_string();
-            if towels.contains(x) {
-                next_pos(towels, design,j, found);
+            let test = design.chars().nth(j).unwrap();
+            x.push(test);
+            let node = VisitedNodes{index:j.clone(),substr:x.clone()};
+            if towels.contains(&x) && !visited_nodes.contains(&node){
+                    visited_nodes.push(node);
+                    next_pos(towels, design,j + 1, found, visited_nodes);
+                }
             }
         }
     }
-}
 
 fn main() {
     let start = Instant::now();
@@ -115,5 +126,27 @@ mod tests {
         assert_eq!(is_possible_design(&towels, design), false);
     }
 
+    #[test]
+    fn test4() {
+        let towels = vec!["b"];
+        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
+        let design = "bbbbbbn"; 
+        assert_eq!(is_possible_design(&towels, design), false);
+    }
 
+    #[test]
+    fn test5() {
+        let towels = vec!["b","r"];
+        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
+        let design = "br"; 
+        assert_eq!(is_possible_design(&towels, design), true);
+    }
+
+    #[test]
+    fn test6() {
+        let towels = vec!["b","rn"];
+        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
+        let design = "bbbbbrn"; 
+        assert_eq!(is_possible_design(&towels, design), true);
+    }
 }
