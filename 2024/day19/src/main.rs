@@ -39,24 +39,11 @@ fn parse_data (input:&str) -> Arrangement {
     Arrangement{towels:towels, designs:designs}
 }
 
-fn part1 (input:&str) -> i32 {
-    let arrangement = parse_data(input);
 
-    let mut pos_designs = 0;
-    for d in arrangement.designs {
-        if is_possible_design(&arrangement.towels, &d) {
-            pos_designs += 1;
-            println!("found:{} design:{}",pos_designs, d);
-        }
-    }
-
-    pos_designs
-}
 
 fn is_possible_design (towels:&Vec<String>, design:&str) -> bool{
     
-    let mut start_i = 0;
-    let mut end_i = 0;
+    let start_i = 0;
     let mut found = false;
     let mut visited_nodes = Vec::new();
 
@@ -80,8 +67,62 @@ fn next_pos(towels: &Vec<String>, design: &str, start_index: usize, found:&mut b
                     next_pos(towels, design,j + 1, found, visited_nodes);
                 }
             }
+    }
+}
+
+fn part1 (input:&str) -> i32 {
+    let arrangement = parse_data(input);
+
+    let mut pos_designs = 0;
+    for d in arrangement.designs {
+        if is_possible_design(&arrangement.towels, &d) {
+            pos_designs += 1;
         }
     }
+
+    pos_designs
+}
+
+fn calculate_arrangements(towels:&Vec<String>, design:&str) -> i128
+{
+    let start_i = 0;
+    let mut found = 0;
+
+    next_total_arrangements(towels, design, start_i, &mut found);
+
+    println!("arr total: {}", found);
+    found
+}
+
+fn next_total_arrangements(towels: &Vec<String>, design: &str, start_index: usize, found:&mut i128) {
+
+    let mut x = "".to_string();
+    if start_index == design.len() {
+        *found += 1;
+    } 
+
+    for j in start_index..design.len() {
+            let test = design.chars().nth(j).unwrap();
+            x.push(test);
+            if towels.contains(&x) {
+                    next_total_arrangements(towels, design,j + 1, found);
+                }
+            }
+
+}
+
+fn part2 (input:&str) -> i128 {
+    let arrangement = parse_data(input);
+
+    let mut total_arrangements = 0;
+    for d in arrangement.designs {
+        if is_possible_design(&arrangement.towels, &d) {
+            total_arrangements += calculate_arrangements(&arrangement.towels, &d);
+        }
+    }
+
+    total_arrangements
+}
 
 fn main() {
     let start = Instant::now();
@@ -89,10 +130,10 @@ fn main() {
     let part1 = part1(INPUT);
     println!("{}",part1);
 
-    // assert_eq!(part1,306);
+    assert_eq!(part1,304);
     
-    // let part2 = part2(INPUT, 71);
-    // println!("{}",part2);
+    let part2 = part2(INPUT);
+    println!("{}",part2);
     // assert_eq!(part2,"38,63");
 
     let duration = start.elapsed();
@@ -148,5 +189,19 @@ mod tests {
         let towels: Vec<String> = towels.into_iter().map(String::from).collect();
         let design = "bbbbbrn"; 
         assert_eq!(is_possible_design(&towels, design), true);
+    }
+
+    #[test]
+    fn test7() {
+        let towels = vec!["b","r", "wr", "b", "g", "bwu", "rb", "gb", "br"];
+        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
+        let design = "brwrr"; 
+        assert_eq!(calculate_arrangements(&towels, design), 2);
+    }
+
+    #[test]
+    fn test8() {
+        let part1 = part2(TESTINPUT);
+        assert_eq!(part1, 16);
     }
 }
