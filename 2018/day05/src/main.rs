@@ -1,50 +1,44 @@
 use std::sync::mpsc::Receiver;
-
+use std::time::Instant;
 use lib::filereader;
+use lib::utils;
+use lib::utils::*;
+use lib::grid::Grid;
+use std::fmt::Debug;
 
+static INPUT: &str = "../input/day05";
 fn main()
 {
-    let contents = filereader::_input("../input/day05");
+    let start = Instant::now();
+
+    let contents = filereader::_input(INPUT);
     let answerp1 = reduce_polymer(contents.clone());
     println!("{}",answerp1);
     assert_eq!(answerp1, 11264);
     let answerp2 = reduce_polymer_with_exclusion(contents);
     println!("{}",answerp2);
     assert_eq!(answerp2, 4552);
+
+    let duration = start.elapsed();
+    println!("Execution time: {:?}", duration);
 }
 
-fn reduce_polymer(polymer: String) -> usize{
+fn reduce_polymer(polymer: String) -> usize {
+    let mut stack: Vec<char> = Vec::with_capacity(polymer.len());
 
-    let mut index = 0;
-    let mut reduced_polymer = polymer.to_string().clone();
-    let mut length= reduced_polymer.len() -1;
-
-    while index < length {
-        
-       let x = reduced_polymer.chars().nth(index+1).unwrap(); 
-       let y = reduced_polymer.chars().nth(index).unwrap();
-
-       let same = x.to_ascii_lowercase() == y.to_ascii_lowercase();
-       let upper_and_lowercase =  x.is_lowercase() != y.is_lowercase(); 
-       if same && upper_and_lowercase
-       {
-            reduced_polymer.remove(index+1);
-            reduced_polymer.remove(index);
-            if index >= 1 
-            {
-                index -= 1;
+    for unit in polymer.chars() {
+        if let Some(&last) = stack.last() {
+            let same = last.to_ascii_lowercase() == unit.to_ascii_lowercase();
+            let upper_and_lowercase =  last.is_lowercase() != unit.is_lowercase(); 
+            if same && upper_and_lowercase {
+                stack.pop();
+                continue;
             }
-            else {
-                index= 0;
-            }
-
-            length = reduced_polymer.len() -1;
-       } else {
-           index+=1
-       }
+        }
+        stack.push(unit);
     }
 
-    reduced_polymer.len()
+    stack.len()
 }
 
 fn reduce_polymer_with_exclusion(polymer: String) -> usize{
@@ -52,9 +46,9 @@ fn reduce_polymer_with_exclusion(polymer: String) -> usize{
     let alphabet = "abcdefghijklmnopqrstuvwxyz";
     let mut vec:Vec<usize> = Vec::new();
 
-    for ch in alphabet.chars()
+    for letter in alphabet.chars()
     {
-        let result = polymer.chars().filter(|&c| c != ch.to_ascii_uppercase() && c != ch)
+        let result = polymer.chars().filter(|&c| c != letter.to_ascii_uppercase() && c != letter)
             .collect();
     
         let length = reduce_polymer(result);
