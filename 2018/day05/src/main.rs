@@ -5,11 +5,12 @@ use lib::filereader;
 fn main()
 {
     let contents = filereader::_input("../input/day05");
-    let answer = reduce_polymer(contents);
-    println!("{}",answer);
-    assert_eq!(answer, 11264);
-    // filereader::_print_content(contents.as_str()); 
-
+    let answerp1 = reduce_polymer(contents.clone());
+    println!("{}",answerp1);
+    assert_eq!(answerp1, 11264);
+    let answerp2 = reduce_polymer_with_exclusion(contents);
+    println!("{}",answerp2);
+    assert_eq!(answerp2, 4552);
 }
 
 fn reduce_polymer(polymer: String) -> usize{
@@ -46,9 +47,27 @@ fn reduce_polymer(polymer: String) -> usize{
     reduced_polymer.len()
 }
 
+fn reduce_polymer_with_exclusion(polymer: String) -> usize{
+
+    let alphabet = "abcdefghijklmnopqrstuvwxyz";
+    let mut vec:Vec<usize> = Vec::new();
+
+    for ch in alphabet.chars()
+    {
+        let result = polymer.chars().filter(|&c| c != ch.to_ascii_uppercase() && c != ch)
+            .collect();
+    
+        let length = reduce_polymer(result);
+        vec.push(length);
+    }
+    
+    let size = vec.iter().min().unwrap();
+    *size
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::reduce_polymer;
+    use crate::{reduce_polymer, reduce_polymer_with_exclusion};
 
     #[test]
     fn test1() {
@@ -59,7 +78,8 @@ mod tests {
 
     #[test]
     fn test2() {
-        // let part2 = part2(TESTINPUT, 7);
-        // assert_eq!(part2, "6,1");
+        let test_input = "dabAcCaCBAcCcaDA";
+        let polymer = reduce_polymer_with_exclusion(test_input.to_string());
+        assert_eq!(polymer, 4); 
     }  
 }
