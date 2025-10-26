@@ -1,148 +1,163 @@
-
 use lib::filereader;
+use lib::utils;
 use lib::utils::*;
 use std::time::Instant;
 use lib::grid::*;
-use std::collections::VecDeque;
-use regex::Regex;
+use std::collections::HashSet;
 
-static INPUT: &str = "../input/day19";
-
-struct Arrangement {
-    towels:Vec<String>,
-    designs:Vec<String>,
-}
+static INPUT: &str = "../input/day20";
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
-struct VisitedNodes {
-    index:usize,
-    substr:String,
+struct Movement {
+    coordinate: Coordinate,
+    direction: Direction,
 }
 
-fn parse_data (input:&str) -> Arrangement {
-    let mut towels = Vec::new();
-    let mut designs = Vec::new();
-    let content = filereader::_input(&input);
-
-    let mut first = true; 
-    for line in content.lines() {
-        if first {
-            towels = line.split(", ").map(|s| s.to_string()).collect();
-            first = false;
-        } else {
-            if !line.is_empty(){
-                designs.push(line.to_string());
+fn find_single_elem(grid:&Grid, elem:&str) -> Coordinate {
+    for i in 0..grid._width() as i32{
+        for j in 0..grid._height() as i32 {
+            if grid._elem(i,j) == elem {
+                return Coordinate {x:i, y:j};
             }
         }
     }
-
-    Arrangement{towels:towels, designs:designs}
+    Coordinate{x:0,y:0}
 }
 
+fn iterate_maze(grid:&mut Grid, score_grid:&mut Gridi32, shortest_paths:&mut HashSet<Coordinate>, lowest_score:i32) {
+    let start_pos = find_single_elem(grid, "S");
+    let mut score = 0;
+    let pos = start_pos.clone();
+    grid._set_str(start_pos.x, start_pos.y ,"x".to_string());
 
+    next_it(grid, score_grid, Movement{coordinate:pos, direction:Direction::Right}, &mut score, shortest_paths, lowest_score);
 
-fn is_possible_design (towels:&Vec<String>, design:&str) -> bool{
-    
-    let start_i = 0;
-    let mut found = false;
-    let mut visited_nodes = Vec::new();
-
-    next_pos(towels, design, start_i, &mut found, &mut visited_nodes);
-
-    found
+    grid._set_str(start_pos.x, start_pos.y ,"S".to_string());
 }
 
-fn next_pos(towels: &Vec<String>, design: &str, start_index: usize, found:&mut bool, visited_nodes:&mut Vec<VisitedNodes>) {
+fn next_it(grid: &mut Grid, score_grid: &mut Gridi32, mut pos:Movement, score: &mut i32, shortest_paths:&mut HashSet<Coordinate>, lowest_score:i32) {
 
-    let mut x = "".to_string();
-    if start_index == design.len() {
-        *found = true;
-    } else if !*found {
-        for j in start_index..design.len() {
-            let test = design.chars().nth(j).unwrap();
-            x.push(test);
-            let node = VisitedNodes{index:j.clone(),substr:x.clone()};
-            if towels.contains(&x) && !visited_nodes.contains(&node){
-                    visited_nodes.push(node);
-                    next_pos(towels, design,j + 1, found, visited_nodes);
+    let x = pos.coordinate.x.clone();
+    let y = pos.coordinate.y.clone();
+
+    let movements = vec![Movement{coordinate:Coordinate{x:x-1,y:y}, direction:Direction::Left}, 
+        Movement{coordinate:Coordinate{x:x+1,y:y}, direction:Direction::Right},
+        Movement{coordinate:Coordinate{x:x,y:y-1}, direction:Direction::Up}, 
+        Movement{coordinate:Coordinate{x:x,y:y+1},direction:Direction::Down}];
+
+    for movement in movements {
+        let grid_elem = grid._elem(movement.coordinate.x, movement.coordinate.y);
+
+        if grid_elem == "." || grid_elem == "E"{
+                
+            let current_pos = pos.clone();
+            let score_increase= 1;
+            
+            pos = movement.clone();
+            *score += score_increase;
+            grid._set_str(x, y ,"x".to_string());
+            
+            let score_elem = score_grid._elem(pos.coordinate.x, pos.coordinate.y);
+            if *score <= score_elem || score_elem == 0 || is_cross_or_t(grid, &pos.coordinate) {
+                score_grid._set(pos.coordinate.x, pos.coordinate.y, *score);
+                if grid_elem != "E"{
+                    next_it(grid, score_grid, pos, score, shortest_paths, lowest_score);
                 }
             }
-    }
-}
+            
+            update_shortest_path(grid, score, shortest_paths, lowest_score, grid_elem);
 
-fn part1 (input:&str) -> i32 {
-    let arrangement = parse_data(input);
-
-    let mut pos_designs = 0;
-    for d in arrangement.designs {
-        if is_possible_design(&arrangement.towels, &d) {
-            pos_designs += 1;
+            pos = current_pos;
+            *score -= score_increase;
+            grid._set_str(x, y, ".".to_string());
         }
     }
-
-    pos_designs
 }
 
-fn calculate_arrangements(towels:&Vec<String>, design:&str) -> i128
+fn update_shortest_path(grid: &mut Grid, score: &mut i32, lowest_score_coord: &mut HashSet<Coordinate>, lowest_score: i32, grid_elem: String) {
+    if grid_elem == "E" && *score == lowest_score {
+        for i in 0..grid._width() as i32{
+            for j in 0..grid._height() as i32 {
+                if grid._elem(i, j) ==  "x" || grid._elem(i, j) ==  "E"{
+                    lowest_score_coord.insert(Coordinate { x: i , y: j });
+                }
+            }
+        }
+    }
+}
+
+fn is_cross_or_t(grid:&Grid, coordinate:&Coordinate) -> bool {
+    if n_directions(grid, coordinate) > 2 {
+        true
+    } else {
+        false
+    }
+}
+
+fn n_directions(grid: &Grid, coordinate: &Coordinate) -> i32 {
+    let x=coordinate.x;
+    let y = coordinate.y;
+    let vec_elems = vec![grid._elem(x+1,y), grid._elem(x-1,y), grid._elem(x,y+1), grid._elem(x,y-1)];
+
+    let mut directions = 0;
+    for elem in vec_elems {
+        if elem == "." || elem == "x"
+        {
+            directions += 1;
+        }
+    }
+    directions
+}
+
+fn solve(input:&Grid, lowest_score:i32) -> i32 {
+    let mut grid = input.clone();
+    let end = find_single_elem(&grid,"E");
+    let mut lowest_score_coord = HashSet::new();
+    let rows = grid._width(); 
+    let cols = grid._height();
+    let mut score_grid = Gridi32 { grid_vec: vec![vec![0; rows]; cols]};
+
+    iterate_maze(&mut grid, &mut score_grid, &mut lowest_score_coord, lowest_score);
+
+    score_grid._elem(end.x,end.y)
+}
+
+fn solve_with_shortcuts(input:&str, save_limit: i32) -> i32
 {
-    let start_i = 0;
-    let mut count = 0;
-    // let mut visited_arrangements = Vec::new();
-    let mut combinations= Vec::new();
-    let mut combination= Vec::new();
+    let grid_init = filereader::_input_into_grid(input);
+    let rows = grid_init._width() as i32; 
+    let cols = grid_init._height() as i32;
+    let init_score = solve(&grid_init,0);
+    let mut cheats = 0;
 
-    next_total_arrangements(towels, design, start_i, &mut combinations, &mut combination, &mut count);
+    for x in 1..rows-1 {
+        for y in 1..cols-1 {
+            let mut grid = filereader::_input_into_grid(input);
 
-    println!("{}", count);
-    count
-}
-
-fn next_total_arrangements(towels: &Vec<String>, design: &str, start_index: usize, 
-    combinations:&mut Vec<Vec<String>>, combination:&mut Vec<String>, count:&mut i128) {
-
-    let mut x = "".to_string();
-    if start_index == design.len() && !combinations.contains(&combination) {
-        *count += 1;
-        combinations.push(combination.clone());
-        println!("{}", count);
-        println!("{:?}", combination);
-    }
-
-    for j in start_index..design.len() {
-            let test = design.chars().nth(j).unwrap();
-            x.push(test);
-            if towels.contains(&x) {
-                    combination.push(x.clone());
-                    next_total_arrangements(towels, design,j + 1, combinations, combination, count);
-                    combination.pop();
+            if grid._elem(x, y) == "#"
+            {
+                grid._set_str(x, y,".".to_string());
+                let score = solve(&grid,0);
+                let saved_picos = init_score - score;
+                if saved_picos >= save_limit {
+                    cheats+=1;
+                    println!("saved picos {}", saved_picos);
                 }
+                grid._set_str(x, y,"#".to_string());
             }
-}
-
-fn part2 (input:&str) -> i128 {
-    let arrangement = parse_data(input);
-
-    let mut total_arrangements = 0;
-    for d in arrangement.designs {
-        if is_possible_design(&arrangement.towels, &d) {
-            total_arrangements += calculate_arrangements(&arrangement.towels, &d);
         }
     }
 
-    total_arrangements
+    cheats
 }
 
 fn main() {
     let start = Instant::now();
 
-    let part1 = part1(INPUT);
-    println!("{}",part1);
-
-    assert_eq!(part1,304);
-    
-    let part2 = part2(INPUT);
-    println!("{}",part2);
-    // assert_eq!(part2,"38,63");
+    let solution = solve_with_shortcuts(INPUT,100);
+    println!("{}",solution);
+    assert_eq!(solution,1343);
+    // utils::answer((solution.0, 134588),(solution.1, 631));
 
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
@@ -155,61 +170,21 @@ mod tests {
 
     #[test]
     fn test1() {
-        let part1 = part1(TESTINPUT);
-        assert_eq!(part1, 6);
+        let grid_init = filereader::_input_into_grid(TESTINPUT);
+        let part1 = solve(&grid_init, 0);
+        assert_eq!(part1, 84);
     }
 
-     #[test]
+    #[test]
     fn test2() {
-        let towels = vec!["b","r","rw"];
-        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
-        let design = "brwrr";
-        assert_eq!(is_possible_design(&towels, design), true);
+        let part1 = solve_with_shortcuts(TESTINPUT,40);
+        assert_eq!(part1, 2);
     }
 
     #[test]
     fn test3() {
-        let towels = vec!["b","r"];
-        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
-        let design = "brwrr"; 
-        assert_eq!(is_possible_design(&towels, design), false);
+        let part1 = solve_with_shortcuts(TESTINPUT,2);
+        assert_eq!(part1, 44);
     }
 
-    #[test]
-    fn test4() {
-        let towels = vec!["b"];
-        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
-        let design = "bbbbbbn"; 
-        assert_eq!(is_possible_design(&towels, design), false);
-    }
-
-    #[test]
-    fn test5() {
-        let towels = vec!["b","r"];
-        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
-        let design = "br"; 
-        assert_eq!(is_possible_design(&towels, design), true);
-    }
-
-    #[test]
-    fn test6() {
-        let towels = vec!["b","rn"];
-        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
-        let design = "bbbbbrn"; 
-        assert_eq!(is_possible_design(&towels, design), true);
-    }
-
-    #[test]
-    fn test7() {
-        let towels = vec!["b","r", "wr", "b", "g", "bwu", "rb", "gb", "br"];
-        let towels: Vec<String> = towels.into_iter().map(String::from).collect();
-        let design = "brwrr"; 
-        assert_eq!(calculate_arrangements(&towels, design), 2);
-    }
-
-    #[test]
-    fn test8() {
-        let part1 = part2(TESTINPUT);
-        assert_eq!(part1, 16);
-    }
 }
