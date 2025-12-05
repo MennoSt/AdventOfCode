@@ -52,7 +52,6 @@ fn p1(input: &str) -> i64 {
         let mut added_indices: Vec<usize> = Vec::new();
         largest_joltage(&d, &mut added_indices, &mut joltage, 2);
         let j: i64 = joltage.parse().unwrap();
-        println!("{}", j);
         sum += j;
     }
     sum
@@ -63,79 +62,58 @@ fn p2(input: &str) -> i64 {
     let mut sum = 0;
 
     for d in data {
-        let mut joltage = "".to_string();
-        let mut added_indices: Vec<usize> = Vec::new();
-        largest_joltage(&d, &mut added_indices, &mut joltage, 12);
-        let j: i64 = joltage.parse().unwrap();
-        println!("{}", j);
-        sum += j;
+        let number = largest_joltage_p2(d, 12);
+        sum += number;
     }
     sum
+}
+
+fn largest_joltage_p2(input: String, length: usize) -> i64 {
+    let mut joltage: String = "".to_string();
+    let jol_length = length;
+    let mut current_index = -1;
+
+    while joltage.len() < jol_length {
+        let mut value_added = false;
+        for i in ('1'..='9').rev() {
+            let positions: Vec<usize> = input
+                .char_indices() // iterate over (index, char)
+                .filter(|(_, c)| *c == i) // keep only i
+                .map(|(i, _)| i) // take the index
+                .collect();
+            for pos in positions {
+                let places_to_fill = jol_length - joltage.len();
+                let numbers_left = input.len() - pos;
+                let can_be_added = places_to_fill <= numbers_left;
+                if pos as i32 > current_index && can_be_added {
+                    joltage.push(i);
+                    current_index = pos as i32;
+                    value_added = true;
+                    break;
+                }
+            }
+            if value_added {
+                break;
+            }
+        }
+    }
+    let value = joltage.parse().unwrap();
+    value
 }
 
 fn main() {
     let part1 = p1("../input/day03");
     let part2 = p2("../input/day03");
 
-    // let p1 = answerp1("../input/day02");
-    // let p2 = answerp2("../input/day02");
     assert_eq!(part1, 17087);
+    assert_eq!(part2, 169019504359949);
     println!("{}", part1);
     println!("{}", part2);
-    // println!("{}", p2);
-    // println!("{}", p2);
-    // assert_eq!(p1, 54641809925);
-    // assert_eq!(p2, 73694270688);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test1() {
-        let mut joltage = "".to_string();
-        let mut added_indices: Vec<usize> = Vec::new();
-        largest_joltage("987654321111111", &mut added_indices, &mut joltage, 2);
-        assert_eq!(joltage, "98");
-    }
-
-    // #[test]
-    // fn test2() {
-    //     let mut joltage = "".to_string();
-    //     let mut added_indices:Vec<i64> = Vec::new();
-    //     largest_joltage("811111111111119", &mut added_indices, &mut joltage);
-    //     assert_eq!(joltage, "89");
-    // }
-
-    // #[test]
-    // fn test3() {
-    //     let mut joltage = "".to_string();
-    //     largest_joltage("234234234234278", &mut -1, &mut joltage);
-    //     assert_eq!(joltage, "78");
-    // }
-
-    #[test]
-    fn test4() {
-        let mut joltage = "".to_string();
-        let mut added_indices: Vec<usize> = Vec::new();
-        largest_joltage("811111111111119", &mut added_indices, &mut joltage, 12);
-        assert_eq!(joltage, "811111111119");
-    }
-
-    // #[test]
-    // fn test5() {
-    //     let mut joltage = "".to_string();
-    //     largest_joltage("9191", &mut -1, &mut joltage);
-    //     assert_eq!(joltage, "99");
-    // }
-
-    //     #[test]
-    // fn test7() {
-    //     let mut joltage = "".to_string();
-    //     largest_joltage("1188", &mut -1, &mut joltage);
-    //     assert_eq!(joltage, "88");
-    // }
 
     #[test]
     fn test6() {
