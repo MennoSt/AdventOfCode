@@ -95,13 +95,13 @@ mod tests {
 
     #[test]
     fn test1() {
-        let result = calculate_password("/home/menno/Alten/AdventOfCode/2025/day01/example");
+        let result = calculate_password("example");
         assert_eq!(result, 3);
     }
 
     #[test]
     fn test2() {
-        let result = calculate_password_p2("/home/menno/Alten/AdventOfCode/2025/day01/example");
+        let result = calculate_password_p2("example");
         assert_eq!(result, 6);
     }
 
