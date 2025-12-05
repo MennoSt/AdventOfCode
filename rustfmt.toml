@@ -1,0 +1,4 @@
+
+# max_width = 100          # Maximum line width
+# indent_style = "Block"   # Indentation style: "Block" or "Visual"
+# use_small_heuristics = "Max" # Controls aggressive formatting
