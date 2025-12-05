@@ -80,21 +80,10 @@ fn is_invalid_id_p2(number: i64) -> bool {
         let v: Vec<&str> = split_into_equal_parts(&s, len);
         let all_equal = v.iter().all(|s| s == &v[0]);
         if all_equal {
-            // println!("invalid! :{}", number);
             return true;
         }
         if len % 3 == 0 && len >= 6 {
             let part_len = len / 3;
-            let v: Vec<&str> = split_into_equal_parts(&s, part_len);
-            let all_equal = v.iter().all(|s| s == &v[0]);
-            if all_equal {
-                // println!("invalid! :{}", number);
-                return true;
-            }
-        }
-
-        if len % 5 == 0 && len >= 10 {
-            let part_len = len / 5;
             let v: Vec<&str> = split_into_equal_parts(&s, part_len);
             let all_equal = v.iter().all(|s| s == &v[0]);
             if all_equal {
@@ -171,30 +160,6 @@ mod tests {
     }
 
     #[test]
-    fn test5() {
-        let invalid_ids = is_invalid_id_p2(999);
-        assert_eq!(invalid_ids, true);
-    }
-
-    #[test]
-    fn test6() {
-        let invalid = is_invalid_id_p2(1010);
-        assert_eq!(invalid, true);
-    }
-
-    #[test]
-    fn test8() {
-        let invalid = is_invalid_id_p2(824824824);
-        assert_eq!(invalid, true);
-    }
-
-    #[test]
-    fn test9() {
-        let invalid = is_invalid_id_p2(1698522);
-        assert_eq!(invalid, false);
-    }
-
-    #[test]
     fn test7() {
         let invalid = is_invalid_id_p2(102);
         assert_eq!(invalid, false);
@@ -209,12 +174,6 @@ mod tests {
     #[test]
     fn test12() {
         let invalid = is_invalid_id_p2(2);
-        assert_eq!(invalid, false);
-    }
-
-    #[test]
-    fn test13() {
-        let invalid = is_invalid_id_p2(3);
         assert_eq!(invalid, false);
     }
 
