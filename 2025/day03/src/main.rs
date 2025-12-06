@@ -1,4 +1,4 @@
-use lib::{filereader};
+use lib::{filereader, utils};
 use std::time::Instant;
 
 static INPUT: &str = "../input/day03";
@@ -60,17 +60,6 @@ fn p1(input: &str) -> i64 {
     sum
 }
 
-fn p2(input: &str) -> i64 {
-    let data = parse_data(input);
-    let mut sum = 0;
-
-    for d in data {
-        let number = largest_joltage_p2(d, 12);
-        sum += number;
-    }
-    sum
-}
-
 fn largest_joltage_p2(input: String, length: usize) -> i64 {
     let mut joltage: String = "".to_string();
     let jol_length = length;
@@ -104,16 +93,25 @@ fn largest_joltage_p2(input: String, length: usize) -> i64 {
     value
 }
 
+fn p2(input: &str) -> i64 {
+    let data = parse_data(input);
+    let mut sum = 0;
+
+    for d in data {
+        let number = largest_joltage_p2(d, 12);
+        sum += number;
+    }
+    sum
+}
+
+
+
 fn main() {
-    
     let start = Instant::now();
     let part1 = p1(INPUT);
     let part2 = p2(INPUT);
 
-    assert_eq!(part1, 17087);
-    assert_eq!(part2, 169019504359949);
-    println!("{}", part1);
-    println!("{}", part2);
+    utils::answer((part1,17087),(part2, 169019504359949));
     
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);

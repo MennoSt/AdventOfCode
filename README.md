@@ -13,3 +13,4 @@ The puzzle inputs for each year can be found on the [Advent of Code website](htt
 - **2022**: Python
 - **2023**: Rust
 - **2024**: Rust
+- **2025**: Rust
