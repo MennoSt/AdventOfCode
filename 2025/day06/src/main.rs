@@ -4,17 +4,17 @@ use std::time::Instant;
 static INPUT: &str = "../input/day06";
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone)]
-enum Operate {
+enum Operation {
     Added,
     Multiplied,
 }
 
-struct Operation {
+struct MathProblem {
     values: Vec<i128>,
-    operation: Operate,
+    operation: Operation,
 }
 
-fn parse_data(input: &str) -> Vec<Operation> {
+fn parse_data(input: &str) -> Vec<MathProblem> {
     let contents = filereader::_input(input);
     let mut data: Vec<Vec<i128>> = Vec::new();
     let mut operations: Vec<char> = Vec::new();
@@ -36,7 +36,6 @@ fn parse_data(input: &str) -> Vec<Operation> {
         if let Some(nums) = numbers {
             data.push(nums);
         } else {
-            // Fallback: parse chars
             let chars: Vec<char> = line
                 .split_whitespace()
                 .filter_map(|s| s.chars().next())
@@ -46,7 +45,7 @@ fn parse_data(input: &str) -> Vec<Operation> {
         }
     }
 
-    let mut operations_vec: Vec<Operation> = Vec::new();
+    let mut math_problems: Vec<MathProblem> = Vec::new();
 
     for i in 0..operations.len() {
         let mut values_op: Vec<i128> = Vec::new();
@@ -56,63 +55,30 @@ fn parse_data(input: &str) -> Vec<Operation> {
 
         let operate;
         if operations[i] == '*' {
-            operate = Operate::Multiplied;
+            operate = Operation::Multiplied;
         } else {
-            operate = Operate::Added;
+            operate = Operation::Added;
         }
 
-        operations_vec.push(Operation {
+        math_problems.push(MathProblem {
             values: values_op,
             operation: operate,
         })
     }
 
-    operations_vec
+    math_problems
 }
 
-fn p1(input: &str) -> i128 {
-    let operations = parse_data(input);
-    let mut sum = 0;
-    for o in operations {
-        if o.operation == Operate::Added {
-            let answer: i128 = o.values.iter().sum();
-            sum += answer;
-        } else {
-            let answer: i128 = o.values.iter().product();
-            sum += answer;
-        }
-    }
-    sum
-}
-
-fn p2(input: &str) -> i128 {
-    let operations = parse_data_p2(input);
-    let mut sum = 0;
-    for o in operations {
-        if o.operation == Operate::Added {
-            let answer: i128 = o.values.iter().sum();
-            sum += answer;
-        } else {
-            let answer: i128 = o.values.iter().product();
-            sum += answer;
-        }
-    }
-    sum
-}
-
-fn parse_data_p2(input: &str) -> Vec<Operation>  {
+fn parse_data_p2(input: &str) -> Vec<MathProblem> {
     let contents = filereader::_input(input);
     let mut data: Vec<String> = Vec::new();
     let mut operations: Vec<char> = Vec::new();
-
-    let mut return_value: Vec<Operation> = Vec::new();
+    let mut return_value: Vec<MathProblem> = Vec::new();
 
     for line in contents.lines() {
         if line.chars().any(|c| c.is_ascii_digit()) {
             data.push(line.to_string());
-            println!("String contains digits!");
         } else {
-            println!("No digits.");
             let chars: Vec<char> = line
                 .split_whitespace()
                 .filter_map(|s| s.chars().next())
@@ -122,58 +88,77 @@ fn parse_data_p2(input: &str) -> Vec<Operation>  {
         }
     }
 
-    let mut values_vec_ints:Vec<Vec<i128>> = Vec::new();
-    let mut values:Vec<i128> = Vec::new();
+    let mut values_vec_ints: Vec<Vec<i128>> = Vec::new();
+    let mut values: Vec<i128> = Vec::new();
     for i in 0..data[0].len() {
         let mut value = "".to_string();
         for d in &data {
             let val = d.chars().nth(i).unwrap();
-            if val != ' '
-            {
+            if val != ' ' {
                 value.push(val);
             }
         }
-        if value.is_empty()
-        {
-            println!("{:?}",values);
+        if value.is_empty() {
             values_vec_ints.push(values.clone());
             values.clear();
-        }
-        else{
-            let val_int:i128 = value.parse().unwrap();
+        } else {
+            let val_int: i128 = value.parse().unwrap();
             values.push(val_int);
         }
     }
-    println!("{:?}",values);
     values_vec_ints.push(values.clone());
 
-    for i in 0..operations.len()
-    {
+    for i in 0..operations.len() {
         let vec = values_vec_ints[i].clone();
 
         let operate;
         if operations[i] == '*' {
-            operate = Operate::Multiplied;
+            operate = Operation::Multiplied;
         } else {
-            operate = Operate::Added;
+            operate = Operation::Added;
         }
 
-        let op = Operation{values:vec,operation:operate};
-        returnValue.push(op);
+        let op = MathProblem {
+            values: vec,
+            operation: operate,
+        };
+        return_value.push(op);
     }
 
-    returnValue
+    return_value
+}
 
+fn p1(input: &str) -> i128 {
+    let operations = parse_data(input);
+    calculate_sum(operations)
+}
+
+fn p2(input: &str) -> i128 {
+    let operations = parse_data_p2(input);
+    calculate_sum(operations)
+}
+
+fn calculate_sum(operations: Vec<MathProblem>) -> i128 {
+    let mut sum = 0;
+    for o in operations {
+        if o.operation == Operation::Added {
+            let answer: i128 = o.values.iter().sum();
+            sum += answer;
+        } else {
+            let answer: i128 = o.values.iter().product();
+            sum += answer;
+        }
+    }
+    sum
 }
 
 fn main() {
     let start = Instant::now();
 
-    let answerp1 = p1(INPUT);
-    println!("{}", answerp1);
-    assert_eq!(answerp1, 7644505810277);
-    let answerp2 = p2(INPUT);
-    println!("{}", answerp2);
+    let part1 = p1(INPUT);
+    let part2 = p2(INPUT);
+    utils::answer((part1, 7644505810277), (part2, 12841228084455));
+
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
