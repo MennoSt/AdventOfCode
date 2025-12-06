@@ -1,17 +1,11 @@
 use lib::filereader;
-use lib::grid::Grid;
+use lib::utils;
 use std::time::Instant;
 
 static INPUT: &str = "../input/day04";
 
-fn parse_data(input: &str) -> Grid {
-    let grid = filereader::_input_into_grid(input);
-    grid._print();
-    grid
-}
-
 fn p1(input: &str) -> i32 {
-    let grid = parse_data(input);
+    let grid = filereader::_input_into_grid(input);
     let mut sum = 0;
 
     for i in 0..grid._width() as i32 {
@@ -27,7 +21,7 @@ fn p1(input: &str) -> i32 {
 }
 
 fn p2(input: &str) -> i32 {
-    let grid = parse_data(input);
+    let grid = filereader::_input_into_grid(input);
     let mut grid_mut = grid.clone();
     let mut sum = 0;
 
@@ -44,7 +38,6 @@ fn p2(input: &str) -> i32 {
             }
         }
         sum += removed_rolls;
-        grid_mut._print();
         if removed_rolls == 0
         {
             break;
@@ -59,10 +52,7 @@ fn main() {
     let part1 = p1(INPUT);
     let part2 = p2(INPUT);
 
-    assert_eq!(part1, 1363);
-    assert_eq!(part2, 8184);
-    println!("{}", part1);
-    println!("{}", part2);
+    utils::answer((part1,1363),(part2, 8184));
 
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
