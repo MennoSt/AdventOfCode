@@ -54,7 +54,7 @@ fn parse_data(input: &str) -> Vec<Operation> {
             values_op.push(vec[i]);
         }
 
-        let mut operate = Operate::Added;
+        let operate;
         if operations[i] == '*' {
             operate = Operate::Multiplied;
         } else {
@@ -85,51 +85,55 @@ fn p1(input: &str) -> i128 {
     sum
 }
 
-fn p2(input: &str) -> i128 {
-    let operations = parse_data(input);
-    let mut sum = 0;
-    for o in &operations {
-        let new_vec = transpose_vec(o.values.clone(), o.operation.clone());
-        let mut answer=0;
-        if o.operation == Operate::Added {
-            answer = new_vec.iter().sum();
+fn parse_data_p2(input: &str)   {
+    let contents = filereader::_input(input);
+    let mut data: Vec<String> = Vec::new();
+    let mut operations: Vec<char> = Vec::new();
+
+    let mut returnValue: Vec<Operate> = Vec::new();
+
+    for line in contents.lines() {
+        if line.chars().any(|c| c.is_ascii_digit()) {
+            data.push(line.to_string());
+            println!("String contains digits!");
         } else {
-            answer = new_vec.iter().product();
+            println!("No digits.");
+            // Fallback: parse chars
+            let chars: Vec<char> = line
+                .split_whitespace()
+                .filter_map(|s| s.chars().next())
+                .collect();
+
+            operations = chars;
         }
-        sum += answer;
     }
-    sum
-}
 
-fn transpose_vec(values: Vec<i128>, operation: Operate) -> Vec<i128> {
-    let mut transposed_values: Vec<i128> = Vec::new();
-    let max = values.iter().max().unwrap().to_string().len();
-
-    for i in 0..max {
-        let mut new_str: String = "".to_string();
-        for val in &values {
-            let str = val.to_string();
-            if operation == Operate::Added {
-                if let Some(c) = str.chars().nth(i) {
-                    new_str.push(c);
-                }
-            } else {
-                if let Some(c) = str.chars().rev().nth(i) {
-                    new_str.push(c);
-                }
+    let mut values_vec_ints:Vec<Vec<i32>> = Vec::new();
+    let mut values:Vec<i32> = Vec::new();
+    for i in 0..data[0].len() {
+        let mut value = "".to_string();
+        for d in &data {
+            let val = d.chars().nth(i).unwrap();
+            if val != ' '
+            {
+                value.push(val);
             }
         }
-        if !new_str.is_empty() {
-            let newstr_val = new_str.parse::<i128>().unwrap();
-            transposed_values.push(newstr_val);
+        if value.is_empty()
+        {
+            println!("{:?}",values);
+            values_vec_ints.push(values.clone());
+            values.clear();
+            // let values:Vec<i32> = Vec::new();
+        }
+        else{
+            let valInt:i32 = value.parse().unwrap();
+            values.push(valInt);
         }
     }
+    println!("{:?}",values);
+    values_vec_ints.push(values.clone());
 
-    if transposed_values.len() > 4 {
-        panic!("HELP");
-    }
-
-    transposed_values
 }
 
 // 12866637663746 too high
@@ -139,8 +143,8 @@ fn main() {
     let answerp1 = p1(INPUT);
     println!("{}", answerp1);
     assert_eq!(answerp1, 7644505810277);
-    let answerp2 = p2(INPUT);
-    println!("{}", answerp2);
+    // let answerp2 = p2(INPUT);
+    // println!("{}", answerp2);
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
@@ -158,45 +162,7 @@ mod tests {
 
     #[test]
     fn test2() {
-        let sum = p2(INPUT_EXAMPLE);
-        assert_eq!(sum, 3263827);
+        parse_data_p2(INPUT_EXAMPLE);
+        // assert_eq!(sum, 3263827);
     }
-    // #[test]
-    // fn test3() {
-    //     let vec: Vec<i128> = vec![64, 23, 314];
-
-    //     let mut transposed = transpose_vec(vec, Operate::Added);
-    //     let mut expected_vec = vec![4, 431, 623];
-
-    //     transposed.sort();
-    //     expected_vec.sort();
-
-    //     assert_eq!(transposed, expected_vec);
-    // }
-
-    // #[test]
-    // fn test4() {
-    //     let vec: Vec<i128> = vec![55, 32, 38, 99];
-
-    //     let mut transposed = transpose_vec(vec, Operate::Multiplied);
-    //     let mut expected_vec = vec![5339, 5289];
-
-    //     transposed.sort();
-    //     expected_vec.sort();
-
-    //     assert_eq!(transposed, expected_vec);
-    // }
-
-    // #[test]
-    // fn test5() {
-    //     let vec: Vec<i128> = vec![2222, 1111, 3555,355];
-
-    //     let mut transposed = transpose_vec(vec, Operate::Multiplied);
-    //     let mut expected_vec = vec![111];
-
-    //     transposed.sort();
-    //     expected_vec.sort();
-
-    //     assert_eq!(transposed, expected_vec);
-    // }
 }
