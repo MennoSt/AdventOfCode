@@ -87,7 +87,8 @@ fn p1(input: &str) -> i128 {
 fn main() {
     let start = Instant::now();
 
-    p1(INPUT);
+    let answer = p1(INPUT);
+    println!("{}",answer);
 
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
