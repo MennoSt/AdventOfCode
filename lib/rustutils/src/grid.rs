@@ -80,6 +80,20 @@ impl Grid {
         self.grid_vec[y_usize][x_usize] = value;
     }
 
+    pub fn _get_surroundings(&self, x: i32, y: i32) -> Vec<String>
+    {
+        let mut surroundings:Vec<String> = Vec::new();
+        surroundings.push(self._right(x,y));
+        surroundings.push(self._left(x,y));
+        surroundings.push(self._up(x,y));
+        surroundings.push(self._down(x,y));
+        surroundings.push(self._elem(x+1,y+1));
+        surroundings.push(self._elem(x-1,y+1));
+        surroundings.push(self._elem(x+1,y-1));
+        surroundings.push(self._elem(x-1,y-1));
+        surroundings
+    }
+
     pub fn _is_within_grid(&self, x:i32, y:i32) -> bool {
         x < self._width() as i32 && x >= 0 && y < self._height() as i32 && y >= 0
     }

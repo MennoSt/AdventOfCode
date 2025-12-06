@@ -19,5 +19,5 @@ debug/
 *ExampleTests
 *.cmake
 *Makefile
-*.cmake
 *input
+env/

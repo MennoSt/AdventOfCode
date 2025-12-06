@@ -128,16 +128,6 @@ fn parse_data_p2(input: &str) -> Vec<MathProblem> {
     return_value
 }
 
-fn p1(input: &str) -> i128 {
-    let operations = parse_data(input);
-    calculate_sum(operations)
-}
-
-fn p2(input: &str) -> i128 {
-    let operations = parse_data_p2(input);
-    calculate_sum(operations)
-}
-
 fn calculate_sum(operations: Vec<MathProblem>) -> i128 {
     let mut sum = 0;
     for o in operations {
@@ -150,6 +140,16 @@ fn calculate_sum(operations: Vec<MathProblem>) -> i128 {
         }
     }
     sum
+}
+
+fn p1(input: &str) -> i128 {
+    let operations = parse_data(input);
+    calculate_sum(operations)
+}
+
+fn p2(input: &str) -> i128 {
+    let operations = parse_data_p2(input);
+    calculate_sum(operations)
 }
 
 fn main() {

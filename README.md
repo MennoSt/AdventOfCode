@@ -1,5 +1,4 @@
 # Solutions to Advent of Code
-
 This repository contains my solutions to the puzzles from [Advent of Code](https://adventofcode.com/).
 
 ## Puzzle Input
@@ -14,3 +13,7 @@ The puzzle inputs for each year can be found on the [Advent of Code website](htt
 - **2023**: Rust
 - **2024**: Rust
 - **2025**: Rust
+
+## Aocd can be used to automatically retrieve input data
+aocd > dayxx 
+https://github.com/wimglenn/advent-of-code-data?tab=readme-ov-file
