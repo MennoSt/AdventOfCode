@@ -85,12 +85,27 @@ fn p1(input: &str) -> i128 {
     sum
 }
 
-fn parse_data_p2(input: &str)   {
+fn p2(input: &str) -> i128 {
+    let operations = parse_data_p2(input);
+    let mut sum = 0;
+    for o in operations {
+        if o.operation == Operate::Added {
+            let answer: i128 = o.values.iter().sum();
+            sum += answer;
+        } else {
+            let answer: i128 = o.values.iter().product();
+            sum += answer;
+        }
+    }
+    sum
+}
+
+fn parse_data_p2(input: &str) -> Vec<Operation>  {
     let contents = filereader::_input(input);
     let mut data: Vec<String> = Vec::new();
     let mut operations: Vec<char> = Vec::new();
 
-    let mut returnValue: Vec<Operate> = Vec::new();
+    let mut return_value: Vec<Operation> = Vec::new();
 
     for line in contents.lines() {
         if line.chars().any(|c| c.is_ascii_digit()) {
@@ -98,7 +113,6 @@ fn parse_data_p2(input: &str)   {
             println!("String contains digits!");
         } else {
             println!("No digits.");
-            // Fallback: parse chars
             let chars: Vec<char> = line
                 .split_whitespace()
                 .filter_map(|s| s.chars().next())
@@ -108,8 +122,8 @@ fn parse_data_p2(input: &str)   {
         }
     }
 
-    let mut values_vec_ints:Vec<Vec<i32>> = Vec::new();
-    let mut values:Vec<i32> = Vec::new();
+    let mut values_vec_ints:Vec<Vec<i128>> = Vec::new();
+    let mut values:Vec<i128> = Vec::new();
     for i in 0..data[0].len() {
         let mut value = "".to_string();
         for d in &data {
@@ -124,27 +138,42 @@ fn parse_data_p2(input: &str)   {
             println!("{:?}",values);
             values_vec_ints.push(values.clone());
             values.clear();
-            // let values:Vec<i32> = Vec::new();
         }
         else{
-            let valInt:i32 = value.parse().unwrap();
-            values.push(valInt);
+            let val_int:i128 = value.parse().unwrap();
+            values.push(val_int);
         }
     }
     println!("{:?}",values);
     values_vec_ints.push(values.clone());
 
+    for i in 0..operations.len()
+    {
+        let vec = values_vec_ints[i].clone();
+
+        let operate;
+        if operations[i] == '*' {
+            operate = Operate::Multiplied;
+        } else {
+            operate = Operate::Added;
+        }
+
+        let op = Operation{values:vec,operation:operate};
+        returnValue.push(op);
+    }
+
+    returnValue
+
 }
 
-// 12866637663746 too high
 fn main() {
     let start = Instant::now();
 
     let answerp1 = p1(INPUT);
     println!("{}", answerp1);
     assert_eq!(answerp1, 7644505810277);
-    // let answerp2 = p2(INPUT);
-    // println!("{}", answerp2);
+    let answerp2 = p2(INPUT);
+    println!("{}", answerp2);
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
@@ -162,7 +191,7 @@ mod tests {
 
     #[test]
     fn test2() {
-        parse_data_p2(INPUT_EXAMPLE);
-        // assert_eq!(sum, 3263827);
+        let sum = p2(INPUT_EXAMPLE);
+        assert_eq!(sum, 3263827);
     }
 }
