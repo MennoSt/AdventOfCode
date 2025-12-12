@@ -40,14 +40,33 @@ fn calculate_distance(coordinate1: &Coordinate3D, coordinate2: &Coordinate3D) ->
     (dx.powi(2) + dy.powi(2) + dz.powi(2)).sqrt()
 }
 
-fn p1(input: &str) -> i128 {
+fn p1(input: &str, connections: usize) -> i128 {
     let coordinates = parse_data(input);
-    let mut jdistances = calculate_jdistances(coordinates);
+    let chains = calculate_chains(coordinates, connections);
+
+    let product: usize = chains
+        .iter()
+        .map(|chain| chain.len())
+        .fold(1, |acc, len| acc * len);
+
+
+    product as i128
+}
+
+fn calculate_chains(
+    coordinates: Vec<Coordinate3D>,
+    n_connections: usize,
+) -> Vec<Vec<Coordinate3D>> {
+    let mut jdistances = calculate_jdistances(coordinates.clone());
     jdistances.sort_by_key(|item| OrderedFloat(item.distance));
+
+    for d in &jdistances{
+        println!("{:?}", d.distance);
+    }
 
     let mut chains: Vec<Vec<Coordinate3D>> = Vec::new();
 
-    for d in jdistances.iter().take(1000) {
+    for d in jdistances.iter().take(n_connections) {
         let c1 = d.pair.0;
         let c2 = d.pair.1;
 
@@ -66,11 +85,24 @@ fn p1(input: &str) -> i128 {
             }
         }
 
-        if chains.is_empty() || found_chain == false {
+        if found_chain == false {
             let mut chain: Vec<Coordinate3D> = Vec::new();
             chain.push(c1);
             chain.push(c2);
             chains.push(chain)
+        }
+    }
+
+    /// add lonely chains:
+    for coord in coordinates.clone() {
+        let mut exists = false;
+        for chain in &chains {
+            if chain.contains(&coord) {
+                exists = true;
+            }
+        }
+        if !exists {
+            chains.push(vec![coord]);
         }
     }
 
@@ -83,15 +115,7 @@ fn p1(input: &str) -> i128 {
 
         println!("lenght: {} coordinate {:?}", chain.len(), chain);
     }
-
-    let product: usize = chains
-        .iter()
-        .map(|chain| chain.len())
-        .fold(1, |acc, len| acc * len);
-
-    // println!("{:?}", chains);
-
-    product as i128
+    chains
 }
 
 fn calculate_jdistances(coordinates: Vec<Coordinate3D>) -> Vec<JDistance> {
@@ -118,7 +142,7 @@ fn calculate_jdistances(coordinates: Vec<Coordinate3D>) -> Vec<JDistance> {
 fn main() {
     let start = Instant::now();
 
-    let part1 = p1(INPUT);
+    let part1 = p1(INPUT, 1000);
     println!("{}", part1);
     // assert_eq!(part1, 1541);
     // let part2 = p2(INPUT);
@@ -137,7 +161,48 @@ mod tests {
 
     #[test]
     fn test1() {
-        let size = p1(INPUT_EXAMPLE);
+        let size = p1(INPUT_EXAMPLE, 10);
         assert_eq!(size, 40);
+    }
+
+    #[test]
+    fn test2() {
+        let jdistances = vec![
+            Coordinate3D { x: 1, y: 1, z: 1 },
+            Coordinate3D { x: 2, y: 2, z: 2 },
+            Coordinate3D { x: 4, y: 4, z: 4 },
+        ];
+        let chains = calculate_chains(jdistances, 1);
+
+        let answer = vec![
+            vec![
+                Coordinate3D { x: 1, y: 1, z: 1 },
+                Coordinate3D { x: 2, y: 2, z: 2 },
+            ],
+            vec![Coordinate3D { x: 4, y: 4, z: 4 }],
+        ];
+        assert_eq!(chains, answer);
+    }
+
+    #[test]
+    fn test3() {
+        let jdistances = vec![
+            Coordinate3D { x: 1, y: 1, z: 1 },
+            Coordinate3D { x: 2, y: 2, z: 2 },
+            Coordinate3D { x: 4, y: 4, z: 10 },
+            Coordinate3D { x: 8, y: 8, z: 8 },
+        ];
+        let chains = calculate_chains(jdistances, 2);
+
+        let answer = vec![
+            vec![
+                Coordinate3D { x: 1, y: 1, z: 1 },
+                Coordinate3D { x: 2, y: 2, z: 2 },
+                Coordinate3D { x: 4, y: 4, z: 4 },
+            ],
+            vec![Coordinate3D { x: 8, y: 8, z: 8 }],
+        ];
+        
+        assert_eq!(chains, answer);
     }
 }
