@@ -3,6 +3,8 @@ use lib::utils;
 use lib::utils::Coordinate;
 use ordered_float::OrderedFloat;
 use std::time::Instant;
+use std::collections::HashSet;
+use std::hash::Hash;
 
 static INPUT: &str = "../input/day08";
 
@@ -18,6 +20,47 @@ struct JDistance {
     pair: (Coordinate3D, Coordinate3D),
     distance: f64,
 }
+
+fn merge_overlapping<T: Eq + Hash + Clone>(mut groups: Vec<Vec<T>>) -> Vec<Vec<T>> {
+    loop {
+        let mut merged_any = false;
+        let mut result: Vec<Vec<T>> = Vec::new();
+
+        while let Some(mut g1) = groups.pop() {
+            let mut i = 0;
+            while i < groups.len() {
+                let g2 = &groups[i];
+
+                // Check overlap: any element in g1 is also in g2
+                if g1.iter().any(|e| g2.contains(e)) {
+                    // Merge g2 into g1
+                    g1.extend(g2.iter().cloned());
+                    groups.remove(i);
+                    merged_any = true;
+                } else {
+                    i += 1;
+                }
+            }
+            result.push(g1);
+        }
+
+        groups = result;
+
+        // No more merging possible -> done
+        if !merged_any {
+            break;
+        }
+    }
+
+    // Dedup + cleanup
+    for g in groups.iter_mut() {
+        let set: HashSet<_> = g.drain(..).collect();
+        g.extend(set.into_iter());
+    }
+
+    groups
+}
+
 
 fn parse_data(input: &str) -> Vec<Coordinate3D> {
     let content = filereader::_input(input);
@@ -40,17 +83,20 @@ fn calculate_distance(coordinate1: &Coordinate3D, coordinate2: &Coordinate3D) ->
     (dx.powi(2) + dy.powi(2) + dz.powi(2)).sqrt()
 }
 
+fn three_largest_lengths<T>(vectors: &[Vec<T>]) -> Vec<usize> {
+    let mut lengths: Vec<usize> = vectors.iter().map(|v| v.len()).collect();
+    lengths.sort_unstable_by(|a, b| b.cmp(a)); // sort descending
+    lengths.into_iter().take(3).collect()
+}
+
 fn p1(input: &str, connections: usize) -> i128 {
     let coordinates = parse_data(input);
     let chains = calculate_chains(coordinates, connections);
 
-    let product: usize = chains
-        .iter()
-        .map(|chain| chain.len())
-        .fold(1, |acc, len| acc * len);
+    let lengths = three_largest_lengths(&chains);
 
-
-    product as i128
+    let answer = lengths[0] * lengths[1] * lengths[2];
+    answer as i128
 }
 
 fn calculate_chains(
@@ -59,10 +105,6 @@ fn calculate_chains(
 ) -> Vec<Vec<Coordinate3D>> {
     let mut jdistances = calculate_jdistances(coordinates.clone());
     jdistances.sort_by_key(|item| OrderedFloat(item.distance));
-
-    for d in &jdistances{
-        println!("{:?}", d.distance);
-    }
 
     let mut chains: Vec<Vec<Coordinate3D>> = Vec::new();
 
@@ -74,10 +116,12 @@ fn calculate_chains(
         for chain in chains.iter_mut() {
             if chain.contains(&c1) && chain.contains(&c2) {
                 found_chain = true;
+                println!("NOT added already present {:?} and {:?}", c1, c2);
                 break;
             } else if chain.contains(&c1) || chain.contains(&c2) {
                 chain.push(c1);
                 chain.push(c2);
+                println!("added {:?} and {:?}", c1, c2);
                 chain.sort_by_key(|p| p.x);
                 chain.dedup_by(|a, b| a.x == b.x);
                 found_chain = true;
@@ -89,8 +133,14 @@ fn calculate_chains(
             let mut chain: Vec<Coordinate3D> = Vec::new();
             chain.push(c1);
             chain.push(c2);
-            chains.push(chain)
+            chain.sort_by_key(|p| p.x);
+            chain.dedup_by(|a, b| a.x == b.x);
+            chains.push(chain);
+            println!("added new chain {:?} and {:?}", c1, c2);
         }
+        
+        chains = merge_overlapping(chains.clone());
+
     }
 
     /// add lonely chains:
@@ -106,15 +156,15 @@ fn calculate_chains(
         }
     }
 
-    for chain in &mut chains {
-        chain.sort_by_key(|p| p.x);
-    }
+    // for chain in &mut chains {
+    //     chain.sort_by_key(|p| p.x);
+    // }
 
-    for chain in &mut chains {
-        chain.dedup_by(|a, b| a.x == b.x);
+    // for chain in &mut chains {
+    //     chain.dedup_by(|a, b| a.x == b.x);
 
-        println!("lenght: {} coordinate {:?}", chain.len(), chain);
-    }
+    //     println!("lenght: {} coordinate {:?}", chain.len(), chain);
+    // }
     chains
 }
 
@@ -136,6 +186,8 @@ fn calculate_jdistances(coordinates: Vec<Coordinate3D>) -> Vec<JDistance> {
             distance: distance,
         });
     }
+
+    println!("length distances {:?}", jdistances.len());
     jdistances
 }
 
@@ -189,7 +241,7 @@ mod tests {
         let jdistances = vec![
             Coordinate3D { x: 1, y: 1, z: 1 },
             Coordinate3D { x: 2, y: 2, z: 2 },
-            Coordinate3D { x: 4, y: 4, z: 10 },
+            Coordinate3D { x: 4, y: 4, z: 4 },
             Coordinate3D { x: 8, y: 8, z: 8 },
         ];
         let chains = calculate_chains(jdistances, 2);
@@ -202,7 +254,7 @@ mod tests {
             ],
             vec![Coordinate3D { x: 8, y: 8, z: 8 }],
         ];
-        
+
         assert_eq!(chains, answer);
     }
 }
