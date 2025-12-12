@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 lib = { path = "../../lib/rustutils" }
+ordered-float = "5"   # or the latest version
