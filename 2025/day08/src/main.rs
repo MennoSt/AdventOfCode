@@ -2,9 +2,9 @@ use lib::filereader;
 use lib::utils;
 use lib::utils::Coordinate;
 use ordered_float::OrderedFloat;
-use std::time::Instant;
 use std::collections::HashSet;
 use std::hash::Hash;
+use std::time::Instant;
 
 static INPUT: &str = "../input/day08";
 
@@ -61,7 +61,6 @@ fn merge_overlapping<T: Eq + Hash + Clone>(mut groups: Vec<Vec<T>>) -> Vec<Vec<T
     groups
 }
 
-
 fn parse_data(input: &str) -> Vec<Coordinate3D> {
     let content = filereader::_input(input);
     let mut coordinates: Vec<Coordinate3D> = Vec::new();
@@ -108,20 +107,20 @@ fn calculate_chains(
 
     let mut chains: Vec<Vec<Coordinate3D>> = Vec::new();
 
+    let mut c1: Coordinate3D = Coordinate3D { x: 0, y: 0, z: 0 };
+    let mut c2: Coordinate3D = Coordinate3D { x: 0, y: 0, z: 0 };
     for d in jdistances.iter().take(n_connections) {
-        let c1 = d.pair.0;
-        let c2 = d.pair.1;
+        c1 = d.pair.0;
+        c2 = d.pair.1;
 
         let mut found_chain = false;
         for chain in chains.iter_mut() {
             if chain.contains(&c1) && chain.contains(&c2) {
                 found_chain = true;
-                println!("NOT added already present {:?} and {:?}", c1, c2);
                 break;
             } else if chain.contains(&c1) || chain.contains(&c2) {
                 chain.push(c1);
                 chain.push(c2);
-                println!("added {:?} and {:?}", c1, c2);
                 chain.sort_by_key(|p| p.x);
                 chain.dedup_by(|a, b| a.x == b.x);
                 found_chain = true;
@@ -136,11 +135,16 @@ fn calculate_chains(
             chain.sort_by_key(|p| p.x);
             chain.dedup_by(|a, b| a.x == b.x);
             chains.push(chain);
-            println!("added new chain {:?} and {:?}", c1, c2);
         }
-        
+
         chains = merge_overlapping(chains.clone());
 
+        if chains.len() == 1 {
+            let sum = c1.x * c2.x;
+            if chains[0].len() == coordinates.len(){
+                let sum = c1.x * c2.x;
+            }
+        }
     }
 
     /// add lonely chains:
@@ -156,15 +160,6 @@ fn calculate_chains(
         }
     }
 
-    // for chain in &mut chains {
-    //     chain.sort_by_key(|p| p.x);
-    // }
-
-    // for chain in &mut chains {
-    //     chain.dedup_by(|a, b| a.x == b.x);
-
-    //     println!("lenght: {} coordinate {:?}", chain.len(), chain);
-    // }
     chains
 }
 
@@ -187,20 +182,74 @@ fn calculate_jdistances(coordinates: Vec<Coordinate3D>) -> Vec<JDistance> {
         });
     }
 
-    println!("length distances {:?}", jdistances.len());
     jdistances
+}
+
+
+fn calculate_chains_p2(
+    coordinates: Vec<Coordinate3D>,
+    n_connections: usize,
+) -> i128 {
+    let mut jdistances = calculate_jdistances(coordinates.clone());
+    jdistances.sort_by_key(|item| OrderedFloat(item.distance));
+
+    let mut chains: Vec<Vec<Coordinate3D>> = Vec::new();
+
+    let mut c1: Coordinate3D = Coordinate3D { x: 0, y: 0, z: 0 };
+    let mut c2: Coordinate3D = Coordinate3D { x: 0, y: 0, z: 0 };
+    for d in jdistances.iter().take(n_connections) {
+        c1 = d.pair.0;
+        c2 = d.pair.1;
+
+        let mut found_chain = false;
+        for chain in chains.iter_mut() {
+            if chain.contains(&c1) && chain.contains(&c2) {
+                found_chain = true;
+                break;
+            } else if chain.contains(&c1) || chain.contains(&c2) {
+                chain.push(c1);
+                chain.push(c2);
+                chain.sort_by_key(|p| p.x);
+                chain.dedup_by(|a, b| a.x == b.x);
+                found_chain = true;
+                break;
+            }
+        }
+
+        if found_chain == false {
+            let mut chain: Vec<Coordinate3D> = Vec::new();
+            chain.push(c1);
+            chain.push(c2);
+            chain.sort_by_key(|p| p.x);
+            chain.dedup_by(|a, b| a.x == b.x);
+            chains.push(chain);
+        }
+
+        chains = merge_overlapping(chains.clone());
+
+        if chains.len() == 1 {
+            if chains[0].len() == 994 {
+                let sum = c1.x * c2.x;
+                return sum;
+            }
+        }
+    }
+
+    0
+}
+
+fn p2(input: &str, connections: usize) -> i128 {
+    let coordinates = parse_data(input);
+    let chains = calculate_chains_p2(coordinates, connections);
+    chains
 }
 
 fn main() {
     let start = Instant::now();
 
     let part1 = p1(INPUT, 1000);
-    println!("{}", part1);
-    // assert_eq!(part1, 1541);
-    // let part2 = p2(INPUT);
-    // println!("{}", part2);
-
-    // utils::answer((part1,1363),(part2, 8184));
+    let part2 = p2(INPUT, 100000000);
+    utils::answer((part1,62186),(part2, 8420405530));
 
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
@@ -215,6 +264,12 @@ mod tests {
     fn test1() {
         let size = p1(INPUT_EXAMPLE, 10);
         assert_eq!(size, 40);
+    }
+
+    #[test]
+    fn test4() {
+        let answer = p2(INPUT_EXAMPLE, 10000);
+        assert_eq!(answer, 25272);
     }
 
     #[test]
