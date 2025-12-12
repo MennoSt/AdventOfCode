@@ -1,5 +1,7 @@
-
 use lib::{filereader, utils};
+use std::time::Instant;
+
+static INPUT: &str = "../input/day02";
 
 fn parse_data(input: &str) -> Vec<(i64, i64)> {
     let contents = filereader::_input(input);
@@ -105,7 +107,7 @@ fn is_invalid_id_p2(number: i64) -> bool {
     return false;
 }
 
-fn answerp1(input: &str) -> i64 {
+fn p1(input: &str) -> i64 {
     let pairs = parse_data(input);
     let mut sum = 0;
     for pair in pairs {
@@ -113,7 +115,7 @@ fn answerp1(input: &str) -> i64 {
     }
     sum
 }
-fn answerp2(input: &str) -> i64 {
+fn p2(input: &str) -> i64 {
     let pairs = parse_data(input);
     let mut sum = 0;
     for pair in pairs {
@@ -121,18 +123,23 @@ fn answerp2(input: &str) -> i64 {
     }
     sum
 }
+
 fn main() {
-    let p1 = answerp1("../input/day02");
-    let p2 = answerp2("../input/day02");
-    println!("{}", p1);
-    println!("{}", p2);
-    assert_eq!(p1, 54641809925);
-    assert_eq!(p2, 73694270688);
+    let start = Instant::now();
+
+    let part1 = p1(INPUT);
+    let part2 = p2(INPUT);
+
+    utils::answer((part1, 54641809925), (part2, 73694270688));
+
+    let duration = start.elapsed();
+    println!("Execution time: {:?}", duration);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    static INPUT_EXAMPLE: &str = "example";
 
     #[test]
     fn test1() {
@@ -154,31 +161,31 @@ mod tests {
 
     #[test]
     fn test4() {
-        let invalid_ids = answerp1("example");
+        let invalid_ids = p1(INPUT_EXAMPLE);
         assert_eq!(invalid_ids, 1227775554);
     }
 
     #[test]
-    fn test7() {
+    fn test5() {
         let invalid = is_invalid_id_p2(102);
         assert_eq!(invalid, false);
     }
 
     #[test]
-    fn test11() {
+    fn test6() {
         let invalid = is_invalid_id_p2(446446);
         assert_eq!(invalid, true);
     }
 
     #[test]
-    fn test12() {
+    fn test7() {
         let invalid = is_invalid_id_p2(2);
         assert_eq!(invalid, false);
     }
 
     #[test]
-    fn test10() {
-        let invalid_ids = answerp2("example");
+    fn test8() {
+        let invalid_ids = p2("example");
         assert_eq!(invalid_ids, 4174379265);
     }
 }

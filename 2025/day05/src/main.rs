@@ -1,6 +1,5 @@
 use lib::filereader;
 use lib::utils;
-use std::sync::MutexGuard;
 use std::time::Instant;
 
 static INPUT: &str = "../input/day05";
@@ -41,6 +40,7 @@ fn parse_data(input: &str) -> Ingredients {
             second = true;
         }
     }
+
     Ingredients {
         id_ranges: ranges,
         ingredient_ids: ingredients,
@@ -63,43 +63,18 @@ fn p1(input: &str) -> i128 {
     sum
 }
 
-fn calculate_total_ranges(ingredients: Ingredients) -> i128 {
-    let id_ranges = ingredients.id_ranges.clone();
-    let mut total_range_values = 0;
-
-    for range in id_ranges {
-        let length = range.end - range.start + 1;
-        total_range_values += length
-    }
-    total_range_values
-}
-
-fn calculate_duplicates(r1: IDRange, r2: IDRange) -> i128 {
-    let mut total = 0;
-
+fn in_range(r1: IDRange, r2: IDRange) -> bool {
     if r1.start >= r2.start && r1.end <= r2.end {
-        let duplicates = r1.end - r1.start + 1;
-        total += duplicates;
-    } else if r2.start >= r1.start && r2.end <= r1.end {
-        let duplicates = r2.end - r2.start + 1;
-        total += duplicates;
-    } else if r1.start <= r2.end && r1.start >= r2.start {
-        let duplicates = r2.end - r1.start + 1;
-        total += duplicates;
-    } else if r2.start <= r1.end && r2.start >= r1.start {
-        let duplicates = r1.end - r2.start + 1;
-        total += duplicates;
-    }
-
-    total
-}
-
-fn has_duplicates(r1: IDRange, r2: IDRange) -> bool {
-    if (calculate_duplicates(r1, r2)) > 0 {
         return true;
-    } else {
-        return false;
+    } else if r2.start >= r1.start && r2.end <= r1.end {
+        return true;
+    } else if r1.start <= r2.end && r1.start >= r2.start {
+        return true;
+    } else if r2.start <= r1.end && r2.start >= r1.start {
+        return true;
     }
+
+    false
 }
 
 fn merge_ranges(ranges: Vec<IDRange>) -> Vec<IDRange> {
@@ -110,7 +85,7 @@ fn merge_ranges(ranges: Vec<IDRange>) -> Vec<IDRange> {
     for i in 0..current_vec.len() {
         for j in 0..current_vec.len() {
             in_range_vecs.push(current_vec[i].clone());
-            if has_duplicates(current_vec[i].clone(), current_vec[j].clone()) {
+            if in_range(current_vec[i].clone(), current_vec[j].clone()) {
                 in_range_vecs.push(current_vec[j].clone());
             }
         }
@@ -153,15 +128,14 @@ fn p2(input: &str) -> i128 {
     sum
 }
 
-
 fn main() {
     let start = Instant::now();
+
     let part1 = p1(INPUT);
-    println!("{:?}", part1);
-    assert_eq!(part1, 694);
     let part2 = p2(INPUT);
-    println!("{:?}", part2);
-    assert_eq!(part2, 352716206375547);
+
+    utils::answer((part1, 694), (part2, 352716206375547));
+
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }
@@ -170,6 +144,7 @@ fn main() {
 mod tests {
     use super::*;
     static INPUT_EXAMPLE: &str = "example";
+    static INPUT_EXAMPLE2: &str = "example2";
 
     #[test]
     fn test1() {
@@ -185,7 +160,7 @@ mod tests {
 
     #[test]
     fn test3() {
-        let sum = p2("example2");
+        let sum = p2(INPUT_EXAMPLE2);
         assert_eq!(sum, 3);
     }
 
@@ -193,40 +168,36 @@ mod tests {
     fn test4() {
         let range1 = IDRange { start: 4, end: 6 };
         let range2 = IDRange { start: 1, end: 5 };
-        let result = 2;
 
-        assert_eq!(calculate_duplicates(range1.clone(), range2.clone()), result);
-        assert_eq!(calculate_duplicates(range2, range1), result);
+        assert_eq!(in_range(range1.clone(), range2.clone()), true);
+        assert_eq!(in_range(range2, range1), true);
     }
 
     #[test]
     fn test5() {
         let range1 = IDRange { start: 5, end: 6 };
         let range2 = IDRange { start: 1, end: 5 };
-        let result = 1;
 
-        assert_eq!(calculate_duplicates(range1.clone(), range2.clone()), result);
-        assert_eq!(calculate_duplicates(range2, range1), result);
+        assert_eq!(in_range(range1.clone(), range2.clone()), true);
+        assert_eq!(in_range(range2, range1), true);
     }
 
     #[test]
     fn test6() {
         let range1 = IDRange { start: 5, end: 7 };
         let range2 = IDRange { start: 5, end: 6 };
-        let result = 2;
 
-        assert_eq!(calculate_duplicates(range1.clone(), range2.clone()), result);
-        assert_eq!(calculate_duplicates(range2, range1), result);
+        assert_eq!(in_range(range1.clone(), range2.clone()), true);
+        assert_eq!(in_range(range2, range1), true);
     }
 
     #[test]
     fn test7() {
         let range1 = IDRange { start: 0, end: 10 };
         let range2 = IDRange { start: 10, end: 10 };
-        let result = 1;
 
-        assert_eq!(calculate_duplicates(range1.clone(), range2.clone()), result);
-        assert_eq!(calculate_duplicates(range2, range1), result);
+        assert_eq!(in_range(range1.clone(), range2.clone()), true);
+        assert_eq!(in_range(range2, range1), true);
     }
 
     #[test]
@@ -236,10 +207,9 @@ mod tests {
             start: 99,
             end: 100,
         };
-        let result = 0;
 
-        assert_eq!(calculate_duplicates(range1.clone(), range2.clone()), result);
-        assert_eq!(calculate_duplicates(range2, range1), result);
+        assert_eq!(in_range(range1.clone(), range2.clone()), false);
+        assert_eq!(in_range(range2, range1), false);
     }
 
     #[test]

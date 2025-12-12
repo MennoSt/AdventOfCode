@@ -104,15 +104,13 @@ fn p2(input: &str) -> i64 {
     sum
 }
 
-
-
 fn main() {
     let start = Instant::now();
     let part1 = p1(INPUT);
     let part2 = p2(INPUT);
 
-    utils::answer((part1,17087),(part2, 169019504359949));
-    
+    utils::answer((part1, 17087), (part2, 169019504359949));
+
     let duration = start.elapsed();
     println!("Execution time: {:?}", duration);
 }

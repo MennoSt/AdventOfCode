@@ -33,7 +33,7 @@ fn p2(input: &str) -> i32 {
                 let count = surroundings.iter().filter(|s| s == &"@").count();
                 if count < 4 && grid_mut._elem(i, j) == "@" {
                     removed_rolls += 1;
-                    grid_mut._set_str(i, j, "x".to_string());
+                    grid_mut._set_str(i, j, "x");
                 }
             }
         }

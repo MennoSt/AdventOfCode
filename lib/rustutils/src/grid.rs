@@ -1,7 +1,6 @@
+use crate::utils::Coordinate;
 use std::fs::OpenOptions;
 use std::io::{self, Write};
-use crate::utils::{self, Coordinate};
-
 
 #[derive(Clone)]
 pub struct Grid {
@@ -38,16 +37,15 @@ impl Grid {
         return self.grid_vec[y_usize][x_usize].clone();
     }
 
-    pub fn _getStart(&self,s: &str) -> Coordinate {
+    pub fn _get_start(&self, s: &str) -> Coordinate {
         for i in 0..self._width() as i32 {
             for j in 0..self._height() as i32 {
-                if self._elem(i, j) == s
-                {
-                    return Coordinate{x:i,y:j};
+                if self._elem(i, j) == s {
+                    return Coordinate { x: i, y: j };
                 }
             }
         }
-        Coordinate{x:0,y:0}
+        Coordinate { x: 0, y: 0 }
     }
 
     pub fn _up(&self, x: i32, y: i32) -> String {
@@ -153,7 +151,7 @@ impl Gridi32 {
     pub fn get_vec(&self) -> Vec<Vec<i32>> {
         return self.grid_vec.clone();
     }
-    
+
     pub fn _height(&self) -> usize {
         return self.grid_vec.len();
     }
@@ -223,7 +221,7 @@ impl Gridi128 {
     pub fn get_vec(&self) -> Vec<Vec<i128>> {
         return self.grid_vec.clone();
     }
-    
+
     pub fn _height(&self) -> usize {
         return self.grid_vec.len();
     }
