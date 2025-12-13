@@ -16,4 +16,5 @@ The puzzle inputs for each year can be found on the [Advent of Code website](htt
 
 ## Aocd can be used to automatically retrieve input data
 aocd > dayxx 
+aocd day year
 https://github.com/wimglenn/advent-of-code-data?tab=readme-ov-file
