@@ -23,27 +23,39 @@ fn parse_data(input: &str) -> Vec<Coordinate> {
         })
         .collect()
 }
+fn area(a: &Coordinate, b: &Coordinate) -> i128 {
+    ((a.x - b.x).abs() + 1) * ((a.y - b.y).abs() + 1)
+}
 
 fn p1(input: &str) -> i128 {
     let coordinates = parse_data(input);
-
-
-    let mut max_area = 0;
-    for i in 0..coordinates.len() {
-        for j in 0..coordinates.len()
-        {
-            let area = ((coordinates[i].x - coordinates[j].x).abs()+1) * ((coordinates[i].y - coordinates[j].y).abs() +1);
-            if area > max_area
-            {
-                max_area = area;
-            }
-        }
-    }
-
-    max_area
+    coordinates
+        .iter()
+        .flat_map(|a| coordinates.iter().map(move |b| area(a, b)))
+        .max()
+        .unwrap_or(0)
 }
 
 fn p2(input: &str) -> i128 {
+    // let coordinates = parse_data(input);
+    // let r:Vec<i128> = coordinates
+    //     .iter()
+    //     .flat_map(|a| coordinates.iter().map(move |b| {let ar = area(a, b); (a,b,ar))}).collect();
+
+    let coordinates = parse_data(input);
+
+    let results: Vec<(&Coordinate, &Coordinate, i128)> = coordinates
+        .iter()
+        .flat_map(|a| {
+            coordinates.iter().map(move |b| {
+                let ar = area(a, b);
+                (a, b, ar)
+            })
+        })
+        .collect();
+
+    println!("{:?}", results);
+
     0
 }
 
@@ -52,8 +64,9 @@ fn main() {
 
     parse_data(INPUT);
     let part1 = p1(INPUT);
-    println!("{}",part1);
-    let part2 = p2(INPUT);
+    println!("{}", part1);
+    assert_eq!(part1, 4781377701);
+    // let part2 = p2(INPUT);
 
     // utils::answer((part1, 0), (part2, 0));
 
@@ -70,5 +83,10 @@ mod tests {
     fn test1() {
         let p1 = p1(INPUT_EXAMPLE);
         assert_eq!(p1, 50);
+    }
+    #[test]
+    fn test2() {
+        let p2 = p2(INPUT_EXAMPLE);
+        // assert_eq!(p2, 50);
     }
 }
