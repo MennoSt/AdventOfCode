@@ -4,11 +4,16 @@ use lib::utils;
 use std::time::Instant;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Hash)]
-pub struct Coordinate {
+struct Coordinate {
     pub x: i128,
     pub y: i128,
 }
-
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Hash)]
+struct Area {
+    coordinate1: Coordinate,
+    coordinate2: Coordinate,
+    area: i128,
+}
 static INPUT: &str = "../input/day09";
 
 fn parse_data(input: &str) -> Vec<Coordinate> {
@@ -23,6 +28,7 @@ fn parse_data(input: &str) -> Vec<Coordinate> {
         })
         .collect()
 }
+
 fn area(a: &Coordinate, b: &Coordinate) -> i128 {
     ((a.x - b.x).abs() + 1) * ((a.y - b.y).abs() + 1)
 }
@@ -37,26 +43,26 @@ fn p1(input: &str) -> i128 {
 }
 
 fn p2(input: &str) -> i128 {
-    // let coordinates = parse_data(input);
-    // let r:Vec<i128> = coordinates
-    //     .iter()
-    //     .flat_map(|a| coordinates.iter().map(move |b| {let ar = area(a, b); (a,b,ar))}).collect();
-
     let coordinates = parse_data(input);
-
-    let results: Vec<(&Coordinate, &Coordinate, i128)> = coordinates
+    let mut areas: Vec<Area> = coordinates
         .iter()
         .flat_map(|a| {
             coordinates.iter().map(move |b| {
                 let ar = area(a, b);
-                (a, b, ar)
+                Area{coordinate1:a.clone(),coordinate2:b.clone(),area:ar}
             })
         })
         .collect();
-
-    println!("{:?}", results);
+    
+    areas.sort_by(|a, b| b.area.cmp(&a.area));
+    println!("{:?}", areas);
 
     0
+}
+
+fn isAreaValid(area:&Area, coordinates: &Vec<Coordinate>)
+{
+    
 }
 
 fn main() {
